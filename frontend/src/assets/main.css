@@ -26,3 +26,16 @@ mdui-dialog mdui-text-field{
 mdui-top-app-bar, mdui-navigation-drawer {
     box-shadow: 0px 0px 10px #000000;
 }
+mdui-card p, mdui-card h1, mdui-card mdui-button {
+    margin: 1rem;
+}
+mdui-card mdui-text-field {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+mdui-checkbox, mdui-radio {
+    margin: 1rem;
+}
+mdui-layout-main {
+    padding-top: 4rem;
+}
