@@ -39,3 +39,17 @@ mdui-checkbox, mdui-radio {
 mdui-layout-main {
     padding-top: 4rem;
 }
+
+/*Access*/
+mdui-list-item mdui-card {
+    width: 100%;
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+mdui-list-item mdui-card mdui-text-field {
+    width: 80%
+}

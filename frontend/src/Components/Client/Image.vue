@@ -35,12 +35,5 @@
 </template>
 
 <style scoped>
-mdui-list-item mdui-card {
-  width: 100%;
-  height: 50%;
-}
-mdui-text-field {
-  width: 96%;
-  margin-left: 2%;
-}
+
 </style>

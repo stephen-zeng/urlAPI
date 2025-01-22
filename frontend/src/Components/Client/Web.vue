@@ -12,15 +12,17 @@
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
           <p style="margin-bottom: 0">允许的网站</p>
-          <mdui-checkbox>Github（需要网络支持）</mdui-checkbox>
-          <mdui-checkbox>YouTube（需要网络支持）</mdui-checkbox>
-          <mdui-checkbox>知乎</mdui-checkbox>
-          <mdui-checkbox>CSDN</mdui-checkbox>
-          <mdui-checkbox>Gitee</mdui-checkbox>
-          <mdui-checkbox>Gitlab</mdui-checkbox>
-          <mdui-checkbox>网易云</mdui-checkbox>
-          <mdui-checkbox>Bilibili</mdui-checkbox>
-          <mdui-button full-width>确认</mdui-button>
+          <div class="mdui-checkbox-group">
+            <mdui-checkbox>Github（需要网络支持）</mdui-checkbox>
+            <mdui-checkbox>YouTube（需要网络支持）</mdui-checkbox>
+            <mdui-checkbox>知乎</mdui-checkbox>
+            <mdui-checkbox>CSDN</mdui-checkbox>
+            <mdui-checkbox>Gitee</mdui-checkbox>
+            <mdui-checkbox>Gitlab</mdui-checkbox>
+            <mdui-checkbox>网易云</mdui-checkbox>
+            <mdui-checkbox>Bilibili</mdui-checkbox>
+            <mdui-button full-width>确认</mdui-button>
+          </div>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>
@@ -28,12 +30,5 @@
 </template>
 
 <style scoped>
-mdui-list-item mdui-card {
-  width: 100%;
-  height: 50%;
-}
-mdui-text-field {
-  width: 96%;
-  margin-left: 2%;
-}
+
 </style>

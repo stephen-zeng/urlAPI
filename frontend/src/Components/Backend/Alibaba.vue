@@ -24,7 +24,7 @@
             <mdui-radio value="chinese">Chinese</mdui-radio>
             <mdui-radio value="english">English</mdui-radio>
           </mdui-radio-group>
-          <mdui-button full-width>确认</mdui-button>
+          <mdui-button>确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>
@@ -32,12 +32,5 @@
 </template>
 
 <style scoped>
-mdui-list-item mdui-card {
-  width: 100%;
-  height: 50%;
-}
-mdui-text-field {
-  width: 96%;
-  margin-left: 2%;
-}
+
 </style>
