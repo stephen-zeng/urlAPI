@@ -1,11 +1,10 @@
 package main
 
 import (
-	"backend/cmd/txt"
-	"fmt"
+	"backend/internal/data"
 )
 
 func main() {
-	test := txt.Main()
-	fmt.Println(test)
+	data.Data()
+	defer data.Disconnect()
 }
