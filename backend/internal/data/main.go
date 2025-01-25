@@ -1,39 +1,142 @@
 package data
 
 import (
-	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3" // 下划线表示初始化这个包的内容以便使用
+	"gorm.io/gorm"
+	"time"
 )
+
+type Config struct {
+	UUID   string
+	Status string
+	Return string
+	Target string
+	IP     string
+	Type   string
+}
+type Option func(*Config)
+
+func WithUUID(id string) Option {
+	return func(config *Config) {
+		config.UUID = id
+	}
+}
+func WithStatus(status string) Option {
+	return func(config *Config) {
+		config.Status = status
+	}
+}
+func WithReturn(ret string) Option {
+	return func(config *Config) {
+		config.Return = ret
+	}
+}
+func WithTarget(target string) Option {
+	return func(config *Config) {
+		config.Target = target
+	}
+}
+func WithIP(ip string) Option {
+	return func(config *Config) {
+		config.IP = ip
+	}
+}
+func WithType(t string) Option {
+	return func(config *Config) {
+		config.Type = t
+	}
+}
+
+func DataConfig(opts ...Option) Config {
+	config := Config{}
+	for _, opt := range opts {
+		opt(&config)
+	}
+	return config
+}
 
 var (
 	dbPath string = "assets/database.db"
-	db     *sql.DB
+	db     *gorm.DB
 	err    error
 )
 
-// Test 函数名的首字母要大写才是以导出函数
-func Test() string {
-	return "hello internal world!"
-}
-
-// Go中的单双引号不一样的
-
 func init() {
-	connect()
-	dbInit()
+	err := connect()
+	if err == nil {
+		dbInit()
+	}
 }
 func Data() {
 	//for i := 0; i < 10; i++ {
-	//	add(map[string]string{
-	//		"time":   time.Now().Format(time.RFC3339), // RFC3339格式较为常见，方便解析
-	//		"ip":     "127.0.0.1",
-	//		"type":   "txt.generate.laugh",
-	//		"status": "done",
-	//		"target": strconv.Itoa(i),
-	//	})
+	//	add(time.Now(),
+	//		"127.0.0.1",
+	//		"txt.generate",
+	//		"pending",
+	//		strconv.Itoa(i))
 	//}
-	fmt.Println(get(map[string]string{
-		"ip": "127.0.0.1",
-	}))
+	getItem, err := fetch("none", "")
+	fmt.Println(getItem, err)
+}
+
+func Add(data Config) (string, error) {
+	id, err := add(time.Now(), data.IP, data.Type, data.Status, data.Target)
+	if err != nil {
+		return "", err
+	} else {
+		return id, nil
+	}
+}
+
+func Del(data Config) error {
+	var err error
+	if data.UUID != "" {
+		err = del("uuid", data.UUID)
+	} else if data.Target != "" {
+		err = del("target", data.Target)
+	}
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func Edit(data Config) error {
+	var by string
+	var byData string
+	var err error
+	if data.UUID != "" {
+		by = "uuid"
+		byData = data.UUID
+	} else if data.Target != "" {
+		by = "target"
+		byData = data.Target
+	}
+	if data.Status != "" {
+		err = edit(by, byData, data.Status, "")
+	} else if data.Return != "" {
+		err = edit(by, byData, data.Return, "")
+	}
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
+
+func Fetch(data Config) ([]Task, error) {
+	var ret []Task
+	var err error
+	if data.UUID != "" {
+		ret, err = fetch("uuid", data.UUID)
+	} else {
+		ret, err = fetch("none", data.Target)
+	}
+	if err != nil {
+		return nil, err
+	} else {
+		return ret, nil
+	}
 }
