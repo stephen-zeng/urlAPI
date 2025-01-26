@@ -24,6 +24,16 @@
             <mdui-radio value="chinese">Chinese</mdui-radio>
             <mdui-radio value="english">English</mdui-radio>
           </mdui-radio-group>
+          <p style="margin-bottom: 0">默认图片生成模型</p>
+          <mdui-radio-group value="chinese" style="margin-top: 0">
+            <mdui-radio value="chinese">Chinese</mdui-radio>
+            <mdui-radio value="english">English</mdui-radio>
+          </mdui-radio-group>
+          <p style="margin-bottom: 0">默认图片生成形状</p>
+          <mdui-radio-group value="chinese" style="margin-top: 0">
+            <mdui-radio value="chinese">Chinese</mdui-radio>
+            <mdui-radio value="english">English</mdui-radio>
+          </mdui-radio-group>
           <mdui-button>确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

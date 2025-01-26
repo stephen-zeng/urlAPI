@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
 	"time"
@@ -21,39 +20,21 @@ type Task struct {
 	Return string
 }
 
-func connect() error {
-	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
-	if err != nil {
-		log.Fatal(err)
-		fmt.Println("Error connecting to database")
-		return errors.New("db.connect.error")
-	}
-	//defer db.Close()
-	fmt.Println("Connected to database")
-	return nil
-}
-
-func dbInit() error {
+func taskInit() error {
 	var err error
 	if !db.Migrator().HasTable(&Task{}) {
 		err = db.AutoMigrate(&Task{})
 	}
 	if err != nil {
-		fmt.Println("Error creating table")
+		fmt.Println("Error creating tasks table")
 		log.Fatal(err)
-		return errors.New("db.init.error")
+		return errors.New("task.init.error")
 	}
-	fmt.Println("Initialized database")
+	fmt.Println("Initialized tasks table")
 	return nil
 }
 
-func Disconnect() {
-	sqlDB, _ := db.DB()
-	defer sqlDB.Close()
-	fmt.Println("Disconnected from database")
-}
-
-func add(Time time.Time, IP, Type, Status, Target string) (string, error) {
+func addTask(Time time.Time, IP, Type, Status, Target string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
 		UUID:   id,
@@ -64,7 +45,7 @@ func add(Time time.Time, IP, Type, Status, Target string) (string, error) {
 		Target: Target,
 	})
 	if err.Error != nil {
-		return "", errors.New("db.add.error")
+		return "", errors.New("task.add.error")
 	} else {
 		return id, nil
 	}
@@ -72,10 +53,10 @@ func add(Time time.Time, IP, Type, Status, Target string) (string, error) {
 
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
-func del(by, data string) error {
+func delTask(by, data string) error {
 	err := db.Where(by+"=?", data).Delete(&Task{})
 	if err.Error != nil {
-		return errors.New("db.del.error")
+		return errors.New("task.del.error")
 	} else {
 		return nil
 	}
@@ -84,13 +65,13 @@ func del(by, data string) error {
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
 // 现在只有更改Status和Return的需要
-func edit(by, data string, Status, Return string) error {
+func editTask(by, data string, Status, Return string) error {
 	err := db.Model(&Task{}).Where(by+"=?", data).Updates(Task{
 		Status: Status,
 		Return: Return,
 	})
 	if err.Error != nil {
-		return errors.New("db.edit.error")
+		return errors.New("task.edit.error")
 	} else {
 		return nil
 	}
@@ -98,7 +79,7 @@ func edit(by, data string, Status, Return string) error {
 
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
-func fetch(by, data string) ([]Task, error) {
+func fetchTask(by, data string) ([]Task, error) {
 	var ret []Task
 	var err *gorm.DB
 	if by == "none" {
@@ -107,10 +88,10 @@ func fetch(by, data string) ([]Task, error) {
 		err = db.Where(by+"=?", data).Find(&ret)
 	}
 	if err.Error != nil {
-		return nil, errors.New("db.fetch.error")
+		return nil, errors.New("task.fetch.error")
 	}
 	if len(ret) == 0 {
-		return nil, errors.New("db.fetch.nodata")
+		return nil, errors.New("task.fetch.nodata")
 	} else {
 		return ret, nil
 	}

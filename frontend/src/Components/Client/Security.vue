@@ -15,16 +15,6 @@
           <mdui-text-field type="password" variant="outlined"
                            toggle-password label="密码"></mdui-text-field>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">外链白名单，单击对应项目以删除</p>
-          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable>
-            <mdui-button-icon slot="end-icon" icon="add"></mdui-button-icon>
-          </mdui-text-field>
-          <div class="list">
-            <mdui-list>
-              <mdui-list-item>*</mdui-list-item>
-            </mdui-list>
-          </div>
-          <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">外链黑名单，单击对应项目以删除</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable>
             <mdui-button-icon slot="end-icon" icon="add"></mdui-button-icon>
