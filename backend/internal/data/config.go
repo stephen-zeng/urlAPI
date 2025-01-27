@@ -7,6 +7,8 @@ type Config struct {
 	Target string
 	IP     string
 	Type   string
+	Part   string
+	Name   string
 }
 type Option func(*Config)
 
@@ -38,6 +40,16 @@ func WithIP(ip string) Option {
 func WithType(t string) Option {
 	return func(config *Config) {
 		config.Type = t
+	}
+}
+func WithPart(part string) Option {
+	return func(config *Config) {
+		config.Part = part
+	}
+}
+func WithName(name string) Option {
+	return func(config *Config) {
+		config.Name = name
 	}
 }
 

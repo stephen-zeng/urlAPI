@@ -2,7 +2,6 @@ package file
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,23 +10,24 @@ import (
 )
 
 // 这里给的裸的response
-func Add(uuid, source, data string) error {
-	var url string
-	var response map[string]interface{}
-	err := json.Unmarshal([]byte(data), &response)
-	if err != nil {
-		fmt.Println("JSON Unmarshal Error")
-		return errors.New("file.add.error")
-	}
-	if source == "aliyun" {
-		if response["output"].(map[string]interface{})["task_status"].(string) != "SUCCEEDED" {
-			return errors.New("file.add.error")
-		} else {
-			url = response["output"].(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})["url"].(string)
-		}
-	} else if source == "openai" {
-		url = response["data"].([]interface{})[0].(map[string]interface{})["url"].(string)
-	}
+// var url string
+//
+//	var response map[string]interface{}
+//	err := json.Unmarshal([]byte(data), &response)
+//	if err != nil {
+//		fmt.Println("JSON Unmarshal Error")
+//		return errors.New("file.add.error")
+//	}
+//	if source == "aliyun" {
+//		if response["output"].(map[string]interface{})["task_status"].(string) != "SUCCEEDED" {
+//			return errors.New("file.add.error")
+//		} else {
+//			url = response["output"].(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})["url"].(string)
+//		}
+//	} else if source == "openai" {
+//		url = response["data"].([]interface{})[0].(map[string]interface{})["url"].(string)
+//	}
+func Add(uuid, source, url string) error {
 	client := http.Client{
 		Timeout: time.Second * 5,
 	}

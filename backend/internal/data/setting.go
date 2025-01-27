@@ -26,7 +26,7 @@ func InitSetting() (string, error) {
 		choose := rand.Int() % len(acsii)
 		pwd += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
 	}
-	openai := []string{"none", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024"}
+	openai := []string{"none", "https://api.openai.com/v1/chat/completions", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024"}
 	deepseek := []string{"none", "deepseek-chat", "deepseek-chat"}
 	alibaba := []string{"none", "qwen-plus", "qwen-turbo", "wanx2.0-t2i-turbo", "1024x1024"}
 	otherapi := []string{"none", "none", "none", "none"}
@@ -60,8 +60,16 @@ func EditSetting(part string, data [][]string) error {
 	}
 }
 
-func FetchSetting(part string) ([][]string, error) {
-	ret, err := fetchSetting(Part[part])
+func FetchSetting(data Config) ([][]string, error) {
+	var ret [][]string
+	var err error
+	if data.Name != "" {
+		ret, err = fetchSetting([]string{data.Name})
+	} else if data.Part != "" {
+		ret, err = fetchSetting(Part[data.Part])
+	} else {
+		return nil, errors.New("setting.fetch.error")
+	}
 	if err != nil {
 		return nil, err
 	} else {
