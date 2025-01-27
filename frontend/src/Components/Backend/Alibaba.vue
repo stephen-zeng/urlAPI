@@ -29,7 +29,7 @@
             <mdui-radio value="chinese">Chinese</mdui-radio>
             <mdui-radio value="english">English</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认图片生成形状</p>
+          <p style="margin-bottom: 0">默认图片生成大小</p>
           <mdui-radio-group value="chinese" style="margin-top: 0">
             <mdui-radio value="chinese">Chinese</mdui-radio>
             <mdui-radio value="english">English</mdui-radio>

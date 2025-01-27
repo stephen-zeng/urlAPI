@@ -1,14 +1,16 @@
 package data
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 )
 
 type Setting struct {
-	name  string   `gorm:"primaryKey"`
-	value []string `gorm:"type:text"`
+	// 是可导出的类型才能使用GORM
+	Name  string `gorm:"primaryKey"`
+	Value string
 }
 
 func settingInit() error {
@@ -25,26 +27,13 @@ func settingInit() error {
 	return nil
 }
 
-func addSetting(name []string, value [][]string) error {
-	for index, nameItem := range name {
-		valueItem := value[index]
-		err := db.Create(Setting{
-			name:  nameItem,
-			value: valueItem,
-		})
-		if err != nil {
-			return errors.New("setting.add.error")
-		}
-	}
-	return nil
-}
-
 func editSetting(name []string, value [][]string) error {
 	for index, nameItem := range name {
 		valueItem := value[index]
-		err := db.Model(&Setting{}).Where("name = ?", nameItem).Updates(Setting{
-			name:  nameItem,
-			value: valueItem,
+		jsonData, _ := json.Marshal(valueItem)
+		err := db.Save(Setting{
+			Name:  nameItem,
+			Value: string(jsonData),
 		})
 		if err.Error != nil {
 			return errors.New("setting.edit.error")
@@ -61,7 +50,9 @@ func fetchSetting(name []string) ([][]string, error) {
 		if err.Error != nil {
 			return nil, err.Error
 		}
-		ret = append(ret, fetch[0].value)
+		var tmp []string
+		_ = json.Unmarshal([]byte(fetch[0].Value), &tmp)
+		ret = append(ret, tmp)
 	}
 	return ret, nil
 }
