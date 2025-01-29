@@ -22,11 +22,9 @@
             <mdui-radio value="alibaba">Alibaba</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">超分</p>
-          <mdui-radio-group value="openai" style="margin-top: 0">
-            <mdui-radio value="chinese">开启</mdui-radio>
-            <mdui-radio value="english">关闭</mdui-radio>
-          </mdui-radio-group>
+          <p style="margin-bottom: 0">Github RAW网址</p>
+          <mdui-text-field variant="outlined" label="这里写网址" clearable>
+          </mdui-text-field>
           <mdui-button full-width>确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

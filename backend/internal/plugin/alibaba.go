@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -26,6 +26,7 @@ type AlibabaImg struct {
 func alibabaTxt(prompt, contxt, model string) (string, error) {
 	_, token, err := fetchConfig("alibaba")
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	userMessage := TxtMessage{
@@ -33,12 +34,12 @@ func alibabaTxt(prompt, contxt, model string) (string, error) {
 		Content: prompt,
 	}
 	developerMessage := TxtMessage{
-		Role:    "developer",
+		Role:    "system",
 		Content: contxt,
 	}
 	txtPayload := Txt{
-		Model:   model,
-		Message: []TxtMessage{userMessage, developerMessage},
+		Model:    model,
+		Messages: []TxtMessage{userMessage, developerMessage},
 	}
 	jsonPayload, err := json.Marshal(txtPayload)
 	req, err := http.NewRequest("POST", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", bytes.NewBuffer(jsonPayload))
@@ -49,12 +50,13 @@ func alibabaTxt(prompt, contxt, model string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("plugin.response.error")
+		log.Println(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.New("plugin.response.error")
+		return "", errors.Join(err, errors.New(resp.Status))
 	} else {
 		return string(jsonResponse), nil
 	}
@@ -63,6 +65,7 @@ func alibabaTxt(prompt, contxt, model string) (string, error) {
 func alibabaImg(prompt, model, size string) (string, error) {
 	_, token, err := fetchConfig("alibaba")
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	imgInput := AlibabaImgInput{
@@ -87,43 +90,45 @@ func alibabaImg(prompt, model, size string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("plugin.response.error")
+		log.Println(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.New("plugin.response.error")
+		return "", errors.Join(err, errors.New(resp.Status))
 	}
 	var response map[string]interface{}
+	var originResponse []byte
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
-		return "", errors.New("plugin.response.error")
+		return "", err
 	}
 	id := response["output"].(map[string]interface{})["task_id"].(string)
 	timer := time.NewTimer(time.Second * 30)
 	timeout := make(chan bool)
 	go func() {
 		<-timer.C
-		fmt.Println("Timeout")
+		log.Println("Timeout")
 		timeout <- true
 	}()
-	for response["output"].(map[string]interface{})["status"] == "PENDING" {
+	for status := response["output"].(map[string]interface{})["task_status"].(string); status == "PENDING" || status == "RUNNING"; status = response["output"].(map[string]interface{})["task_status"].(string) {
 		time.Sleep(1 * time.Second)
-		response = fetchImgTask(id, token)
-	}
-	if response["output"].(map[string]interface{})["status"] == "FAILED" {
-		return "", errors.New("plugin.response.error")
-	} else if response["output"].(map[string]interface{})["status"] == "SUCCEEDED" {
-		ret, err := json.Marshal(response)
+		originResponse = fetchImgTask(id, token)
+		err := json.Unmarshal(originResponse, &response)
 		if err != nil {
-			return "", errors.New("plugin.response.error")
+			return "", err
 		}
-		return string(ret), nil
+	}
+	if response["output"].(map[string]interface{})["task_status"] == "FAILED" {
+		return "", err
+	} else if response["output"].(map[string]interface{})["task_status"] == "SUCCEEDED" {
+		return string(originResponse), nil
 	}
 	<-timeout
-	return "", errors.New("plugin.response.timeout")
+	return "", errors.New("Requirement Timeout")
 }
 
-func fetchImgTask(id, token string) map[string]interface{} {
+func fetchImgTask(id, token string) []byte {
 	req, _ := http.NewRequest("GET", "https://dashscope.aliyuncs.com/api/v1/tasks/"+id, nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{
@@ -135,9 +140,5 @@ func fetchImgTask(id, token string) map[string]interface{} {
 	}
 	defer resp.Body.Close()
 	jsonResponse, _ := io.ReadAll(resp.Body)
-	var response map[string]interface{}
-	if err := json.Unmarshal(jsonResponse, &response); err != nil {
-		return nil
-	}
-	return response
+	return jsonResponse
 }

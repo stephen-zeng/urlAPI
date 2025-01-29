@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,7 @@ import (
 func otherapiTxt(prompt, contxt, model string) (string, error) {
 	url, token, err := fetchConfig("otherapi")
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	userMessage := TxtMessage{
@@ -23,8 +25,8 @@ func otherapiTxt(prompt, contxt, model string) (string, error) {
 		Content: contxt,
 	}
 	txtPayload := Txt{
-		Model:   model,
-		Message: []TxtMessage{userMessage, developerMessage},
+		Model:    model,
+		Messages: []TxtMessage{userMessage, developerMessage},
 	}
 	jsonPayload, err := json.Marshal(txtPayload)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
@@ -35,12 +37,13 @@ func otherapiTxt(prompt, contxt, model string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("plugin.response.error")
+		log.Println(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.New("plugin.response.error")
+		return "", errors.Join(err, errors.New(resp.Status))
 	} else {
 		return string(jsonResponse), nil
 	}

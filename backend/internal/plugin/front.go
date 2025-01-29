@@ -1,8 +1,15 @@
 package plugin
 
-import "errors"
+import (
+	"errors"
+)
 
-func Require(data Config) (string, error) {
+const (
+	genContext string = "You are a helpful assistant and need to give some sentence based on the prompt. Do not greet and give the answer directly."
+	sumContext string = "You are a helpful assistant and need to summarize the text from the prompt. Do not greet and give the answer directly."
+)
+
+func Request(data Config) (string, error) {
 	if data.API == "openai" {
 		return openai(data)
 	} else if data.API == "alibaba" {
@@ -11,8 +18,10 @@ func Require(data Config) (string, error) {
 		return deepseek(data)
 	} else if data.API == "otherapi" {
 		return otherapi(data)
+	} else if data.API == "github" || data.API == "gitee" {
+		return random(data.API, data.User, data.Repo)
 	} else {
-		return "", errors.New("plugin.response.error")
+		return "", errors.New("No Valid API Option")
 	}
 }
 
@@ -29,7 +38,7 @@ func openai(data Config) (string, error) {
 		}
 	} else if data.GenPrompt != "" {
 		prompt := data.GenPrompt
-		contxt := "You are a helpful assistant and need to give some sentence based on the prompt"
+		contxt := genContext
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -38,7 +47,7 @@ func openai(data Config) (string, error) {
 		}
 	} else if data.SumPrompt != "" {
 		prompt := data.SumPrompt
-		contxt := "You are a helpful assistant and need to summarize the text from the prompt"
+		contxt := sumContext
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -46,7 +55,7 @@ func openai(data Config) (string, error) {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("plugin.response.error")
+		return "", errors.New("No Valid Prompt")
 	}
 }
 
@@ -63,7 +72,7 @@ func alibaba(data Config) (string, error) {
 		}
 	} else if data.GenPrompt != "" {
 		prompt := data.GenPrompt
-		contxt := "You are a helpful assistant and need to give some sentence based on the prompt"
+		contxt := genContext
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -72,7 +81,7 @@ func alibaba(data Config) (string, error) {
 		}
 	} else if data.SumPrompt != "" {
 		prompt := data.SumPrompt
-		contxt := "You are a helpful assistant and need to summarize the text from the prompt"
+		contxt := sumContext
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -80,7 +89,7 @@ func alibaba(data Config) (string, error) {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("plugin.response.error")
+		return "", errors.New("No Valid Prompt")
 	}
 }
 
@@ -88,7 +97,7 @@ func deepseek(data Config) (string, error) {
 	model := data.Model
 	if data.GenPrompt != "" {
 		prompt := data.GenPrompt
-		contxt := "You are a helpful assistant and need to give some sentence based on the prompt"
+		contxt := genContext
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -97,7 +106,7 @@ func deepseek(data Config) (string, error) {
 		}
 	} else if data.SumPrompt != "" {
 		prompt := data.SumPrompt
-		contxt := "You are a helpful assistant and need to summarize the text from the prompt"
+		contxt := sumContext
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
 			return "", err
@@ -105,7 +114,7 @@ func deepseek(data Config) (string, error) {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("plugin.response.error")
+		return "", errors.New("No Valid Prompt")
 	}
 }
 
@@ -130,6 +139,6 @@ func otherapi(data Config) (string, error) {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("plugin.response.error")
+		return "", errors.New("No Valid Prompt")
 	}
 }

@@ -14,8 +14,7 @@
           <p style="margin-bottom: 0">后台登录密码</p>
           <mdui-text-field type="password" variant="outlined"
                            toggle-password label="密码"></mdui-text-field>
-          <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">外链黑名单，单击对应项目以删除</p>
+          <p style="margin-bottom: 0">允许登录后台的IP</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable>
             <mdui-button-icon slot="end-icon" icon="add"></mdui-button-icon>
           </mdui-text-field>
@@ -25,7 +24,17 @@
             </mdui-list>
           </div>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">能够使用的网站</p>
+          <p style="margin-bottom: 0">不能使用“总结”功能的网站（黑名单）</p>
+          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable>
+            <mdui-button-icon slot="end-icon" icon="add"></mdui-button-icon>
+          </mdui-text-field>
+          <div class="list">
+            <mdui-list>
+              <mdui-list-item>*</mdui-list-item>
+            </mdui-list>
+          </div>
+          <mdui-divider></mdui-divider>
+          <p style="margin-bottom: 0">可以使用urlAPI的网站（防盗）</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable>
             <mdui-button-icon slot="end-icon" icon="add"></mdui-button-icon>
           </mdui-text-field>

@@ -2,12 +2,14 @@ package data
 
 import (
 	_ "github.com/mattn/go-sqlite3" // 下划线表示初始化这个包的内容以便使用
+	"log"
 	"time"
 )
 
-func AddTask(data Config) (string, error) {
-	id, err := addTask(time.Now(), data.IP, data.Type, data.Status, data.Target)
+func NewTask(data Config) (string, error) {
+	id, err := addTask(time.Now(), data.IP, data.Type, "waiting", data.Target)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	} else {
 		return id, nil
@@ -22,6 +24,7 @@ func DelTask(data Config) error {
 		err = delTask("target", data.Target)
 	}
 	if err != nil {
+		log.Println(err)
 		return err
 	} else {
 		return nil
@@ -39,12 +42,9 @@ func EditTask(data Config) error {
 		by = "target"
 		byData = data.Target
 	}
-	if data.Status != "" {
-		err = editTask(by, byData, data.Status, "")
-	} else if data.Return != "" {
-		err = editTask(by, byData, data.Return, "")
-	}
+	err = editTask(by, byData, data.Status, data.Return)
 	if err != nil {
+		log.Println(err)
 		return err
 	} else {
 		return nil
@@ -64,6 +64,7 @@ func FetchTask(data Config) ([]Task, error) {
 		ret, err = fetchTask("none", data.Status)
 	}
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	} else {
 		return ret, nil

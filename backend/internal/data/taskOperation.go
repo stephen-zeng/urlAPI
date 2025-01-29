@@ -2,7 +2,6 @@ package data
 
 import (
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
@@ -26,11 +25,10 @@ func taskInit() error {
 		err = db.AutoMigrate(&Task{})
 	}
 	if err != nil {
-		fmt.Println("Error creating tasks table")
-		log.Fatal(err)
-		return errors.New("task.init.error")
+		log.Println(err)
+		return err
 	}
-	fmt.Println("Initialized tasks table")
+	log.Println("Initialized tasks table")
 	return nil
 }
 
@@ -45,7 +43,8 @@ func addTask(Time time.Time, IP, Type, Status, Target string) (string, error) {
 		Target: Target,
 	})
 	if err.Error != nil {
-		return "", errors.New("task.add.error")
+		log.Println(err.Error)
+		return "", err.Error
 	} else {
 		return id, nil
 	}
@@ -56,7 +55,8 @@ func addTask(Time time.Time, IP, Type, Status, Target string) (string, error) {
 func delTask(by, data string) error {
 	err := db.Where(by+"=?", data).Delete(&Task{})
 	if err.Error != nil {
-		return errors.New("task.del.error")
+		log.Println(err.Error)
+		return err.Error
 	} else {
 		return nil
 	}
@@ -71,7 +71,7 @@ func editTask(by, data string, Status, Return string) error {
 		Return: Return,
 	})
 	if err.Error != nil {
-		return errors.New("task.edit.error")
+		return err.Error
 	} else {
 		return nil
 	}
@@ -88,10 +88,10 @@ func fetchTask(by, data string) ([]Task, error) {
 		err = db.Where(by+"=?", data).Find(&ret)
 	}
 	if err.Error != nil {
-		return nil, errors.New("task.fetch.error")
+		return nil, err.Error
 	}
 	if len(ret) == 0 {
-		return nil, errors.New("task.fetch.nodata")
+		return nil, errors.New("task not found")
 	} else {
 		return ret, nil
 	}

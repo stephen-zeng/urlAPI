@@ -2,7 +2,7 @@ package plugin
 
 import (
 	"backend/internal/data"
-	"errors"
+	"log"
 )
 
 type TxtMessage struct {
@@ -10,17 +10,18 @@ type TxtMessage struct {
 	Content string `json:"content"`
 }
 type Txt struct {
-	Model   string       `json:"model"`
-	Message []TxtMessage `json:"message"`
+	Model    string       `json:"model"`
+	Messages []TxtMessage `json:"messages"`
 }
 
 func fetchConfig(from string) (string, string, error) {
-	openaiConfig, err := data.FetchSetting(data.DataConfig(data.WithName(from)))
+	config, err := data.FetchSetting(data.DataConfig(data.WithName(from)))
 	if err != nil {
-		return "", "", errors.New("plugin.fetchconfig.error")
+		log.Println(err)
+		return "", "", err
 	}
-	token := openaiConfig[0][0]
-	url := openaiConfig[0][1]
+	token := config[0][0]
+	url := config[0][len(config[0])-1]
 	return url, token, nil
 }
 
@@ -31,6 +32,8 @@ type Config struct {
 	Size      string
 	ImgPrompt string
 	Model     string
+	User      string
+	Repo      string
 }
 
 type Option func(*Config)
@@ -63,6 +66,16 @@ func WithImgPrompt(imgPrompt string) Option {
 func WithModel(model string) Option {
 	return func(c *Config) {
 		c.Model = model
+	}
+}
+func WithUser(user string) Option {
+	return func(c *Config) {
+		c.User = user
+	}
+}
+func WithRepo(repo string) Option {
+	return func(c *Config) {
+		c.Repo = repo
 	}
 }
 

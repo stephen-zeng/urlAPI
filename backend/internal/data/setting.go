@@ -1,7 +1,7 @@
 package data
 
 import (
-	"errors"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -12,12 +12,16 @@ var Part = map[string][]string{
 	"apiDeekseek": []string{"deepseek"},
 	"apiOtherapi": []string{"otherapi"},
 	"security":    []string{"dash", "blocklist", "allow"},
-	"txt":         []string{"txt", "txtrandomenabled", "txtsummaryenabled"},
+	"txt":         []string{"txt", "txtgenenabled", "txtsumenabled"},
 	"img":         []string{"img"},
 	"web":         []string{"web"},
 }
 
-func InitSetting() (string, error) {
+func InitSetting(data Config) (string, error) {
+	if data.Type != "restore" && db.Migrator().HasTable(&Setting{}) {
+		return "", nil
+	}
+	log.Println("Start init setting")
 	rand.Seed(time.Now().UnixNano())
 	acsii := []int{10, 26, 26}
 	acsiiPlus := []int{48, 65, 97}
@@ -26,26 +30,28 @@ func InitSetting() (string, error) {
 		choose := rand.Int() % len(acsii)
 		pwd += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
 	}
-	openai := []string{"none", "https://api.openai.com/v1/chat/completions", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024"}
+	openai := []string{"none", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024", "https://api.openai.com/v1/chat/completions"}
 	deepseek := []string{"none", "deepseek-chat", "deepseek-chat"}
 	alibaba := []string{"none", "qwen-plus", "qwen-turbo", "wanx2.0-t2i-turbo", "1024x1024"}
 	otherapi := []string{"none", "none", "none", "none"}
-	dash := []string{pwd}
+	dash := []string{pwd, "*"}
 	blocklist := []string{}
 	allow := []string{"*"}
-	txt := []string{"openai", "true", "gpt-4o-mini", "gpt-4o-mini"}
-	txtrandomenabled := []string{}
-	txtsummaryenabled := []string{}
+	txt := []string{"openai", "true", "gpt-4o-mini", "true", "gpt-4o-mini"}
+	txtgenenabled := []string{"laugh", "poem", "sentence", "other"}
+	txtsumenabled := []string{}
 	img := []string{"false", "openai", "false"}
 	web := []string{""}
+	rand := []string{"https://gh.qwqwq.com.cn"}
 	err := editSetting([]string{"openai", "deepseek", "alibaba", "otherapi",
 		"dash", "blocklist", "allow", "txt",
-		"txtrandomenabled", "txtsummaryenabled", "img", "web"},
+		"txtgenenabled", "txtsumenabled", "img", "web", "rand"},
 		[][]string{openai, deepseek, alibaba, otherapi,
 			dash, blocklist, allow, txt,
-			txtrandomenabled, txtsummaryenabled, img, web})
+			txtgenenabled, txtsumenabled, img, web, rand})
 	if err != nil {
-		return "", errors.New("setting.restore.error")
+		log.Println(err)
+		return "", err
 	} else {
 		return pwd, nil
 	}
@@ -54,6 +60,7 @@ func InitSetting() (string, error) {
 func EditSetting(part string, data [][]string) error {
 	err := editSetting(Part[part], data)
 	if err != nil {
+		log.Println(err)
 		return err
 	} else {
 		return nil
@@ -68,9 +75,11 @@ func FetchSetting(data Config) ([][]string, error) {
 	} else if data.Part != "" {
 		ret, err = fetchSetting(Part[data.Part])
 	} else {
-		return nil, errors.New("setting.fetch.error")
+		log.Println(err)
+		return nil, err
 	}
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	} else {
 		return ret, nil

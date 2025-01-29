@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -20,6 +21,7 @@ type OpenaiImg struct {
 func openaiTxt(prompt, contxt, model string) (string, error) {
 	url, token, err := fetchConfig("openai")
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	userMessage := TxtMessage{
@@ -31,8 +33,8 @@ func openaiTxt(prompt, contxt, model string) (string, error) {
 		Content: contxt,
 	}
 	txtPayload := Txt{
-		Model:   model,
-		Message: []TxtMessage{userMessage, developerMessage},
+		Model:    model,
+		Messages: []TxtMessage{userMessage, developerMessage},
 	}
 	jsonPayload, err := json.Marshal(txtPayload)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
@@ -43,19 +45,20 @@ func openaiTxt(prompt, contxt, model string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("plugin.response.error")
+		log.Println(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.New("plugin.response.error")
+		return "", errors.Join(err, errors.New(resp.Status))
 	} else {
 		return string(jsonResponse), nil
 	}
 }
 
 func openaiImg(prompt, model, size string) (string, error) {
-	url, token, err := fetchConfig()
+	url, token, err := fetchConfig("openai")
 	if err != nil {
 		return "", err
 	}
@@ -74,12 +77,12 @@ func openaiImg(prompt, model, size string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", errors.New("plugin.response.error")
+		return "", err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.New("plugin.response.error")
+		return "", errors.Join(err, errors.New(resp.Status))
 	} else {
 		return string(jsonResponse), nil
 	}
