@@ -45,7 +45,13 @@ func NewRequest(data Config) error {
 		}
 	}
 	if data.Type == "gen" {
-		err = txtGenTargetCheck(data.Target)
+		err = txtGenCheck(data.Target)
+		if err != nil {
+			return err
+		}
+	}
+	if data.Type == "img" {
+		err = imgGenCheck()
 		if err != nil {
 			return err
 		}

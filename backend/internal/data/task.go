@@ -42,7 +42,7 @@ func EditTask(data Config) error {
 		by = "target"
 		byData = data.Target
 	}
-	err = editTask(by, byData, data.Status, data.Return)
+	err = editTask(by, byData, data.Status, data.Return, data.Size, data.API)
 	if err != nil {
 		log.Println(err)
 		return err

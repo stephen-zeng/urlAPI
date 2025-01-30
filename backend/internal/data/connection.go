@@ -33,5 +33,6 @@ func init() {
 	err := connect()
 	if err == nil {
 		taskInit()
+		InitSetting(DataConfig())
 	}
 }

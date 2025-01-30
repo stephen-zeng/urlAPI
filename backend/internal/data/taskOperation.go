@@ -17,6 +17,8 @@ type Task struct {
 	Status string
 	Target string
 	Return string
+	Size   string
+	API    string
 }
 
 func taskInit() error {
@@ -65,10 +67,12 @@ func delTask(by, data string) error {
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
 // 现在只有更改Status和Return的需要
-func editTask(by, data string, Status, Return string) error {
+func editTask(by, data string, Status, Return, Size, API string) error {
 	err := db.Model(&Task{}).Where(by+"=?", data).Updates(Task{
 		Status: Status,
 		Return: Return,
+		Size:   Size,
+		API:    API,
 	})
 	if err.Error != nil {
 		return err.Error
@@ -91,7 +95,7 @@ func fetchTask(by, data string) ([]Task, error) {
 		return nil, err.Error
 	}
 	if len(ret) == 0 {
-		return nil, errors.New("task not found")
+		return nil, errors.New("record not found")
 	} else {
 		return ret, nil
 	}

@@ -40,7 +40,7 @@ func InitSetting(data Config) (string, error) {
 	txt := []string{"openai", "true", "gpt-4o-mini", "true", "gpt-4o-mini"}
 	txtgenenabled := []string{"laugh", "poem", "sentence", "other"}
 	txtsumenabled := []string{}
-	img := []string{"false", "openai", "false"}
+	img := []string{"false", "openai"}
 	web := []string{""}
 	rand := []string{"https://gh.qwqwq.com.cn"}
 	err := editSetting([]string{"openai", "deepseek", "alibaba", "otherapi",

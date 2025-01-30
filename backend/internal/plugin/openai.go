@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -84,6 +85,24 @@ func openaiImg(prompt, model, size string) (string, error) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", errors.Join(err, errors.New(resp.Status))
 	} else {
-		return string(jsonResponse), nil
+		response := make(map[string]interface{})
+		err = json.Unmarshal(jsonResponse, &response)
+		if err != nil {
+			return "", err
+		}
+		url := response["data"].([]interface{})[0].(map[string]interface{})["url"].(string)
+		jsonRet, err := json.Marshal(map[string]string{
+			"url":           url,
+			"actual_prompt": prompt,
+			"orig_prompt":   prompt,
+		})
+		if err != nil {
+			return "", err
+		}
+		ret := string(jsonRet)
+		ret = strings.ReplaceAll(ret, "\\u0026", "&")
+		ret = strings.ReplaceAll(ret, "\\u003c", "<")
+		ret = strings.ReplaceAll(ret, "\\u003e", ">")
+		return ret, nil
 	}
 }

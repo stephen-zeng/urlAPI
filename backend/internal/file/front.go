@@ -1,54 +1,54 @@
 package file
 
 import (
-	"encoding/base64"
-	"io"
+	"errors"
 	"log"
-	"net/http"
-	"time"
 )
 
-func AddImg(uuid, source, url string) error {
-	client := http.Client{
-		Timeout: time.Second * 5,
-	}
-	resp, err := client.Get(url)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	defer resp.Body.Close()
-	image, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	b64Img := base64.StdEncoding.EncodeToString(image)
-	err = add(uuid, b64Img)
-	if err != nil {
-		log.Println(err)
-		return err
-	} else {
+func Add(data Config) error {
+	if data.Type == "img" {
+		err := addImg(data.UUID, data.URL)
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
+	} else if data.Type == "md" {
 		return nil
+	} else {
+		log.Printf("Unknown file type")
+		return errors.New("Unknown file type")
 	}
 }
 
-func DelImg(uuid string) error {
-	err := del(uuid)
-	if err != nil {
-		log.Println(err)
-		return err
-	} else {
+func Del(data Config) error {
+	if data.Type == "img" {
+		err := delImg(data.UUID)
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
+	} else if data.Type == "md" {
 		return nil
+	} else {
+		log.Printf("Unknown file type")
+		return errors.New("Unknown file type")
 	}
 }
 
-func FetchImg(uuid string) (string, error) {
-	ret, err := fetch(uuid)
-	if err != nil {
-		log.Println(err)
-		return "", err
+func Fetch(data Config) ([]byte, error) {
+	if data.Type == "img" {
+		img, err := fetchImg(data.UUID)
+		if err != nil {
+			return nil, err
+		} else {
+			return img, nil
+		}
+	} else if data.Type == "md" {
+		return nil, nil
 	} else {
-		return ret, nil
+		log.Printf("Unknown file type")
+		return nil, errors.New("Unknown file type")
 	}
 }

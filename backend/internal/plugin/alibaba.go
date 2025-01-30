@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -98,8 +99,7 @@ func alibabaImg(prompt, model, size string) (string, error) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return "", errors.Join(err, errors.New(resp.Status))
 	}
-	var response map[string]interface{}
-	var originResponse []byte
+	response := make(map[string]interface{})
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
 		return "", err
 	}
@@ -108,21 +108,28 @@ func alibabaImg(prompt, model, size string) (string, error) {
 	timeout := make(chan bool)
 	go func() {
 		<-timer.C
-		log.Println("Timeout")
+		log.Println("Times up")
 		timeout <- true
 	}()
 	for status := response["output"].(map[string]interface{})["task_status"].(string); status == "PENDING" || status == "RUNNING"; status = response["output"].(map[string]interface{})["task_status"].(string) {
 		time.Sleep(1 * time.Second)
-		originResponse = fetchImgTask(id, token)
-		err := json.Unmarshal(originResponse, &response)
+		err := json.Unmarshal(fetchImgTask(id, token), &response)
 		if err != nil {
 			return "", err
 		}
 	}
 	if response["output"].(map[string]interface{})["task_status"] == "FAILED" {
-		return "", err
+		return "", errors.New("Alibaba imgGen Failed")
 	} else if response["output"].(map[string]interface{})["task_status"] == "SUCCEEDED" {
-		return string(originResponse), nil
+		jsonRet, err := json.Marshal(response["output"].(map[string]interface{})["results"].([]interface{})[0])
+		if err != nil {
+			return "", err
+		}
+		ret := string(jsonRet)
+		ret = strings.ReplaceAll(ret, "\\u0026", "&")
+		ret = strings.ReplaceAll(ret, "\\u003c", "<")
+		ret = strings.ReplaceAll(ret, "\\u003e", ">")
+		return ret, nil
 	}
 	<-timeout
 	return "", errors.New("Requirement Timeout")

@@ -1,31 +1,44 @@
 package file
 
 import (
-	"encoding/base64"
+	"bytes"
 	"image"
 	"image/png"
+	"io"
 	"log"
+	"net/http"
 	"os"
-	"strings"
+	"time"
 )
 
 var (
-	filePath string = "assets/img/"
+	imgPath string = "assets/img/"
 )
 
 func init() {
-	os.MkdirAll(filePath, 0755)
+	os.MkdirAll(imgPath, 0755)
 }
 
-func add(uuid, data string) error {
-	reader := base64.NewDecoder(base64.StdEncoding,
-		strings.NewReader(data))
+func addImg(UUID, URL string) error {
+	client := &http.Client{
+		Timeout: time.Second * 5,
+	}
+	resp, err := client.Get(URL)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	content, err := io.ReadAll(resp.Body)
+	reader := bytes.NewReader(content)
+	if err != nil {
+		return err
+	}
 	img, _, err := image.Decode(reader)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	output, err := os.Create(filePath + uuid + ".png")
+	output, err := os.Create(imgPath + UUID + ".png")
 	if err != nil {
 		log.Println(err)
 		return err
@@ -39,8 +52,8 @@ func add(uuid, data string) error {
 	return nil
 }
 
-func del(uuid string) error {
-	err := os.Remove(filePath + uuid + ".png")
+func delImg(uuid string) error {
+	err := os.Remove(imgPath + uuid + ".png")
 	if err != nil {
 		log.Println(err)
 		return err
@@ -48,10 +61,11 @@ func del(uuid string) error {
 	return nil
 }
 
-func fetch(uuid string) (string, error) {
-	_, err := os.Stat(filePath + uuid + ".png")
+func fetchImg(UUID string) ([]byte, error) {
+	img, err := os.ReadFile(imgPath + UUID + ".png")
 	if err != nil {
-		return "", err
+		log.Println("ReadFile error")
+		return nil, err
 	}
-	return filePath + uuid + ".png", nil
+	return img, nil
 }

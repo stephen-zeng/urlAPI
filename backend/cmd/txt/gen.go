@@ -35,7 +35,9 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 	err := security.NewRequest(security.SecurityConfig(
 		security.WithType("gen"),
 		security.WithAPI(API),
-		security.WithTarget(Target)))
+		security.WithTarget(Target),
+		security.WithDomain(Domain),
+		security.WithIP(IP)))
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +51,7 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 	last, err := data.FetchTask(data.DataConfig(data.WithTarget(target)))
 	if err == nil {
 		for _, task := range last {
-			if time.Now().Sub(task.Time).Minutes() < 10 && task.Status == "success" {
+			if time.Now().Sub(task.Time).Minutes() < 10 && task.Status == "success" && task.API == API {
 				log.Println("Found old task")
 				return task.Return, nil
 			}

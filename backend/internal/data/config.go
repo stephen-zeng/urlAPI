@@ -9,6 +9,8 @@ type Config struct {
 	Type   string
 	Part   string
 	Name   string
+	Size   string
+	API    string
 }
 type Option func(*Config)
 
@@ -50,6 +52,16 @@ func WithPart(part string) Option {
 func WithName(name string) Option {
 	return func(config *Config) {
 		config.Name = name
+	}
+}
+func WithSize(size string) Option {
+	return func(config *Config) {
+		config.Size = size
+	}
+}
+func WithAPI(api string) Option {
+	return func(config *Config) {
+		config.API = api
 	}
 }
 

@@ -18,6 +18,7 @@ func dashCheck(IP, Pwd string) error {
 	for index, item := range list[0] {
 		if index == 0 {
 			if item != Pwd {
+				log.Println("Failed logging session")
 				return errors.New("Dashboard Passwords don't match.")
 			} else {
 				rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
@@ -38,6 +39,10 @@ func dashCheck(IP, Pwd string) error {
 var Frequency map[string]time.Time = make(map[string]time.Time)
 
 func frequencyCheck(IP string) error {
+	if IP == "" {
+		log.Println("IP is empty")
+		return errors.New("frequencyCheck failed")
+	}
 	if _, exist := Frequency[IP]; !exist {
 		if len(Frequency) >= 1000000 {
 			Frequency = make(map[string]time.Time)
@@ -56,6 +61,10 @@ func frequencyCheck(IP string) error {
 }
 
 func sourceCheck(source string) error {
+	if source == "" {
+		log.Println("The source domain is empty.")
+		return errors.New("sourceCheck failed")
+	}
 	list, err := data.FetchSetting(data.DataConfig(data.WithName("allow")))
 	if err != nil {
 		return err
@@ -75,6 +84,10 @@ func sourceCheck(source string) error {
 }
 
 func webTargetCheck(target string) error {
+	if target == "" {
+		log.Println("The target domain is empty.")
+		return errors.New("webTargetCheck failed")
+	}
 	list, err := data.FetchSetting(data.DataConfig(data.WithName("blocklist")))
 	if err != nil {
 		return err
@@ -93,7 +106,11 @@ func webTargetCheck(target string) error {
 	return nil
 }
 
-func txtGenTargetCheck(Target string) error {
+func txtGenCheck(Target string) error {
+	if Target == "" {
+		log.Println("The target domain is empty.")
+		return errors.New("txtGenTargetCheck failed")
+	}
 	txtEnabled, err := data.FetchSetting(data.DataConfig(data.WithName("txtgenenabled")))
 	if err != nil {
 		return err
@@ -105,4 +122,17 @@ func txtGenTargetCheck(Target string) error {
 	}
 	log.Println("The target " + Target + " is NOT enabled.")
 	return errors.New("txtGenCheck failed")
+}
+
+func imgGenCheck() error {
+	config, err := data.FetchSetting(data.DataConfig(data.WithName("img")))
+	if err != nil {
+		return err
+	}
+	if config[0][0] == "true" {
+		return nil
+	} else {
+		log.Println("The imgGen isn't enabled.")
+		return errors.New("imgGenCheck failed")
+	}
 }
