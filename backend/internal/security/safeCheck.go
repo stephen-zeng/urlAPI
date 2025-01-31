@@ -10,33 +10,30 @@ import (
 )
 
 func dashCheck(IP, Pwd string) error {
-	list, err := data.FetchSetting(data.DataConfig(data.WithName("dash")))
+	list, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"dash", "dashallowedip"})))
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	for index, item := range list[0] {
-		if index == 0 {
-			if item != Pwd {
-				log.Println("Failed logging session")
-				return errors.New("Dashboard Passwords don't match.")
-			} else {
-				rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
-				match, err := regexp.MatchString(rgx, IP)
-				if err != nil {
-					continue
-				}
-				if match {
-					return nil
-				}
-			}
+	if Pwd != list[0][0] {
+		log.Println("Failed logging session")
+		return errors.New("Dashboard Passwords don't match.")
+	}
+	for _, item := range list[1] {
+		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
+		match, err := regexp.MatchString(rgx, IP)
+		if err != nil {
+			continue
+		}
+		if match {
+			return nil
 		}
 	}
 	log.Println("The IP " + IP + " is NOT permitted to access the dashboard.")
 	return errors.New("Not in the dashboard IP Whitelist")
 }
 
-var Frequency map[string]time.Time = make(map[string]time.Time)
+var Frequency = make(map[string]time.Time)
 
 func frequencyCheck(IP string) error {
 	if IP == "" {
@@ -65,7 +62,7 @@ func sourceCheck(source string) error {
 		log.Println("The source domain is empty.")
 		return errors.New("sourceCheck failed")
 	}
-	list, err := data.FetchSetting(data.DataConfig(data.WithName("allow")))
+	list, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"allowedref"})))
 	if err != nil {
 		return err
 	}
@@ -83,35 +80,12 @@ func sourceCheck(source string) error {
 	return errors.New("sourceCheck failed")
 }
 
-func webTargetCheck(target string) error {
-	if target == "" {
-		log.Println("The target domain is empty.")
-		return errors.New("webTargetCheck failed")
-	}
-	list, err := data.FetchSetting(data.DataConfig(data.WithName("blocklist")))
-	if err != nil {
-		return err
-	}
-	for _, item := range list[0] {
-		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, target)
-		if err != nil {
-			continue
-		}
-		if match {
-			log.Println("Target " + target + " is in blacklist.")
-			return errors.New("targetCheck failed")
-		}
-	}
-	return nil
-}
-
 func txtGenCheck(Target string) error {
 	if Target == "" {
 		log.Println("The target domain is empty.")
 		return errors.New("txtGenTargetCheck failed")
 	}
-	txtEnabled, err := data.FetchSetting(data.DataConfig(data.WithName("txtgenenabled")))
+	txtEnabled, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"txtgenenabled"})))
 	if err != nil {
 		return err
 	}
@@ -125,7 +99,7 @@ func txtGenCheck(Target string) error {
 }
 
 func imgGenCheck() error {
-	config, err := data.FetchSetting(data.DataConfig(data.WithName("img")))
+	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
 	if err != nil {
 		return err
 	}

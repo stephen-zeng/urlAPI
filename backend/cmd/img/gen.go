@@ -13,7 +13,7 @@ import (
 
 func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, error) {
 	if API == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName("img")))
+		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
 		if err != nil {
 			return "", err
 		}
@@ -28,7 +28,7 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 		return "", err
 	}
 	if Model == "" || Size == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName(API)))
+		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
 		if err != nil {
 			return "", err
 		}

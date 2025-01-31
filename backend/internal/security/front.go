@@ -26,14 +26,8 @@ func NewRequest(data Config) error {
 	if err != nil {
 		return err
 	}
-	if data.Type == "gen" || data.Type == "sum" || data.Type == "img" || data.Type == "web" {
+	if data.Type == "gen" || data.Type == "sum" || data.Type == "img" {
 		err = modelCheck(data.Type, data.API)
-		if err != nil {
-			return err
-		}
-	}
-	if data.Type == "web" {
-		err = webTargetCheck(data.Target)
 		if err != nil {
 			return err
 		}

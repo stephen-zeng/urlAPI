@@ -1,21 +1,12 @@
 package data
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"log"
 	"math/rand"
 	"time"
 )
-
-var Part = map[string][]string{
-	"apiOpenai":   []string{"openai"},
-	"apiAlibaba":  []string{"alibaba"},
-	"apiDeekseek": []string{"deepseek"},
-	"apiOtherapi": []string{"otherapi"},
-	"security":    []string{"dash", "blocklist", "allow"},
-	"txt":         []string{"txt", "txtgenenabled", "txtsumenabled"},
-	"img":         []string{"img"},
-	"web":         []string{"web"},
-}
 
 func InitSetting(data Config) (string, error) {
 	if data.Type != "restore" && db.Migrator().HasTable(&Setting{}) {
@@ -34,21 +25,22 @@ func InitSetting(data Config) (string, error) {
 	deepseek := []string{"none", "deepseek-chat", "deepseek-chat"}
 	alibaba := []string{"none", "qwen-plus", "qwen-turbo", "wanx2.0-t2i-turbo", "1024x1024"}
 	otherapi := []string{"none", "none", "none", "none"}
-	dash := []string{pwd, "*"}
-	blocklist := []string{}
-	allow := []string{"*"}
-	txt := []string{"openai", "true", "gpt-4o-mini", "true", "gpt-4o-mini"}
+
+	dash := []string{fmt.Sprintf("%x", sha256.Sum256([]byte(pwd)))}
+	dashallowedip := []string{"*"}
+	allowedref := []string{"*"}
+
+	txt := []string{"openai", "true", "openai"}
 	txtgenenabled := []string{"laugh", "poem", "sentence", "other"}
-	txtsumenabled := []string{}
-	img := []string{"false", "openai"}
-	web := []string{""}
-	rand := []string{"https://gh.qwqwq.com.cn"}
-	err := editSetting([]string{"openai", "deepseek", "alibaba", "otherapi",
-		"dash", "blocklist", "allow", "txt",
-		"txtgenenabled", "txtsumenabled", "img", "web", "rand"},
-		[][]string{openai, deepseek, alibaba, otherapi,
-			dash, blocklist, allow, txt,
-			txtgenenabled, txtsumenabled, img, web, rand})
+	txtsumenabled := []string{"pdf", "word"}
+
+	img := []string{"false", "openai", "https://gh.qwqwq.com.cn"}
+
+	web := []string{"true", "true", "gpt-4o-mini"}
+	webimgallowed := []string{""}
+	websumblocked := []string{""}
+	err := editSetting([]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked"},
+		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked})
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -57,8 +49,8 @@ func InitSetting(data Config) (string, error) {
 	}
 }
 
-func EditSetting(part string, data [][]string) error {
-	err := editSetting(Part[part], data)
+func EditSetting(data Config) error {
+	err := editSetting(data.Name, data.Edit)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -68,16 +60,7 @@ func EditSetting(part string, data [][]string) error {
 }
 
 func FetchSetting(data Config) ([][]string, error) {
-	var ret [][]string
-	var err error
-	if data.Name != "" {
-		ret, err = fetchSetting([]string{data.Name})
-	} else if data.Part != "" {
-		ret, err = fetchSetting(Part[data.Part])
-	} else {
-		log.Println(err)
-		return nil, err
-	}
+	ret, err := fetchSetting(data.Name)
 	if err != nil {
 		log.Println(err)
 		return nil, err

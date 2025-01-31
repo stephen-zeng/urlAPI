@@ -7,8 +7,8 @@ type Config struct {
 	Target string
 	IP     string
 	Type   string
-	Part   string
-	Name   string
+	Name   []string
+	Edit   [][]string
 	Size   string
 	API    string
 }
@@ -44,12 +44,12 @@ func WithType(t string) Option {
 		config.Type = t
 	}
 }
-func WithPart(part string) Option {
+func WithEdit(edit [][]string) Option {
 	return func(config *Config) {
-		config.Part = part
+		config.Edit = edit
 	}
 }
-func WithName(name string) Option {
+func WithName(name []string) Option {
 	return func(config *Config) {
 		config.Name = name
 	}

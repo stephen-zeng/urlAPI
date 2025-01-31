@@ -21,8 +21,7 @@ func getScheme(c *gin.Context) string {
 	return "http://"
 }
 
-func HttpServer() {
-	r := gin.Default()
+func txtRequest() {
 	r.GET("/txt", func(c *gin.Context) {
 		format := c.Query("format")
 		api := c.Query("api")
@@ -42,6 +41,9 @@ func HttpServer() {
 			}
 		}
 	})
+}
+
+func imgRequest() {
 	r.GET("/img", func(c *gin.Context) {
 		format := c.Query("format")
 		api := c.Query("api")
@@ -62,6 +64,9 @@ func HttpServer() {
 			}
 		}
 	})
+}
+
+func download() {
 	r.GET("/download", func(c *gin.Context) {
 		var err error
 		err = security.NewRequest(security.SecurityConfig(
@@ -103,6 +108,9 @@ func HttpServer() {
 			c.Writer.Write(data)
 		}
 	})
+}
+
+func rand() {
 	r.GET("/rand", func(c *gin.Context) {
 		err := security.NewRequest(security.SecurityConfig(
 			security.WithIP(c.ClientIP()),
@@ -126,5 +134,11 @@ func HttpServer() {
 		}
 		c.Redirect(302, response)
 	})
-	r.Run(":8080")
+}
+
+func setAPI() {
+	txtRequest()
+	imgRequest()
+	download()
+	rand()
 }

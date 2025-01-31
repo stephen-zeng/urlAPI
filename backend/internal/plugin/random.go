@@ -44,11 +44,11 @@ func random(API, User, Repo string) (string, error) {
 	index := rand.Intn(length) % length
 	ret := content[index]["download_url"].(string)
 	if API == "github" {
-		replace, err := data.FetchSetting(data.DataConfig(data.WithName("rand")))
+		replace, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
 		if err != nil {
 			return "", err
 		}
-		ret = strings.ReplaceAll(ret, "https://raw.githubusercontent.com", replace[0][0])
+		ret = strings.ReplaceAll(ret, "https://raw.githubusercontent.com", replace[0][len(replace[0])-1])
 		return ret, nil
 	}
 	return content[index]["download_url"].(string), nil

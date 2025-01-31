@@ -15,7 +15,7 @@ type Txt struct {
 }
 
 func fetchConfig(from string) (string, string, error) {
-	config, err := data.FetchSetting(data.DataConfig(data.WithName(from)))
+	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{from})))
 	if err != nil {
 		log.Println(err)
 		return "", "", err

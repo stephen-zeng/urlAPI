@@ -26,7 +26,7 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		Target = "other"
 	}
 	if API == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName("txt")))
+		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"txt"})))
 		if err != nil {
 			return "", err
 		}
@@ -42,7 +42,7 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		return "", err
 	}
 	if Model == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName(API)))
+		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
 		if err != nil {
 			return "", nil
 		}

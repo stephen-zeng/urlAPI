@@ -25,18 +25,6 @@
             <mdui-radio value="deepseek">DeepSeek</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">网页总结</p>
-          <mdui-radio-group value="openai" style="margin-top: 0">
-            <mdui-radio value="chinese">开启</mdui-radio>
-            <mdui-radio value="english">关闭</mdui-radio>
-          </mdui-radio-group>
-          <p style="margin-bottom: 0">网页总结使用的API</p>
-          <mdui-radio-group value="openai" style="margin-top: 0">
-            <mdui-radio value="openai">OpenAI</mdui-radio>
-            <mdui-radio value="alibaba">Alibaba</mdui-radio>
-            <mdui-radio value="deepseek">DeepSeek</mdui-radio>
-          </mdui-radio-group>
-          <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">文字总结的启用情况</p>
           <div class="mdui-checkbox-group">
             <mdui-checkbox>Word</mdui-checkbox>

@@ -22,7 +22,7 @@
             <mdui-radio value="alibaba">Alibaba</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">Github RAW网址</p>
+          <p style="margin-bottom: 0">Github随机图片中RAW网址</p>
           <mdui-text-field variant="outlined" label="这里写网址" clearable>
           </mdui-text-field>
           <mdui-button full-width>确认</mdui-button>
