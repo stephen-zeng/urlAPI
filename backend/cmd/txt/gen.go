@@ -31,7 +31,7 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 		if err != nil {
 			return TxtResponse{}, err
 		}
-		API = config[0][0]
+		API = config[0][1]
 	}
 	err := security.NewRequest(security.SecurityConfig(
 		security.WithType("gen"),
@@ -94,11 +94,16 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	if err != nil {
 		return TxtResponse{}, err
 	}
+	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
+	if err != nil {
+		log.Println("Region fetch failed")
+	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
 		data.WithReturn(string(jsonRet)),
 		data.WithStatus("success"),
-		data.WithAPI(API)))
+		data.WithAPI(API),
+		data.WithRegion(region.Region)))
 	if err != nil {
 		return TxtResponse{}, err
 	} else {

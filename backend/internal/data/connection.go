@@ -1,9 +1,11 @@
 package data
 
 import (
+	"database/sql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
+	"os"
 )
 
 var (
@@ -13,6 +15,9 @@ var (
 )
 
 func connect() error {
+	os.Mkdir("assets", 0777)
+	tmp, _ := sql.Open("sqlite3", dbPath)
+	tmp.Close()
 	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		log.Println(err)
@@ -33,7 +38,10 @@ func init() {
 	err := connect()
 	if err == nil {
 		initTask()
-		InitSetting(DataConfig())
+		pwd, _ := InitSetting(DataConfig())
 		InitSession(DataConfig())
+		if pwd != "" {
+			log.Printf("Dashboard password is %s\n", pwd)
+		}
 	}
 }

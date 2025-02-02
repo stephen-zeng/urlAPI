@@ -1,7 +1,8 @@
 Authorization: Token
 {
-    "operation": "fetch / edit / login / logout / clear / exit",
+    "operation": "fetch / edit / login / logout / clear / exit / task",
     "term": false,
     "part": "txt",
-    "edit": [[],[]]
+    "edit": [[],[]],
+    "task": "uuid / all"
 }

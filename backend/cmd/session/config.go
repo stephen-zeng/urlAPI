@@ -1,14 +1,28 @@
 package session
 
-import "time"
+import (
+	"backend/internal/data"
+	"time"
+)
+
+type SessionResponse struct {
+	Token   string      `json:"token"`
+	Name    []string    `json:"name"`
+	Part    string      `json:"part"`
+	Setting [][]string  `json:"setting"`
+	Task    []data.Task `json:"task"`
+}
 
 type Config struct {
-	Type  string
-	Token string
-	Json  map[string]interface{}
-	IP    string
-	Time  time.Time
-	Term  bool
+	Type      string
+	Token     string
+	IP        string
+	Time      time.Time
+	Term      bool
+	Operation string
+	Part      string
+	Edit      [][]string
+	By        string
 }
 type Option func(*Config)
 
@@ -22,11 +36,6 @@ func WithToken(t string) Option {
 		c.Token = t
 	}
 }
-func WithJson(j map[string]interface{}) Option {
-	return func(c *Config) {
-		c.Json = j
-	}
-}
 func WithIP(ip string) Option {
 	return func(c *Config) {
 		c.IP = ip
@@ -37,15 +46,33 @@ func WithTime(t time.Time) Option {
 		c.Time = t
 	}
 }
-func WithTerm() Option {
+func WithTerm(term bool) Option {
 	return func(c *Config) {
-		c.Term = true
+		c.Term = term
+	}
+}
+func WithOperation(operation string) Option {
+	return func(c *Config) {
+		c.Operation = operation
+	}
+}
+func WithPart(part string) Option {
+	return func(c *Config) {
+		c.Part = part
+	}
+}
+func WithEdit(edit [][]string) Option {
+	return func(c *Config) {
+		c.Edit = edit
+	}
+}
+func WithBy(by string) Option {
+	return func(c *Config) {
+		c.By = by
 	}
 }
 func SessionConfig(opts ...Option) Config {
-	config := Config{
-		Term: false,
-	}
+	config := Config{}
 	for _, opt := range opts {
 		opt(&config)
 	}

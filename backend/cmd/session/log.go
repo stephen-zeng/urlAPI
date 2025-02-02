@@ -8,32 +8,28 @@ import (
 )
 
 func login(dat Config) (string, error) {
-	if dat.Type == "token" {
-		return "", nil
+	rand.Seed(time.Now().UnixNano())
+	acsii := []int{10, 26, 26}
+	acsiiPlus := []int{48, 65, 97}
+	tk := ""
+	for i := 1; i <= 64; i++ {
+		choose := rand.Int() % len(acsii)
+		tk += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
+	}
+	var exp time.Time
+	if dat.Term == true {
+		exp = time.Now().AddDate(0, 0, 7)
 	} else {
-		rand.Seed(time.Now().UnixNano())
-		acsii := []int{10, 26, 26}
-		acsiiPlus := []int{48, 65, 97}
-		tk := ""
-		for i := 1; i <= 64; i++ {
-			choose := rand.Int() % len(acsii)
-			tk += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
-		}
-		var exp time.Time
-		if dat.Term == true {
-			exp = time.Now().AddDate(0, 0, 7)
-		} else {
-			exp = time.Now().Add(time.Hour * 12)
-		}
-		err := data.AddSession(data.DataConfig(
-			data.WithToken(tk),
-			data.WithIP(dat.IP),
-			data.WithExpire(exp)))
-		if err != nil {
-			return "", err
-		} else {
-			return tk, nil
-		}
+		exp = time.Now().Add(time.Hour * 12)
+	}
+	err := data.AddSession(data.DataConfig(
+		data.WithToken(tk),
+		data.WithExpire(exp),
+		data.WithTerm(dat.Term)))
+	if err != nil {
+		return "", err
+	} else {
+		return tk, nil
 	}
 }
 func logout(dat Config) error {
@@ -45,9 +41,9 @@ func exit(dat Config) error {
 		return err
 	}
 	if sessions[0].Term == false {
+		log.Println("Temporary session logout")
 		return data.DelSession(data.DataConfig(data.WithToken(dat.Token)))
 	} else {
-		log.Println("Temporary session logout")
 		return nil
 	}
 }

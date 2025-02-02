@@ -16,6 +16,7 @@ type Config struct {
 	Token  string
 	Expire time.Time
 	Term   bool
+	Region string
 }
 type Option func(*Config)
 
@@ -70,16 +71,23 @@ func WithAPI(api string) Option {
 	}
 }
 func WithToken(token string) Option {
-	return func(config *Config) {}
+	return func(config *Config) {
+		config.Token = token
+	}
 }
 func WithExpire(expire time.Time) Option {
 	return func(config *Config) {
 		config.Expire = expire
 	}
 }
-func WithTerm() Option {
+func WithTerm(term bool) Option {
 	return func(config *Config) {
-		config.Term = true
+		config.Term = term
+	}
+}
+func WithRegion(region string) Option {
+	return func(config *Config) {
+		config.Region = region
 	}
 }
 

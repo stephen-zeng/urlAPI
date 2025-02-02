@@ -10,15 +10,16 @@ import (
 )
 
 type Task struct {
-	UUID   string `gorm:"primaryKey"`
-	Time   time.Time
-	IP     string
-	Type   string
-	Status string
-	Target string
-	Return string
-	Size   string
-	API    string
+	UUID   string    `gorm:"primaryKey" json:"uuid"`
+	Time   time.Time `json:"time"`
+	IP     string    `json:"ip"`
+	Type   string    `json:"type"`
+	Status string    `json:"status"`
+	Target string    `json:"target"`
+	Return string    `json:"return"`
+	Size   string    `json:"size"`
+	API    string    `json:"api"`
+	Region string    `json:"region"`
 }
 
 func initTask() error {
@@ -67,12 +68,13 @@ func delTask(by, data string) error {
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
 // 现在只有更改Status和Return的需要
-func editTask(by, data string, Status, Return, Size, API string) error {
+func editTask(by, data string, Status, Return, Size, API, Region string) error {
 	err := db.Model(&Task{}).Where(by+"=?", data).Updates(Task{
 		Status: Status,
 		Return: Return,
 		Size:   Size,
 		API:    API,
+		Region: Region,
 	})
 	if err.Error != nil {
 		return err.Error
@@ -95,7 +97,7 @@ func fetchTask(by, data string) ([]Task, error) {
 		return nil, err.Error
 	}
 	if len(ret) == 0 {
-		return nil, errors.New("record not found")
+		return nil, errors.New("Record not found")
 	} else {
 		return ret, nil
 	}

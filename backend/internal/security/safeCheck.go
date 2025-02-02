@@ -26,7 +26,7 @@ func frequencyCheck(IP string) error {
 		lastTime := Frequency[IP]
 		Frequency[IP] = time.Now()
 		if time.Now().Sub(lastTime).Seconds() < 0.25 {
-			log.Println("The IP " + IP + " accessed too frequent.")
+			log.Println("The IP " + IP + " accessed too frequently.")
 			return errors.New("frequencyCheck failed")
 		}
 		return nil

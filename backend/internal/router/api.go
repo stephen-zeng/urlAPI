@@ -77,6 +77,7 @@ func download() {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 		Img := c.Query("img")
 		Md := c.Query("md")

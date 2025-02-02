@@ -1,11 +1,13 @@
 <script setup>
-  import {ref, provide} from 'vue';
+  import {ref, provide, onBeforeMount, inject} from 'vue';
   import Header from "@/frameworks/Header.vue";
   import Sidebar from "@/frameworks/Sidebar.vue";
   import Access from "@/pages/Access.vue";
   import Backend from "@/pages/Backend.vue";
   import Client from "@/pages/Client.vue";
   import Login from "@/pages/Login.vue";
+  import Cookies from "js-cookie";
+  import {snackbar} from "mdui";
 
   const sidebarStatus = ref(false);
   const pages = ref([
@@ -14,11 +16,37 @@
       '功能设置',
   ])
   const tab = ref(0);
-  const login = ref(true);
+  const login = ref(false);
+  const url = inject("url");
 
   provide('tab', tab);
   provide('sidebarStatus', sidebarStatus);
   provide('pages', pages);
+  provide('login', login);
+
+  onBeforeMount(() => {
+    if (Cookies.get("token")) {
+      fetch(url+"session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": Cookies.get("token"),
+        },
+        body: JSON.stringify({
+          operation: "login",
+        })
+      }).then(res => res.json()).then((data) => {
+        if (data.error) {
+          snackbar({
+            message: data.error,
+            placement: "top-end",
+          })
+        } else {
+          login.value = true;
+        }
+      })
+    }
+  })
 
 </script>
 

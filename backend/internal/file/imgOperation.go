@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	os.MkdirAll(imgPath, 0755)
+	os.MkdirAll(imgPath, 0777)
 }
 
 func addImg(UUID, URL string) error {

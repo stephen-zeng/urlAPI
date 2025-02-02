@@ -5,6 +5,7 @@
   const dialogStatus = ref(false);
   const target = ref(0)
   const catalog = inject('catalog');
+  const props = defineProps(["tasks"])
 
   provide('dialogStatus',dialogStatus);
   provide('target',target);
@@ -12,6 +13,11 @@
   function showDetail(newTarget) {
     target.value = newTarget;
     dialogStatus.value = true;
+  }
+
+  function getTime(tim) {
+    var date = new Date(tim).toJSON();
+    return new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'');
   }
 </script>
 
@@ -27,95 +33,12 @@
       </tr>
       </thead>
       <tbody>
-      <tr @click="showDetail(1)">
-        <td>1</td>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-      </tr>
-      <tr @click="showDetail(2)">
-        <td>2</td>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr><tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Mark</td>
-        <td>asdf</td>
-        <td>哈哈</td>
-      </tr>
+        <tr @click="showDetail(item)" v-for="(item,index) in props.tasks">
+          <td>{{ getTime(item.time) }}</td>
+          <td>{{ item.type }}</td>
+          <td>{{ item.region }}</td>
+          <td>{{ item.status }}</td>
+        </tr>
       </tbody>
     </table>
   </div>

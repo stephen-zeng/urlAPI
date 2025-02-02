@@ -12,6 +12,7 @@ func InitSetting(data Config) (string, error) {
 	if data.Type != "restore" && db.Migrator().HasTable(&Setting{}) {
 		return "", nil
 	}
+	db.AutoMigrate(&Setting{})
 	rand.Seed(time.Now().UnixNano())
 	acsii := []int{10, 26, 26}
 	acsiiPlus := []int{48, 65, 97}

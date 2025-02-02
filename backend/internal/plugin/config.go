@@ -34,6 +34,7 @@ type Config struct {
 	Model     string
 	User      string
 	Repo      string
+	IP        string
 }
 
 type PluginResponse struct {
@@ -42,6 +43,7 @@ type PluginResponse struct {
 	InitPrompt   string `json:"init_prompt"`
 	ActualPrompt string `json:"actual_prompt"`
 	Context      string `json:"context"`
+	Region       string `json:"region"`
 }
 
 type Option func(*Config)
@@ -84,6 +86,11 @@ func WithUser(user string) Option {
 func WithRepo(repo string) Option {
 	return func(c *Config) {
 		c.Repo = repo
+	}
+}
+func WithIP(ip string) Option {
+	return func(c *Config) {
+		c.IP = ip
 	}
 }
 

@@ -2,5 +2,6 @@
     "token": "asdfasdfasdfasdf",
     "name": [],
     "part": "part",
-    "setting": [[],[]]
+    "setting": [[],[]],
+    "task": [{}, {}]
 }

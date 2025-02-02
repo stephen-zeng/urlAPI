@@ -117,12 +117,17 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	if err != nil {
 		return ImgResponse{}, err
 	}
+	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
+	if err != nil {
+		log.Println("Region fetch failed")
+	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
 		data.WithReturn(string(jsonReturn)),
 		data.WithStatus("success"),
 		data.WithSize(Size),
-		data.WithAPI(API)))
+		data.WithAPI(API),
+		data.WithRegion(region.Region)))
 	if err != nil {
 		return ImgResponse{}, err
 	} else {

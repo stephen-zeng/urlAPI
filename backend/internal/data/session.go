@@ -6,9 +6,10 @@ func InitSession(data Config) error {
 	if data.Type != "restore" && db.Migrator().HasTable(&Session{}) {
 		return nil
 	} else {
-		err := db.AutoMigrate(&Session{})
-		if err != nil {
-			return err
+		db.AutoMigrate(&Session{})
+		err := db.Where("1 = 1").Delete(&Session{})
+		if err.Error != nil {
+			return err.Error
 		} else {
 			log.Println("Initialized Session")
 			return nil
