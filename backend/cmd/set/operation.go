@@ -19,21 +19,31 @@ var Part = map[string][]string{
 	"web":      []string{"web", "webimgallowed", "websumblocked"},
 }
 
-func fetch(dat Config) ([][]string, error) {
+func fetch(part string) (SetResponse, error) {
 	list, err := data.FetchSetting(
 		data.DataConfig(
-			data.WithName(Part[dat.part])))
+			data.WithName(Part[part])))
 	if err != nil {
-		return nil, err
+		return SetResponse{}, err
 	} else {
-		return list, nil
+		return SetResponse{
+			Name:    Part[part],
+			Setting: list,
+		}, nil
 	}
 }
 
-func edit(dat Config) error {
-	return data.EditSetting(data.DataConfig(
-		data.WithName(Part[dat.part]),
-		data.WithEdit(dat.edit)))
+func edit(part string, edit [][]string) (SetResponse, error) {
+	err := data.EditSetting(data.DataConfig(
+		data.WithName(Part[part]),
+		data.WithEdit(edit)))
+	if err != nil {
+		return SetResponse{}, err
+	} else {
+		return SetResponse{
+			Name: Part[part],
+		}, err
+	}
 }
 
 func repwd() (string, error) {

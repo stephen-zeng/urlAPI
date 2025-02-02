@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -24,11 +23,11 @@ type AlibabaImg struct {
 	Parameters AlibabaImgParameters `json:"parameters"`
 }
 
-func alibabaTxt(prompt, contxt, model string) (string, error) {
+func alibabaTxt(prompt, contxt, model string) (PluginResponse, error) {
 	_, token, err := fetchConfig("alibaba")
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	userMessage := TxtMessage{
 		Role:    "user",
@@ -52,22 +51,29 @@ func alibabaTxt(prompt, contxt, model string) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
+	ret := make(map[string]interface{})
+	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(err, errors.New(resp.Status))
+		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
-		return string(jsonResponse), nil
+		return PluginResponse{
+			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			InitPrompt:   prompt,
+			ActualPrompt: prompt,
+			Context:      contxt,
+		}, nil
 	}
 }
 
-func alibabaImg(prompt, model, size string) (string, error) {
+func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 	_, token, err := fetchConfig("alibaba")
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	imgInput := AlibabaImgInput{
 		Prompt: prompt,
@@ -92,16 +98,16 @@ func alibabaImg(prompt, model, size string) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(err, errors.New(resp.Status))
+		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
 	response := make(map[string]interface{})
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
-		return "", err
+		return PluginResponse{}, err
 	}
 	id := response["output"].(map[string]interface{})["task_id"].(string)
 	timer := time.NewTimer(time.Second * 30)
@@ -115,24 +121,23 @@ func alibabaImg(prompt, model, size string) (string, error) {
 		time.Sleep(1 * time.Second)
 		err := json.Unmarshal(fetchImgTask(id, token), &response)
 		if err != nil {
-			return "", err
+			timer.Stop()
+			return PluginResponse{}, err
 		}
 	}
+	timer.Stop()
 	if response["output"].(map[string]interface{})["task_status"] == "FAILED" {
-		return "", errors.New("Alibaba imgGen Failed")
+		return PluginResponse{}, errors.New("Alibaba imgGen Failed")
 	} else if response["output"].(map[string]interface{})["task_status"] == "SUCCEEDED" {
-		jsonRet, err := json.Marshal(response["output"].(map[string]interface{})["results"].([]interface{})[0])
-		if err != nil {
-			return "", err
-		}
-		ret := string(jsonRet)
-		ret = strings.ReplaceAll(ret, "\\u0026", "&")
-		ret = strings.ReplaceAll(ret, "\\u003c", "<")
-		ret = strings.ReplaceAll(ret, "\\u003e", ">")
-		return ret, nil
+		ret := response["output"].(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})
+		return PluginResponse{
+			URL:          ret["url"].(string),
+			InitPrompt:   ret["orig_prompt"].(string),
+			ActualPrompt: ret["actual_prompt"].(string),
+		}, nil
 	}
 	<-timeout
-	return "", errors.New("Requirement Timeout")
+	return PluginResponse{}, errors.New("Requirement Timeout")
 }
 
 func fetchImgTask(id, token string) []byte {

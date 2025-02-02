@@ -12,7 +12,6 @@ func InitSetting(data Config) (string, error) {
 	if data.Type != "restore" && db.Migrator().HasTable(&Setting{}) {
 		return "", nil
 	}
-	log.Println("Start init setting")
 	rand.Seed(time.Now().UnixNano())
 	acsii := []int{10, 26, 26}
 	acsiiPlus := []int{48, 65, 97}
@@ -45,6 +44,7 @@ func InitSetting(data Config) (string, error) {
 		log.Println(err)
 		return "", err
 	} else {
+		log.Println("Initialized Setting")
 		return pwd, nil
 	}
 }

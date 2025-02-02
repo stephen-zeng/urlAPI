@@ -11,11 +11,11 @@ import (
 	"time"
 )
 
-func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, error) {
+func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse, error) {
 	if API == "" {
 		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
 		if err != nil {
-			return "", err
+			return ImgResponse{}, err
 		}
 		API = config[0][1]
 	}
@@ -25,12 +25,12 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 		security.WithAPI(API),
 		security.WithIP(IP)))
 	if err != nil {
-		return "", err
+		return ImgResponse{}, err
 	}
 	if Model == "" || Size == "" {
 		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
 		if err != nil {
-			return "", err
+			return ImgResponse{}, err
 		}
 		if Model == "" {
 			Model = config[0][3]
@@ -45,7 +45,13 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 			if task.Status == "success" && task.Size == Size && task.API == API {
 				if time.Now().Sub(task.Time).Minutes() < 10 {
 					log.Println("Found old task")
-					return task.Return, nil
+					var ret ImgResponse
+					err := json.Unmarshal([]byte(task.Return), &ret)
+					if err != nil {
+						return ImgResponse{}, err
+					} else {
+						return ret, nil
+					}
 				} else {
 					log.Println("Found outdated task")
 					err = file.Del(file.FileConfig(
@@ -59,7 +65,7 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 						data.WithStatus("outdated")))
 					if err != nil {
 						log.Println(err)
-						return "", err
+						return ImgResponse{}, err
 					}
 				}
 			}
@@ -70,7 +76,7 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 		data.WithTarget(Target),
 		data.WithType("图片生成")))
 	if err != nil {
-		return "", err
+		return ImgResponse{}, err
 	}
 	response, err := plugin.Request(plugin.PluginConfig(
 		plugin.WithModel(Model),
@@ -84,15 +90,13 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 		if editErr != nil {
 			err = editErr
 		}
-		return "", err
+		return ImgResponse{}, err
 	}
-	mapRet := make(map[string]interface{})
-	err = json.Unmarshal([]byte(response), &mapRet)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return ImgResponse{}, err
 	}
-	url := mapRet["url"].(string)
+	url := response.URL
 	url = strings.ReplaceAll(url, "\\u0026", "&")
 	url = strings.ReplaceAll(url, "\\u003c", "<")
 	url = strings.ReplaceAll(url, "\\u003e", ">")
@@ -101,26 +105,26 @@ func genRequest(IP, Domain, Model, API, Target, Size, From string) (string, erro
 		file.WithUUID(id),
 		file.WithURL(url)))
 	if err != nil {
-		return "", err
+		return ImgResponse{}, err
 	}
 	url = From + "/download?img=" + id
-	mapRet["url"] = url
-	jsonRet, err := json.Marshal(mapRet)
-	if err != nil {
-		return "", err
+	ret := ImgResponse{
+		URL:          url,
+		InitPrompt:   response.InitPrompt,
+		ActualPrompt: response.ActualPrompt,
 	}
-	ret := string(jsonRet)
-	ret = strings.ReplaceAll(ret, "\\u0026", "&")
-	ret = strings.ReplaceAll(ret, "\\u003c", "<")
-	ret = strings.ReplaceAll(ret, "\\u003e", ">")
+	jsonReturn, err := json.Marshal(ret)
+	if err != nil {
+		return ImgResponse{}, err
+	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
-		data.WithReturn(ret),
+		data.WithReturn(string(jsonReturn)),
 		data.WithStatus("success"),
 		data.WithSize(Size),
 		data.WithAPI(API)))
 	if err != nil {
-		return "", err
+		return ImgResponse{}, err
 	} else {
 		return ret, nil
 	}

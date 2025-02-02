@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-func deepseekTxt(prompt, contxt, model string) (string, error) {
+func deepseekTxt(prompt, contxt, model string) (PluginResponse, error) {
 	_, token, err := fetchConfig("deepseek")
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	userMessage := TxtMessage{
 		Role:    "user",
@@ -38,13 +38,20 @@ func deepseekTxt(prompt, contxt, model string) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
+	ret := make(map[string]interface{})
+	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(err, errors.New(resp.Status))
+		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
-		return string(jsonResponse), nil
+		return PluginResponse{
+			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			InitPrompt:   prompt,
+			ActualPrompt: prompt,
+			Context:      contxt,
+		}, nil
 	}
 }

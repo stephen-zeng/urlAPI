@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -19,11 +18,11 @@ type OpenaiImg struct {
 	N      int    `json:"n"`
 }
 
-func openaiTxt(prompt, contxt, model string) (string, error) {
+func openaiTxt(prompt, contxt, model string) (PluginResponse, error) {
 	url, token, err := fetchConfig("openai")
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	userMessage := TxtMessage{
 		Role:    "user",
@@ -47,21 +46,28 @@ func openaiTxt(prompt, contxt, model string) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println(err)
-		return "", err
+		return PluginResponse{}, err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
+	ret := make(map[string]interface{})
+	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(err, errors.New(resp.Status))
+		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
-		return string(jsonResponse), nil
+		return PluginResponse{
+			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			InitPrompt:   prompt,
+			ActualPrompt: prompt,
+			Context:      contxt,
+		}, nil
 	}
 }
 
-func openaiImg(prompt, model, size string) (string, error) {
+func openaiImg(prompt, model, size string) (PluginResponse, error) {
 	url, token, err := fetchConfig("openai")
 	if err != nil {
-		return "", err
+		return PluginResponse{}, err
 	}
 	imgPayload := OpenaiImg{
 		Model:  model,
@@ -78,31 +84,23 @@ func openaiImg(prompt, model, size string) (string, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return PluginResponse{}, err
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(err, errors.New(resp.Status))
+		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
 		response := make(map[string]interface{})
 		err = json.Unmarshal(jsonResponse, &response)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		}
 		url := response["data"].([]interface{})[0].(map[string]interface{})["url"].(string)
-		jsonRet, err := json.Marshal(map[string]string{
-			"url":           url,
-			"actual_prompt": prompt,
-			"orig_prompt":   prompt,
-		})
-		if err != nil {
-			return "", err
-		}
-		ret := string(jsonRet)
-		ret = strings.ReplaceAll(ret, "\\u0026", "&")
-		ret = strings.ReplaceAll(ret, "\\u003c", "<")
-		ret = strings.ReplaceAll(ret, "\\u003e", ">")
-		return ret, nil
+		return PluginResponse{
+			URL:          url,
+			ActualPrompt: prompt,
+			InitPrompt:   prompt,
+		}, nil
 	}
 }

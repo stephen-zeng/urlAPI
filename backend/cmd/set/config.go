@@ -1,5 +1,10 @@
 package set
 
+type SetResponse struct {
+	Name    []string   `json:"name"`
+	Setting [][]string `json:"setting"`
+	Pwd     string     `json:"pwd"`
+}
 type Config struct {
 	part string
 	edit [][]string

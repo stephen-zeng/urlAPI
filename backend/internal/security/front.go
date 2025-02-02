@@ -1,18 +1,5 @@
 package security
 
-import "log"
-
-func LoginDash(data Config) error {
-	err := dashCheck(data.IP, data.Pwd)
-	if err != nil {
-		log.Println("Login Failed")
-		return err
-	} else {
-		log.Println("Login Success")
-		return nil
-	}
-}
-
 // Type: gen, sum, img, web, rand
 // API: openai, alibaba, deepseek, otherapi, github, gitee
 // Target: prompt, repositories

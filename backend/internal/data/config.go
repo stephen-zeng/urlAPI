@@ -1,5 +1,7 @@
 package data
 
+import "time"
+
 type Config struct {
 	UUID   string
 	Status string
@@ -11,6 +13,9 @@ type Config struct {
 	Edit   [][]string
 	Size   string
 	API    string
+	Token  string
+	Expire time.Time
+	Term   bool
 }
 type Option func(*Config)
 
@@ -64,9 +69,24 @@ func WithAPI(api string) Option {
 		config.API = api
 	}
 }
+func WithToken(token string) Option {
+	return func(config *Config) {}
+}
+func WithExpire(expire time.Time) Option {
+	return func(config *Config) {
+		config.Expire = expire
+	}
+}
+func WithTerm() Option {
+	return func(config *Config) {
+		config.Term = true
+	}
+}
 
 func DataConfig(opts ...Option) Config {
-	config := Config{}
+	config := Config{
+		Term: false,
+	}
 	for _, opt := range opts {
 		opt(&config)
 	}

@@ -32,7 +32,8 @@ func Disconnect() {
 func init() {
 	err := connect()
 	if err == nil {
-		taskInit()
+		initTask()
 		InitSetting(DataConfig())
+		InitSession(DataConfig())
 	}
 }

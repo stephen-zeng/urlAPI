@@ -6,7 +6,6 @@ import (
 	"backend/internal/file"
 	"backend/internal/plugin"
 	"backend/internal/security"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 )
@@ -35,9 +34,9 @@ func txtRequest() {
 			})
 		} else {
 			if format == "json" {
-				c.JSON(200, json.RawMessage(response))
+				c.JSON(200, response)
 			} else {
-				c.String(200, response)
+				c.String(200, response.Response)
 			}
 		}
 	})
@@ -50,17 +49,19 @@ func imgRequest() {
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		size := c.Query("size")
-		response, err := img.Request(format, api, model, prompt, size,
-			"127.0.0.1", "www.goforit.top", getScheme(c)+c.Request.Host)
+		response, err := img.GenRequest(
+			c.ClientIP(), "www.goforit.top",
+			model, api, prompt, size,
+			getScheme(c)+c.Request.Host)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
 			})
 		} else {
 			if format == "json" {
-				c.JSON(200, json.RawMessage(response))
+				c.JSON(200, response)
 			} else {
-				c.Redirect(302, response)
+				c.Redirect(302, response.URL)
 			}
 		}
 	})
@@ -132,7 +133,7 @@ func rand() {
 				"error": err.Error(),
 			})
 		}
-		c.Redirect(302, response)
+		c.Redirect(302, response.URL)
 	})
 }
 

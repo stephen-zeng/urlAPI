@@ -4,6 +4,7 @@ import (
 	"backend/internal/data"
 	"backend/internal/plugin"
 	"backend/internal/security"
+	"encoding/json"
 	"errors"
 	"log"
 	"time"
@@ -15,12 +16,12 @@ var shortcut = map[string]string{
 	"sentence": "写一句心灵鸡汤，不要换行",
 }
 
-func genRequest(IP, Domain, Model, API, Target string) (string, error) {
+func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	var target string
 	if Target == "laugh" || Target == "sentence" || Target == "poem" {
 		target = shortcut[Target]
 	} else if Target == "" {
-		return "", errors.New("prompt required")
+		return TxtResponse{}, errors.New("prompt required")
 	} else {
 		target = Target
 		Target = "other"
@@ -28,7 +29,7 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 	if API == "" {
 		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"txt"})))
 		if err != nil {
-			return "", err
+			return TxtResponse{}, err
 		}
 		API = config[0][0]
 	}
@@ -39,12 +40,12 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		security.WithDomain(Domain),
 		security.WithIP(IP)))
 	if err != nil {
-		return "", err
+		return TxtResponse{}, err
 	}
 	if Model == "" {
 		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
 		if err != nil {
-			return "", nil
+			return TxtResponse{}, nil
 		}
 		Model = config[0][1]
 	}
@@ -53,7 +54,13 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		for _, task := range last {
 			if time.Now().Sub(task.Time).Minutes() < 10 && task.Status == "success" && task.API == API {
 				log.Println("Found old task")
-				return task.Return, nil
+				var ret TxtResponse
+				err := json.Unmarshal([]byte(task.Return), &ret)
+				if err != nil {
+					return TxtResponse{}, err
+				} else {
+					return ret, nil
+				}
 			}
 		}
 	}
@@ -63,7 +70,7 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		data.WithType("文字生成"),
 	))
 	if err != nil {
-		return "", err
+		return TxtResponse{}, err
 	}
 	response, err := plugin.Request(plugin.PluginConfig(
 		plugin.WithModel(Model),
@@ -76,15 +83,25 @@ func genRequest(IP, Domain, Model, API, Target string) (string, error) {
 		if editErr != nil {
 			err = editErr
 		}
-		return "", err
+		return TxtResponse{}, err
+	}
+	ret := TxtResponse{
+		Response: response.Response,
+		Prompt:   response.InitPrompt,
+		Context:  response.Context,
+	}
+	jsonRet, err := json.Marshal(ret)
+	if err != nil {
+		return TxtResponse{}, err
 	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
-		data.WithReturn(response),
-		data.WithStatus("success")))
+		data.WithReturn(string(jsonRet)),
+		data.WithStatus("success"),
+		data.WithAPI(API)))
 	if err != nil {
-		return "", err
+		return TxtResponse{}, err
 	} else {
-		return response, nil
+		return ret, nil
 	}
 }

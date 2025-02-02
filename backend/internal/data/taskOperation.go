@@ -21,7 +21,7 @@ type Task struct {
 	API    string
 }
 
-func taskInit() error {
+func initTask() error {
 	var err error
 	if !db.Migrator().HasTable(&Task{}) {
 		err = db.AutoMigrate(&Task{})

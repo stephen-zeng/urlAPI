@@ -1,0 +1,7 @@
+Authorization: Token
+{
+    "operation": "fetch / edit / login / logout / clear / exit",
+    "term": false,
+    "part": "txt",
+    "edit": [[],[]]
+}

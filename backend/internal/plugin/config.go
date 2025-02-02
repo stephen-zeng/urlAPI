@@ -36,6 +36,14 @@ type Config struct {
 	Repo      string
 }
 
+type PluginResponse struct {
+	URL          string `json:"url"`
+	Response     string `json:"response"`
+	InitPrompt   string `json:"init_prompt"`
+	ActualPrompt string `json:"actual_prompt"`
+	Context      string `json:"context"`
+}
+
 type Option func(*Config)
 
 func WithAPI(api string) Option {

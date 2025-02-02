@@ -9,30 +9,6 @@ import (
 	"time"
 )
 
-func dashCheck(IP, Pwd string) error {
-	list, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"dash", "dashallowedip"})))
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	if Pwd != list[0][0] {
-		log.Println("Failed logging session")
-		return errors.New("Dashboard Passwords don't match.")
-	}
-	for _, item := range list[1] {
-		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, IP)
-		if err != nil {
-			continue
-		}
-		if match {
-			return nil
-		}
-	}
-	log.Println("The IP " + IP + " is NOT permitted to access the dashboard.")
-	return errors.New("Not in the dashboard IP Whitelist")
-}
-
 var Frequency = make(map[string]time.Time)
 
 func frequencyCheck(IP string) error {

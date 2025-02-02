@@ -9,7 +9,7 @@ const (
 	sumContext string = "You are a helpful assistant and need to summarize the text from the prompt. Do not greet and give the answer directly."
 )
 
-func Request(data Config) (string, error) {
+func Request(data Config) (PluginResponse, error) {
 	if data.API == "openai" {
 		return openai(data)
 	} else if data.API == "alibaba" {
@@ -21,18 +21,18 @@ func Request(data Config) (string, error) {
 	} else if data.API == "github" || data.API == "gitee" {
 		return random(data.API, data.User, data.Repo)
 	} else {
-		return "", errors.New("No Valid API Option")
+		return PluginResponse{}, errors.New("No Valid API Option")
 	}
 }
 
-func openai(data Config) (string, error) {
+func openai(data Config) (PluginResponse, error) {
 	model := data.Model
 	if data.ImgPrompt != "" {
 		prompt := data.ImgPrompt
 		size := data.Size
 		response, err := openaiImg(prompt, model, size)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -41,7 +41,7 @@ func openai(data Config) (string, error) {
 		contxt := genContext
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -50,23 +50,23 @@ func openai(data Config) (string, error) {
 		contxt := sumContext
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("No Valid Prompt")
+		return PluginResponse{}, errors.New("No Valid Prompt")
 	}
 }
 
-func alibaba(data Config) (string, error) {
+func alibaba(data Config) (PluginResponse, error) {
 	model := data.Model
 	if data.ImgPrompt != "" {
 		prompt := data.ImgPrompt
 		size := data.Size
 		response, err := alibabaImg(prompt, model, size)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -75,7 +75,7 @@ func alibaba(data Config) (string, error) {
 		contxt := genContext
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -84,23 +84,23 @@ func alibaba(data Config) (string, error) {
 		contxt := sumContext
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("No Valid Prompt")
+		return PluginResponse{}, errors.New("No Valid Prompt")
 	}
 }
 
-func deepseek(data Config) (string, error) {
+func deepseek(data Config) (PluginResponse, error) {
 	model := data.Model
 	if data.GenPrompt != "" {
 		prompt := data.GenPrompt
 		contxt := genContext
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -109,23 +109,23 @@ func deepseek(data Config) (string, error) {
 		contxt := sumContext
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("No Valid Prompt")
+		return PluginResponse{}, errors.New("No Valid Prompt")
 	}
 }
 
-func otherapi(data Config) (string, error) {
+func otherapi(data Config) (PluginResponse, error) {
 	model := data.Model
 	if data.GenPrompt != "" {
 		prompt := data.GenPrompt
 		contxt := "You are a helpful assistant and need to give some sentence based on the prompt"
 		response, err := otherapiTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
@@ -134,11 +134,11 @@ func otherapi(data Config) (string, error) {
 		contxt := "You are a helpful assistant and need to summarize the text from the prompt"
 		response, err := otherapiTxt(prompt, contxt, model)
 		if err != nil {
-			return "", err
+			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
 	} else {
-		return "", errors.New("No Valid Prompt")
+		return PluginResponse{}, errors.New("No Valid Prompt")
 	}
 }
