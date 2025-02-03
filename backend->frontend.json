@@ -3,5 +3,6 @@
     "name": [],
     "part": "part",
     "setting": [[],[]],
-    "task": [{}, {}]
+    "task": [{}, {}],
+    "ip": "ip"
 }

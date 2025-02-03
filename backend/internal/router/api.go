@@ -8,6 +8,7 @@ import (
 	"backend/internal/security"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/url"
 )
 
 func getScheme(c *gin.Context) string {
@@ -22,12 +23,19 @@ func getScheme(c *gin.Context) string {
 
 func txtRequest() {
 	r.GET("/txt", func(c *gin.Context) {
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		}
+		domain := referer.Hostname()
 		format := c.Query("format")
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		typ := c.Query("type")
-		response, err := txt.Request(format, api, model, prompt, typ, c.ClientIP(), "www.goforit.top")
+		response, err := txt.Request(format, api, model, prompt, typ, c.ClientIP(), domain)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
@@ -44,13 +52,20 @@ func txtRequest() {
 
 func imgRequest() {
 	r.GET("/img", func(c *gin.Context) {
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		}
+		domain := referer.Hostname()
 		format := c.Query("format")
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		size := c.Query("size")
 		response, err := img.GenRequest(
-			c.ClientIP(), "www.goforit.top",
+			c.ClientIP(), domain,
 			model, api, prompt, size,
 			getScheme(c)+c.Request.Host)
 		if err != nil {
@@ -70,9 +85,16 @@ func imgRequest() {
 func download() {
 	r.GET("/download", func(c *gin.Context) {
 		var err error
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		}
+		domain := referer.Hostname()
 		err = security.NewRequest(security.SecurityConfig(
 			security.WithIP(c.ClientIP()),
-			security.WithDomain("www.goforit.top")))
+			security.WithDomain(domain)))
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
@@ -114,9 +136,16 @@ func download() {
 
 func rand() {
 	r.GET("/rand", func(c *gin.Context) {
-		err := security.NewRequest(security.SecurityConfig(
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		}
+		domain := referer.Hostname()
+		err = security.NewRequest(security.SecurityConfig(
 			security.WithIP(c.ClientIP()),
-			security.WithDomain("www.goforit.top")))
+			security.WithDomain(domain)))
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),

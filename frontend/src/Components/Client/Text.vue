@@ -1,42 +1,134 @@
 <script setup>
 
+import { ref, inject } from 'vue';
+import { Post, Notification } from "@/fetch.js"
+import Cookies from "js-cookie";
+import {sha256} from "js-sha256";
+
+const url = inject('url')
+const settings = ref()
+const input1 = ref('')
+const input2 = ref('')
+const ip = ref('')
+
+async function getSetting() {
+  const session = await Post(url+"session", {
+    "Token": Cookies.get("token"),
+    "Send": {
+      "operation": "fetch",
+      "part": "txt"
+    }
+  })
+  if (session.error) {
+    Notification(session.error)
+  } else {
+    settings.value = session.setting
+    console.log(settings.value)
+  }
+}
+
+async function sendSetting() {
+  const session = await Post(url+"session", {
+    "Token": Cookies.get("token"),
+    "Send": {
+      "operation": "edit",
+      "part": "txt",
+      "edit": settings.value,
+    }
+  })
+  if (session.error) {
+    Notification(session.error)
+  } else {
+    Notification("Saved")
+  }
+}
+
+function find(list, status, value, operation) {
+  let index
+  if (operation == "edit" && status == true) {
+    list.push(value)
+  }
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] == value) {
+      index = i
+      if (operation == "find") {
+        return true
+      }
+    }
+  }
+  if (operation == "find") {
+    return false
+  }
+  if (operation == "edit" && status == false) {
+    list.splice(index, 1)
+  }
+}
+
 </script>
 
 <template>
   <mdui-collapse>
     <mdui-collapse-item rounded>
-      <mdui-list-item slot="header" icon="translate" rounded>
+      <mdui-list-item slot="header" icon="translate" rounded @click="getSetting">
         文字
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
+          <p style="margin-bottom: 0">总开关</p>
+          <mdui-radio-group :value="settings?settings[0][0]:'false'"
+                            @change="settings[0][0]=$event.target.value"
+                            style="margin-top: 0">
+            <mdui-radio value="true">开启</mdui-radio>
+            <mdui-radio value="false">关闭</mdui-radio>
+          </mdui-radio-group>
           <p style="margin-bottom: 0">随机生成的启用情况</p>
           <div class="mdui-checkbox-group">
-            <mdui-checkbox>随机笑话</mdui-checkbox>
-            <mdui-checkbox>随机名言</mdui-checkbox>
-            <mdui-checkbox>随机段子</mdui-checkbox>
-            <mdui-checkbox>自定义提示词</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'laugh', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'laugh', 'edit')">
+              随机笑话</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'poem', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'poem', 'edit')">
+              随机诗句</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'sentence', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'sentence', 'edit')">
+              随机鸡汤</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'other', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'other', 'edit')">
+              自定义提示词</mdui-checkbox>
           </div>
           <p style="margin-bottom: 0">随机生成使用的API</p>
-          <mdui-radio-group value="openai" style="margin-top: 0">
+          <mdui-radio-group :value="settings?settings[0][1]:'openai'"
+                            @change="settings[0][1]=$event.target.value"
+                            style="margin-top: 0">
             <mdui-radio value="openai">OpenAI</mdui-radio>
-            <mdui-radio value="alibaba">Alibaba</mdui-radio>
             <mdui-radio value="deepseek">DeepSeek</mdui-radio>
+            <mdui-radio value="alibaba">Alibaba</mdui-radio>
+            <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">文字总结的启用情况</p>
           <div class="mdui-checkbox-group">
-            <mdui-checkbox>Word</mdui-checkbox>
-            <mdui-checkbox>PDF</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'pdf', 'find')"
+                           @change="find(settings?settings[2]:[], $event.target.checked, 'pdf', 'edit')">
+              PDF</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'word', 'find')"
+                           @change="find(settings?settings[2]:[], $event.target.checked, 'word', 'edit')">
+              Word</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'md', 'find')"
+                           @change="find(settings?settings[2]:[], $event.target.checked, 'md', 'edit')">
+              MarkDown</mdui-checkbox>
           </div>
           <p style="margin-bottom: 0">文字总结使用的API</p>
-          <mdui-radio-group value="openai" style="margin-top: 0">
+          <mdui-radio-group :value="settings?settings[0][2]:'openai'"
+                            @change="settings[0][2]=$event.target.value"
+                            style="margin-top: 0">
             <mdui-radio value="openai">OpenAI</mdui-radio>
-            <mdui-radio value="alibaba">Alibaba</mdui-radio>
             <mdui-radio value="deepseek">DeepSeek</mdui-radio>
+            <mdui-radio value="alibaba">Alibaba</mdui-radio>
+            <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
-          <mdui-button full-width>确认</mdui-button>
+          <mdui-button full-width @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

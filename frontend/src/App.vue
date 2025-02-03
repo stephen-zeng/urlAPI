@@ -1,5 +1,5 @@
 <script setup>
-  import {ref, provide, onBeforeMount, inject} from 'vue';
+import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
   import Header from "@/frameworks/Header.vue";
   import Sidebar from "@/frameworks/Sidebar.vue";
   import Access from "@/pages/Access.vue";
@@ -8,6 +8,7 @@
   import Login from "@/pages/Login.vue";
   import Cookies from "js-cookie";
   import {snackbar} from "mdui";
+import {Notification, Post} from "@/fetch.js";
 
   const sidebarStatus = ref(false);
   const pages = ref([
@@ -24,27 +25,31 @@
   provide('pages', pages);
   provide('login', login);
 
-  onBeforeMount(() => {
+  onMounted(async() => {
     if (Cookies.get("token")) {
-      fetch(url+"session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": Cookies.get("token"),
-        },
-        body: JSON.stringify({
-          operation: "login",
-        })
-      }).then(res => res.json()).then((data) => {
-        if (data.error) {
-          snackbar({
-            message: data.error,
-            placement: "top-end",
-          })
-        } else {
-          login.value = true;
+      const session = await Post(url + "session", {
+        "Token": Cookies.get("token"),
+        "Send": {
+          "operation": "login"
         }
       })
+      if (session.error) {
+        Notification(session.error)
+      } else {
+        login.value = true
+      }
+    }
+  })
+
+  onUnmounted(async() => {
+    if (Cookies.get("token")) {
+      const session = await Post(url + "session", {
+        "Token": Cookies.get("token"),
+        "Send": {
+          "operation": "exit"
+        }
+      })
+      login.value = false
     }
   })
 

@@ -19,8 +19,8 @@
 
 <template>
   <mdui-collapse>
-    <mdui-collapse-item rounded @click="getValue(props.tasks)">
-      <mdui-list-item slot="header" icon="location_on" rounded>
+    <mdui-collapse-item rounded>
+      <mdui-list-item slot="header" icon="location_on" rounded @click="getValue(props.tasks)">
         地区
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>

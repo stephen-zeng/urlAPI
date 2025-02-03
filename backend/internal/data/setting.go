@@ -30,16 +30,17 @@ func InitSetting(data Config) (string, error) {
 	dashallowedip := []string{"*"}
 	allowedref := []string{"*"}
 
-	txt := []string{"openai", "true", "openai"}
-	txtgenenabled := []string{"laugh", "poem", "sentence", "other"}
-	txtsumenabled := []string{"pdf", "word"}
+	txt := []string{"false", "alibaba", "alibaba"}
+	txtgenenabled := []string{"laugh", "poem", "sentence", "other", "_"}
+	txtsumenabled := []string{"pdf", "word", "_"}
 
-	img := []string{"false", "openai", "https://gh.qwqwq.com.cn"}
+	img := []string{"false", "alibaba", "https://gh.qwqwq.com.cn"}
 
-	web := []string{"true", "true", "gpt-4o-mini"}
-	webimgallowed := []string{""}
-	websumblocked := []string{""}
-	err := editSetting([]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked"},
+	web := []string{"false", "false", "alibaba"}
+	webimgallowed := []string{"_"}
+	websumblocked := []string{"_"}
+	err := editSetting(
+		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked"},
 		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked})
 	if err != nil {
 		log.Println(err)

@@ -17,5 +17,6 @@ func Start() {
 	r.Use(cors.New(config))
 	setAPI()
 	sessionListener()
+	dashboard()
 	r.Run(":8080")
 }

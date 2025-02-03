@@ -11,6 +11,7 @@ type SessionResponse struct {
 	Part    string      `json:"part"`
 	Setting [][]string  `json:"setting"`
 	Task    []data.Task `json:"task"`
+	IP      string      `json:"ip"`
 }
 
 type Config struct {

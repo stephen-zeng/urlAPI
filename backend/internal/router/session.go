@@ -43,7 +43,7 @@ func sessionListener() {
 		var edit [][]string
 		var part string
 		var term bool
-		task := ""
+		var task string
 		if _, ok := dat["edit"]; ok {
 			edit = convertInterfaceToString(dat["edit"])
 		}
@@ -68,6 +68,7 @@ func sessionListener() {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
+		response.IP = c.ClientIP()
 		c.JSON(http.StatusOK, response)
 	})
 }

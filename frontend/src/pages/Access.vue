@@ -5,6 +5,7 @@
   import {ref, provide, onMounted, inject} from 'vue';
   import Cookies from "js-cookie";
   import {snackbar} from "mdui";
+  import { Post, Notification } from "@/fetch.js"
 
   const catalog = ref("all");
   const url = inject("url");
@@ -12,34 +13,26 @@
 
   provide("catalog", catalog);
 
-  onMounted(() => {
-    fetch(url+"session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": Cookies.get("token"),
-      },
-      body: JSON.stringify({
-        operation: "task",
-      })
-    }).then(res => res.json()).then((data) => {
-      if (data.error) {
-        snackbar({
-          message: data.error,
-          placement: "top-end",
-        })
-      } else {
-        task.value = data.task
+  onMounted(async() => {
+    const session = await Post(url + "session", {
+      "Token": Cookies.get("token"),
+      "Send": {
+        "operation": "task",
       }
     })
+    if (session.error) {
+      Notification(session.error)
+    } else {
+      task.value = session.task
+    }
   })
 </script>
 
 <template>
-  <mdui-layout-main>
-    <Showcase :tasks="task"></Showcase>
-    <Region :tasks="task"></Region>
-    <Type :tasks="task"></Type>
+  <mdui-layout-main style="display: block">
+    <Showcase :tasks="task" style="width: 100%"></Showcase>
+    <Region :tasks="task" style="width: 100%"></Region>
+    <Type :tasks="task" style="width: 100%"></Type>
   </mdui-layout-main>
 </template>
 

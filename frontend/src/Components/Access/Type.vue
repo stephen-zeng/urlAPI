@@ -19,8 +19,8 @@ function getValue(tasks) {
 
 <template>
   <mdui-collapse>
-    <mdui-collapse-item rounded @click="getValue(props.tasks)">
-      <mdui-list-item slot="header" icon="assessment" rounded>
+    <mdui-collapse-item rounded>
+      <mdui-list-item slot="header" icon="assessment" rounded @click="getValue(props.tasks)">
         种类
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>

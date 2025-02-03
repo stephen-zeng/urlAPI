@@ -2,41 +2,29 @@
 import {inject, ref} from 'vue';
 import {snackbar} from "mdui";
 import { sha256 } from "js-sha256";
+import { Post, Notification } from "@/fetch.js";
 import Cookies from 'js-cookie';
 
-const dialogStatus = ref(true);
 const pwd = ref("")
 const term = ref(false)
 const loginStatus = inject("login");
 const url = inject("url");
 
-function login() {
-  fetch(url + "session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": sha256(pwd.value),
-    },
-    body: JSON.stringify({
-      operation: "login",
-      term: term.value,
-    })
-  }).then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          snackbar({
-            message: data.error,
-            placement: "top-end",
-          })
-        } else {
-          Cookies.set("token", data.token)
-          loginStatus.value = true;
-          snackbar({
-            message: "Login success",
-            placement: "top-end",
-          })
-        }
-      })
+async function login() {
+  const session = await Post(url + "session", {
+    "Token": sha256(pwd.value),
+    "Send": {
+      "operation": "login",
+      "term": term.value,
+    }
+  })
+  if (session.error) {
+    Notification(session.error)
+  } else {
+    Cookies.set("token", session.token);
+    loginStatus.value = true;
+    Notification("Login successful!");
+  }
 }
 </script>
 
@@ -45,10 +33,10 @@ function login() {
     <mdui-card variant="outlined">
       <mdui-icon name='login'></mdui-icon>
       <h1>登录后台</h1>
-      <mdui-text-field type="password"
+      <mdui-text-field type="password" @keydown.enter="login()"
                        toggle-password label="密码"
-                       :value="pwd" @input="pwd = $event.target.value"></mdui-text-field>
-      <mdui-checkbox :checked="term" @input="term = !$event.target.checked">7天内保持登录</mdui-checkbox>
+                       :value="pwd" @change="pwd = $event.target.value"></mdui-text-field>
+      <mdui-checkbox :checked="term" @change="term = !$event.target.checked">7天内保持登录</mdui-checkbox>
       <mdui-button @click="login()">登录</mdui-button>
     </mdui-card>
   </mdui-layout-main>
@@ -62,8 +50,8 @@ mdui-layout-main {
 }
 
 mdui-layout-main mdui-card {
-  height: 50%;
-  width: 50%;
+  height: 25rem;
+  width: 35rem;
   display: flex;
   justify-content: center;
   align-items: center;

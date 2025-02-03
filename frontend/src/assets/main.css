@@ -49,7 +49,15 @@ mdui-list-item mdui-card {
     align-items: center;
     flex-direction: column;
 }
-
 mdui-list-item mdui-card mdui-text-field {
     width: 80%
+}
+
+mdui-collapse {
+    width: 30rem;
+    flex-shrink: 0;
+}
+
+mdui-layout-main {
+    display: flex;
 }

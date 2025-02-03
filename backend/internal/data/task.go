@@ -60,6 +60,10 @@ func FetchTask(data Config) ([]Task, error) {
 		ret, err = fetchTask("target", data.Target)
 	} else if data.IP != "" {
 		ret, err = fetchTask("ip", data.IP)
+	} else if data.Type != "" {
+		ret, err = fetchTask("type", data.IP)
+	} else if data.Region != "" {
+		ret, err = fetchTask("region", data.Region)
 	} else {
 		ret, err = fetchTask("none", data.Status)
 	}
