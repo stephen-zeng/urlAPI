@@ -20,10 +20,11 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 		API = config[0][1]
 	}
 	err := security.NewRequest(security.SecurityConfig(
-		security.WithType("img"),
+		security.WithType("img.gen"),
 		security.WithDomain(Domain),
 		security.WithAPI(API),
-		security.WithIP(IP)))
+		security.WithIP(IP),
+		security.WithTarget(Target)))
 	if err != nil {
 		return ImgResponse{}, err
 	}
@@ -43,7 +44,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	if err == nil {
 		for _, task := range last {
 			if task.Status == "success" && task.Size == Size && task.API == API {
-				if time.Now().Sub(task.Time).Minutes() < 10 {
+				if time.Now().Sub(task.Time).Minutes() < 60 {
 					log.Println("Found old task")
 					var ret ImgResponse
 					err := json.Unmarshal([]byte(task.Return), &ret)
@@ -71,6 +72,10 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 			}
 		}
 	}
+	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
+	if err != nil {
+		log.Println("Region fetch failed")
+	}
 	id, err := data.NewTask(data.DataConfig(
 		data.WithIP(IP),
 		data.WithTarget(Target),
@@ -86,7 +91,11 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	if err != nil {
 		editErr := data.EditTask(data.DataConfig(
 			data.WithUUID(id),
-			data.WithStatus("failed")))
+			data.WithStatus("failed"),
+			data.WithReturn(err.Error()),
+			data.WithRegion(region.Region),
+			data.WithSize(Size),
+			data.WithAPI(API)))
 		if editErr != nil {
 			err = editErr
 		}
@@ -116,10 +125,6 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	jsonReturn, err := json.Marshal(ret)
 	if err != nil {
 		return ImgResponse{}, err
-	}
-	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
-	if err != nil {
-		log.Println("Region fetch failed")
 	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),

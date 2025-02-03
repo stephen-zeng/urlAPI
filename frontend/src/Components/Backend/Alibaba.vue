@@ -94,7 +94,6 @@
                             style="margin-top: 0">
             <mdui-radio value="1024*1024">大 (1024x1024)</mdui-radio>
             <mdui-radio value="512*512">中 (512x512)</mdui-radio>
-            <mdui-radio value="256*256">小 (256x256)</mdui-radio>
             <mdui-radio value="1024*768">横屏 (1024x768)</mdui-radio>
             <mdui-radio value="768*1024">竖屏 (768x1024)</mdui-radio>
           </mdui-radio-group>

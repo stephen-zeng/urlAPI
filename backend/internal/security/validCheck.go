@@ -12,7 +12,7 @@ var txtAPI = []string{"openai", "alibaba", "deepseek", "otherapi"}
 var imgAPI = []string{"openai", "alibaba"}
 
 func modelCheck(Type, API string) error {
-	if Type == "gen" || Type == "sum" || Type == "web" {
+	if Type == "txt.gen" {
 		for _, api := range txtAPI {
 			if API == api {
 				return nil
@@ -20,7 +20,7 @@ func modelCheck(Type, API string) error {
 		}
 		log.Println("The request " + API + " is NOT valid.")
 		return errors.New("invalid request")
-	} else if Type == "img" {
+	} else if Type == "img.gen" {
 		for _, api := range imgAPI {
 			if API == api {
 				return nil

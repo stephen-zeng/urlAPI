@@ -16,6 +16,7 @@ func Start() {
 	r = gin.New()
 	r.Use(cors.New(config))
 	setAPI()
+	download()
 	sessionListener()
 	dashboard()
 	r.Run(":8080")

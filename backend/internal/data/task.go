@@ -7,7 +7,10 @@ import (
 )
 
 func NewTask(data Config) (string, error) {
-	id, err := addTask(time.Now(), data.IP, data.Type, "waiting", data.Target)
+	if data.Status == "" {
+		data.Status = "waiting"
+	}
+	id, err := addTask(time.Now(), data.IP, data.Type, data.Status, data.Target, data.Region)
 	if err != nil {
 		log.Println(err)
 		return "", err

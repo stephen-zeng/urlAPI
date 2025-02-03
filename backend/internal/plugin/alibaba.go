@@ -127,6 +127,7 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 	}
 	timer.Stop()
 	if response["output"].(map[string]interface{})["task_status"] == "FAILED" {
+		log.Println(response)
 		return PluginResponse{}, errors.New("Alibaba imgGen Failed")
 	} else if response["output"].(map[string]interface{})["task_status"] == "SUCCEEDED" {
 		ret := response["output"].(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})

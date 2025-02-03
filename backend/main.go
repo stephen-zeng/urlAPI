@@ -3,18 +3,18 @@ package main
 import (
 	"backend/cmd/set"
 	"backend/internal/router"
-	"fmt"
+	"log"
 	"os"
 )
 
 func main() {
-	router.Start()
 	var err error
 	var pwd set.SetResponse
-	//fmt.Printf("%x", sha256.Sum256([]byte("password")))
 	if os.Args[0] == "restore" {
+		log.Println("Restoring...")
 		pwd, err = set.Restore()
 	} else if os.Args[0] == "repwd" {
+		log.Println("Password Resetting...")
 		pwd, err = set.RePwd()
 	} else {
 		router.Start()
@@ -22,6 +22,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Printf("The new dashboard password is %s\n", pwd)
+		log.Printf("The new dashboard password is %s\n", pwd)
 	}
 }

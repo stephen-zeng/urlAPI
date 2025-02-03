@@ -5,7 +5,7 @@ package security
 // Target: prompt, repositories
 func NewRequest(data Config) error {
 	var err error
-	err = frequencyCheck(data.IP)
+	err = frequencyCheck(data.IP, data.Type, data.Target)
 	if err != nil {
 		return err
 	}
@@ -13,7 +13,7 @@ func NewRequest(data Config) error {
 	if err != nil {
 		return err
 	}
-	if data.Type == "gen" || data.Type == "sum" || data.Type == "img" {
+	if data.Type == "txt.gen" || data.Type == "img.gen" {
 		err = modelCheck(data.Type, data.API)
 		if err != nil {
 			return err
@@ -25,13 +25,13 @@ func NewRequest(data Config) error {
 			return err
 		}
 	}
-	if data.Type == "gen" {
+	if data.Type == "txt.gen" {
 		err = txtGenCheck(data.Target)
 		if err != nil {
 			return err
 		}
 	}
-	if data.Type == "img" {
+	if data.Type == "img.gen" {
 		err = imgGenCheck()
 		if err != nil {
 			return err

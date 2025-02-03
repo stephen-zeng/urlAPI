@@ -35,7 +35,7 @@ func initTask() error {
 	return nil
 }
 
-func addTask(Time time.Time, IP, Type, Status, Target string) (string, error) {
+func addTask(Time time.Time, IP, Type, Status, Target, Region string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
 		UUID:   id,
@@ -44,6 +44,7 @@ func addTask(Time time.Time, IP, Type, Status, Target string) (string, error) {
 		Type:   Type,
 		Status: Status,
 		Target: Target,
+		Region: Region,
 	})
 	if err.Error != nil {
 		log.Println(err.Error)

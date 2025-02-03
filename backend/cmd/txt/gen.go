@@ -34,11 +34,12 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 		API = config[0][1]
 	}
 	err := security.NewRequest(security.SecurityConfig(
-		security.WithType("gen"),
+		security.WithType("txt.gen"),
 		security.WithAPI(API),
 		security.WithTarget(Target),
 		security.WithDomain(Domain),
-		security.WithIP(IP)))
+		security.WithIP(IP),
+		security.WithTarget(Target)))
 	if err != nil {
 		return TxtResponse{}, err
 	}
@@ -52,7 +53,7 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	last, err := data.FetchTask(data.DataConfig(data.WithTarget(target)))
 	if err == nil {
 		for _, task := range last {
-			if time.Now().Sub(task.Time).Minutes() < 10 && task.Status == "success" && task.API == API {
+			if time.Now().Sub(task.Time).Minutes() < 60 && task.Status == "success" && task.API == API {
 				log.Println("Found old task")
 				var ret TxtResponse
 				err := json.Unmarshal([]byte(task.Return), &ret)
@@ -76,10 +77,17 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 		plugin.WithModel(Model),
 		plugin.WithAPI(API),
 		plugin.WithGenPrompt(target)))
+	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
+	if err != nil {
+		log.Println("Region fetch failed")
+	}
 	if err != nil {
 		editErr := data.EditTask(data.DataConfig(
 			data.WithUUID(id),
-			data.WithStatus("failed")))
+			data.WithStatus("failed"),
+			data.WithAPI(API),
+			data.WithTarget(target),
+			data.WithRegion(region.Region)))
 		if editErr != nil {
 			err = editErr
 		}
@@ -93,10 +101,6 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	jsonRet, err := json.Marshal(ret)
 	if err != nil {
 		return TxtResponse{}, err
-	}
-	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
-	if err != nil {
-		log.Println("Region fetch failed")
 	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),

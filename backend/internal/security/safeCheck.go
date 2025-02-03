@@ -9,28 +9,28 @@ import (
 	"time"
 )
 
-var Frequency = make(map[string]time.Time)
+var typeMap = map[string]string{
+	"txt.gen":  "文字生成",
+	"img.gen":  "图片生成",
+	"download": "文件下载",
+}
 
-func frequencyCheck(IP string) error {
-	if IP == "" {
-		log.Println("IP is empty")
-		return errors.New("frequencyCheck failed")
-	}
-	if _, exist := Frequency[IP]; !exist {
-		if len(Frequency) >= 1000000 {
-			Frequency = make(map[string]time.Time)
+func frequencyCheck(IP, Type, Target string) error {
+	list, err := data.FetchTask(data.DataConfig(data.WithIP(IP)))
+	if err != nil {
+		if err.Error() == "Record not found" {
+			return nil
+		} else {
+			return err
 		}
-		Frequency[IP] = time.Now()
-		return nil
-	} else {
-		lastTime := Frequency[IP]
-		Frequency[IP] = time.Now()
-		if time.Now().Sub(lastTime).Seconds() < 0.25 {
+	}
+	for _, task := range list {
+		if time.Now().Sub(task.Time).Seconds() <= 0.25 && task.Type == typeMap[Type] && task.Target == Target {
 			log.Println("The IP " + IP + " accessed too frequently.")
 			return errors.New("frequencyCheck failed")
 		}
-		return nil
 	}
+	return nil
 }
 
 func sourceCheck(source string) error {
