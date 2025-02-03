@@ -8,7 +8,7 @@ import (
 var r *gin.Engine
 
 func Start() {
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowHeaders = []string{"Content-Type", "Authorization"}

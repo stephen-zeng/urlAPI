@@ -23,7 +23,7 @@ func convertInterfaceToString(ori interface{}) [][]string {
 }
 
 func sessionListener() {
-	r.POST("/session", func(c *gin.Context) {
+	r.POST("/dashsession", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		dat := make(map[string]interface{})
 		err := c.ShouldBindJSON(&dat)
