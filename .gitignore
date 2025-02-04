@@ -1,4 +1,4 @@
-draft
-.idea
-.vscode
+draft/*
+.idea/*
+.vscode/*
 
