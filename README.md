@@ -57,4 +57,4 @@
 # Demo
 + demo地址: http://urlapi.asdfhjkl.cn
 + dash密码是123456
-P.S. 项目release的时候本人的OpenAI余额用完了，然后充钱渠道暂时不可用，所以OpenAI的接口均为理论可行，实际未测试状态。使用demo的时候请注意不要留下任何敏感信息。
++ P.S. 项目release的时候本人的OpenAI余额用完了，然后充钱渠道暂时不可用，所以OpenAI的接口均为理论可行，实际未测试状态。使用demo的时候请注意不要留下任何敏感信息。
