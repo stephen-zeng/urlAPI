@@ -4,5 +4,6 @@ Authorization: Token
     "term": false,
     "part": "txt",
     "edit": [[],[]],
-    "task": "uuid / all"
+    "by": "region / status / type",
+    "task": ""
 }

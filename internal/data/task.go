@@ -1,0 +1,96 @@
+package data
+
+import (
+	_ "github.com/mattn/go-sqlite3" // 下划线表示初始化这个包的内容以便使用
+	"log"
+	"time"
+)
+
+func InitTask(data Config) error {
+	if data.Type != "restore" && db.Migrator().HasTable(&Task{}) {
+		return nil
+	} else {
+		db.AutoMigrate(&Task{})
+		err := db.Where("1 = 1").Delete(&Task{})
+		if err.Error != nil {
+			return err.Error
+		} else {
+			log.Println("Initialized Task")
+			return nil
+		}
+	}
+}
+
+func NewTask(data Config) (string, error) {
+	if data.Status == "" {
+		data.Status = "waiting"
+	}
+	id, err := addTask(time.Now(), data.IP, data.Type, data.Status, data.Target, data.Region)
+	if err != nil {
+		log.Println(err)
+		return "", err
+	} else {
+		return id, nil
+	}
+}
+
+func DelTask(data Config) error {
+	var err error
+	if data.UUID != "" {
+		err = delTask("uuid", data.UUID)
+	} else if data.Target != "" {
+		err = delTask("target", data.Target)
+	}
+	if err != nil {
+		log.Println(err)
+		return err
+	} else {
+		return nil
+	}
+}
+
+func EditTask(data Config) error {
+	var by string
+	var byData string
+	var err error
+	if data.UUID != "" {
+		by = "uuid"
+		byData = data.UUID
+	} else if data.Target != "" {
+		by = "target"
+		byData = data.Target
+	}
+	err = editTask(by, byData, data.Status, data.Return, data.Size, data.API, data.Region)
+	if err != nil {
+		log.Println(err)
+		return err
+	} else {
+		return nil
+	}
+}
+
+func FetchTask(data Config) ([]Task, error) {
+	var ret []Task
+	var err error
+	if data.By != "" {
+		ret, err = fetchTask(data.By, data.Type)
+	} else if data.UUID != "" {
+		ret, err = fetchTask("uuid", data.UUID)
+	} else if data.Target != "" {
+		ret, err = fetchTask("target", data.Target)
+	} else if data.IP != "" {
+		ret, err = fetchTask("ip", data.IP)
+	} else if data.Type != "" {
+		ret, err = fetchTask("type", data.IP)
+	} else if data.Region != "" {
+		ret, err = fetchTask("region", data.Region)
+	} else {
+		ret, err = fetchTask("none", data.Status)
+	}
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	} else {
+		return ret, nil
+	}
+}
