@@ -3,21 +3,22 @@ package data
 import "time"
 
 type Config struct {
-	UUID   string
-	Status string
-	Return string
-	Target string
-	IP     string
-	Type   string
-	Name   []string
-	Edit   [][]string
-	Size   string
-	API    string
-	Token  string
-	Expire time.Time
-	Term   bool
-	Region string
-	By     string
+	UUID          string
+	Type          string
+	API           string
+	By            string
+	TaskStatus    string
+	TaskReturn    string
+	TaskTarget    string
+	TaskSize      string
+	TaskRegion    string
+	TaskIP        string
+	SettingName   []string
+	SettingEdit   [][]string
+	SessionToken  string
+	SessionExpire time.Time
+	SessionTerm   bool
+	RepoInfo      string
 }
 type Option func(*Config)
 
@@ -26,24 +27,24 @@ func WithUUID(id string) Option {
 		config.UUID = id
 	}
 }
-func WithStatus(status string) Option {
+func WithTaskStatus(status string) Option {
 	return func(config *Config) {
-		config.Status = status
+		config.TaskStatus = status
 	}
 }
-func WithReturn(ret string) Option {
+func WithTaskReturn(ret string) Option {
 	return func(config *Config) {
-		config.Return = ret
+		config.TaskReturn = ret
 	}
 }
-func WithTarget(target string) Option {
+func WithTaskTarget(target string) Option {
 	return func(config *Config) {
-		config.Target = target
+		config.TaskTarget = target
 	}
 }
-func WithIP(ip string) Option {
+func WithTaskIP(ip string) Option {
 	return func(config *Config) {
-		config.IP = ip
+		config.TaskIP = ip
 	}
 }
 func WithType(t string) Option {
@@ -51,19 +52,19 @@ func WithType(t string) Option {
 		config.Type = t
 	}
 }
-func WithEdit(edit [][]string) Option {
+func WithSettingEdit(edit [][]string) Option {
 	return func(config *Config) {
-		config.Edit = edit
+		config.SettingEdit = edit
 	}
 }
-func WithName(name []string) Option {
+func WithSettingName(name []string) Option {
 	return func(config *Config) {
-		config.Name = name
+		config.SettingName = name
 	}
 }
-func WithSize(size string) Option {
+func WithTaskSize(size string) Option {
 	return func(config *Config) {
-		config.Size = size
+		config.TaskSize = size
 	}
 }
 func WithAPI(api string) Option {
@@ -71,24 +72,24 @@ func WithAPI(api string) Option {
 		config.API = api
 	}
 }
-func WithToken(token string) Option {
+func WithSessionToken(token string) Option {
 	return func(config *Config) {
-		config.Token = token
+		config.SessionToken = token
 	}
 }
-func WithExpire(expire time.Time) Option {
+func WithSessionExpire(expire time.Time) Option {
 	return func(config *Config) {
-		config.Expire = expire
+		config.SessionExpire = expire
 	}
 }
-func WithTerm(term bool) Option {
+func WithSessionTerm(term bool) Option {
 	return func(config *Config) {
-		config.Term = term
+		config.SessionTerm = term
 	}
 }
-func WithRegion(region string) Option {
+func WithTaskRegion(region string) Option {
 	return func(config *Config) {
-		config.Region = region
+		config.TaskRegion = region
 	}
 }
 func WithBy(by string) Option {
@@ -96,10 +97,14 @@ func WithBy(by string) Option {
 		config.By = by
 	}
 }
-
+func WithRepoInfo(repoInfo string) Option {
+	return func(config *Config) {
+		config.RepoInfo = repoInfo
+	}
+}
 func DataConfig(opts ...Option) Config {
 	config := Config{
-		Term: false,
+		SessionTerm: false,
 	}
 	for _, opt := range opts {
 		opt(&config)

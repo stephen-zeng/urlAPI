@@ -7,8 +7,8 @@ import (
 
 type Setting struct {
 	// 是可导出的类型才能使用GORM
-	Name  string `gorm:"primaryKey"`
-	Value string
+	Name  string `json:"name" gorm:"primaryKey"`
+	Value string `json:"value"`
 }
 
 func editSetting(name []string, value [][]string) error {

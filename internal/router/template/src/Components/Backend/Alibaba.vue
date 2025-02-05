@@ -10,14 +10,14 @@
     const session = await Post(url+"session", {
       "Token": Cookies.get("token"),
       "Send": {
-        "operation": "fetch",
-        "part": "alibaba"
+        "operation": "fetchSetting",
+        "setting_part": "alibaba"
       }
     })
     if (session.error) {
       Notification(session.error)
     } else {
-      settings.value = session.setting
+      settings.value = session.setting_data
     }
   }
 
@@ -25,9 +25,9 @@
     const session = await Post(url+"session", {
       "Token": Cookies.get("token"),
       "Send": {
-        "operation": "edit",
-        "part": "alibaba",
-        "edit": settings.value,
+        "operation": "editSetting",
+        "setting_part": "alibaba",
+        "setting_edit": settings.value,
       }
     })
     if (session.error) {

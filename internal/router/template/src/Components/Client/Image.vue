@@ -15,14 +15,14 @@ async function getSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "fetch",
-      "part": "img"
+      "operation": "fetchSetting",
+      "setting_part": "img"
     }
   })
   if (session.error) {
     Notification(session.error)
   } else {
-    settings.value = session.setting
+    settings.value = session.setting_data
   }
 }
 
@@ -30,9 +30,9 @@ async function sendSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "edit",
-      "part": "img",
-      "edit": settings.value,
+      "operation": "editSetting",
+      "setting_part": "img",
+      "setting_edit": settings.value,
     }
   })
   if (session.error) {
@@ -68,20 +68,15 @@ async function sendSetting() {
             <mdui-radio value="alibaba">Alibaba</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">Github随机图片中RAW网址</p>
-          <mdui-text-field variant="outlined" label="反代地址"
-                           :value="settings?settings[0][2]:''"
-                           @change="settings[0][2] = $event.target.value"></mdui-text-field>
-          <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"
-                           :value="settings?settings[0][3]:'60'"
-                           @change="settings[0][3] = $event.target.value"></mdui-text-field>
+                           :value="settings?settings[0][2]:'60'"
+                           @change="settings[0][2] = $event.target.value"></mdui-text-field>
           <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">生成失败时返回的图片</p>
           <mdui-text-field variant="outlined" label="URL"
-                           :value="settings?settings[0][4]:'60'"
-                           @change="settings[0][4] = $event.target.value"></mdui-text-field>
+                           :value="settings?settings[0][3]:''"
+                           @change="settings[0][3] = $event.target.value"></mdui-text-field>
           <mdui-button full-width @click="sendSetting">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>

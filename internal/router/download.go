@@ -70,11 +70,11 @@ func download() {
 			log.Println("Region fetch failed")
 		}
 		_, err = data.NewTask(data.DataConfig(
-			data.WithIP(c.ClientIP()),
-			data.WithRegion(region.Region),
+			data.WithTaskIP(c.ClientIP()),
+			data.WithTaskRegion(region.Region),
 			data.WithType("文件下载"),
-			data.WithStatus("success"),
-			data.WithTarget(id)))
+			data.WithTaskStatus("success"),
+			data.WithTaskTarget(id)))
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),

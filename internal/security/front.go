@@ -20,7 +20,7 @@ func NewRequest(data Config) error {
 		}
 	}
 	if data.Type == "rand" {
-		err = repoCheck(data.API, data.User, data.Repo)
+		err = randCheck(data.API, data.Target)
 		if err != nil {
 			return err
 		}

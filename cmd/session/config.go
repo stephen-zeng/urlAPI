@@ -6,51 +6,55 @@ import (
 )
 
 type SessionResponse struct {
-	Token   string      `json:"token"`
-	Name    []string    `json:"name"`
-	Part    string      `json:"part"`
-	Setting [][]string  `json:"setting"`
-	Task    []data.Task `json:"task"`
-	IP      string      `json:"ip"`
+	SessionToken string              `json:"session_token"`
+	SessionIP    string              `json:"session_ip"`
+	SettingName  []string            `json:"setting_name"`
+	SettingPart  string              `json:"setting_part"`
+	SettingData  [][]string          `json:"setting_data"`
+	TaskData     []data.Task         `json:"task_data"`
+	RepoData     []data.RepoResponse `json:"repo_data"`
 }
 
 type Config struct {
-	Type      string
-	Token     string
-	IP        string
-	Time      time.Time
-	Term      bool
-	Operation string
-	Part      string
-	Edit      [][]string
-	By        string
-	Task      string
+	Operation    string
+	SessionType  string
+	SessionToken string
+	SessionIP    string
+	SessionTime  time.Time
+	SessionTerm  bool
+	SettingPart  string
+	SettingEdit  [][]string
+	TaskCatagory string
+	TaskBy       string
+	RepoAPI      string
+	RepoInfo     string
+	RepoUUID     string
 }
 type Option func(*Config)
 
-func WithType(t string) Option {
+func WithSessionType(t string) Option {
 	return func(c *Config) {
-		c.Type = t
+		c.SessionType = t
 	}
 }
-func WithToken(t string) Option {
+func WithSessionToken(t string) Option {
 	return func(c *Config) {
-		c.Token = t
+		c.SessionToken = t
 	}
 }
-func WithIP(ip string) Option {
+func WithSessionIP(ip string) Option {
 	return func(c *Config) {
-		c.IP = ip
+		c.SessionIP = ip
 	}
 }
-func WithTime(t time.Time) Option {
+func WithSessionTime(t time.Time) Option {
 	return func(c *Config) {
-		c.Time = t
+		c.SessionTime = t
 	}
 }
-func WithTerm(term bool) Option {
+func WithSessionTerm(term bool) Option {
 	return func(c *Config) {
-		c.Term = term
+		c.SessionTerm = term
 	}
 }
 func WithOperation(operation string) Option {
@@ -58,24 +62,39 @@ func WithOperation(operation string) Option {
 		c.Operation = operation
 	}
 }
-func WithPart(part string) Option {
+func WithSettingPart(part string) Option {
 	return func(c *Config) {
-		c.Part = part
+		c.SettingPart = part
 	}
 }
-func WithEdit(edit [][]string) Option {
+func WithSettingEdit(edit [][]string) Option {
 	return func(c *Config) {
-		c.Edit = edit
+		c.SettingEdit = edit
 	}
 }
-func WithBy(by string) Option {
+func WithTaskCatagory(by string) Option {
 	return func(c *Config) {
-		c.By = by
+		c.TaskCatagory = by
 	}
 }
-func WithTask(task string) Option {
+func WithTaskBy(task string) Option {
 	return func(c *Config) {
-		c.Task = task
+		c.TaskBy = task
+	}
+}
+func WithRepoAPI(api string) Option {
+	return func(c *Config) {
+		c.RepoAPI = api
+	}
+}
+func WithRepoInfo(info string) Option {
+	return func(c *Config) {
+		c.RepoInfo = info
+	}
+}
+func WithRepoUUID(uuid string) Option {
+	return func(c *Config) {
+		c.RepoUUID = uuid
 	}
 }
 func SessionConfig(opts ...Option) Config {

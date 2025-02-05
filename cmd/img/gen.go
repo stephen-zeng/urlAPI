@@ -12,24 +12,24 @@ import (
 	"time"
 )
 
-func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse, error) {
+func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgResponse, error) {
 	var expired = 60
 	var fallbackURL = "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png"
-	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 	if err != nil {
 		return ImgResponse{}, err
 	}
 	if API == "" {
 		API = config[0][1]
 	}
-	if len(config[0]) > 3 {
-		expired, err = strconv.Atoi(config[0][3])
+	if len(config[0]) > 2 {
+		expired, err = strconv.Atoi(config[0][2])
 		if err != nil {
 			return ImgResponse{}, err
 		}
 	}
-	if len(config[0]) > 4 {
-		fallbackURL = config[0][4]
+	if len(config[0]) > 3 {
+		fallbackURL = config[0][3]
 	}
 	err = security.NewRequest(security.SecurityConfig(
 		security.WithType("img.gen"),
@@ -41,7 +41,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 		return ImgResponse{}, err
 	}
 	if Model == "" || Size == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
+		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{API})))
 		if err != nil {
 			return ImgResponse{}, err
 		}
@@ -52,7 +52,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 			Size = config[0][4]
 		}
 	}
-	last, err := data.FetchTask(data.DataConfig(data.WithTarget(Target)))
+	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(Target)))
 	if err == nil {
 		for _, task := range last {
 			if task.Status == "success" && task.Size == Size && task.API == API {
@@ -62,7 +62,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 					err := json.Unmarshal([]byte(task.Return), &ret)
 					if err != nil {
 						return ImgResponse{}, err
-					} else {
+					} else if Regen != "true" {
 						return ret, nil
 					}
 				} else {
@@ -75,7 +75,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 					}
 					err = data.EditTask(data.DataConfig(
 						data.WithUUID(task.UUID),
-						data.WithStatus("outdated")))
+						data.WithTaskStatus("outdated")))
 					if err != nil {
 						log.Println(err)
 						return ImgResponse{}, err
@@ -89,9 +89,13 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 		log.Println("Region fetch failed")
 	}
 	id, err := data.NewTask(data.DataConfig(
-		data.WithIP(IP),
-		data.WithTarget(Target),
-		data.WithType("图片生成")))
+		data.WithType("图片生成"),
+		data.WithAPI(API),
+		data.WithTaskIP(IP),
+		data.WithTaskTarget(Target),
+		data.WithTaskSize(Size),
+		data.WithTaskRegion(region.Region),
+	))
 	if err != nil {
 		return ImgResponse{}, err
 	}
@@ -103,11 +107,9 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	if err != nil {
 		editErr := data.EditTask(data.DataConfig(
 			data.WithUUID(id),
-			data.WithStatus("failed"),
-			data.WithReturn(err.Error()),
-			data.WithRegion(region.Region),
-			data.WithSize(Size),
-			data.WithAPI(API)))
+			data.WithTaskStatus("failed"),
+			data.WithTaskReturn(err.Error()),
+		))
 		if editErr != nil {
 			err = editErr
 		}
@@ -122,7 +124,8 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	err = file.Add(file.FileConfig(
 		file.WithType("img"),
 		file.WithUUID(id),
-		file.WithURL(url)))
+		file.WithURL(url),
+	))
 	if err != nil {
 		return ImgResponse{}, err
 	}
@@ -138,11 +141,9 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
-		data.WithReturn(string(jsonReturn)),
-		data.WithStatus("success"),
-		data.WithSize(Size),
-		data.WithAPI(API),
-		data.WithRegion(region.Region)))
+		data.WithTaskStatus("success"),
+		data.WithTaskReturn(string(jsonReturn)),
+	))
 	if err != nil {
 		return ImgResponse{}, err
 	} else {

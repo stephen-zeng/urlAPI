@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import {sha256} from "js-sha256";
 
 const url = inject('url')
-const settings = ref()
+const settings = ref({})
 const input1 = ref('')
 const input2 = ref('')
 const ip = ref('')
@@ -15,15 +15,15 @@ async function getSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "fetch",
-      "part": "security"
+      "operation": "fetchSetting",
+      "setting_part": "security"
     }
   })
   if (session.error) {
     Notification(session.error)
   } else {
-    settings.value = session.setting
-    ip.value = session.ip
+    settings.value = session.setting_data
+    ip.value = session.session_ip
   }
 }
 
@@ -31,9 +31,9 @@ async function sendSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "edit",
-      "part": "security",
-      "edit": settings.value,
+      "operation": "editSetting",
+      "setting_part": "security",
+      "setting_edit": settings.value,
     }
   })
   if (session.error) {
@@ -69,8 +69,9 @@ function del(list, index) {
           </mdui-text-field>
           <div class="list">
             <mdui-list>
-              <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" @click="del(settings[1], index)">
+              <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" nonclickable>
                 {{ item }}
+                <mdui-button-icon slot="end-icon" icon="delete" @click="del(settings[1], index)"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>
@@ -82,12 +83,13 @@ function del(list, index) {
           </mdui-text-field>
           <div class="list">
             <mdui-list>
-              <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" @click="del(settings[2], index)">
+              <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" nonclickable>
                 {{ item }}
+                <mdui-button-icon slot="end-icon" icon="delete" @click="del(settings[2], index)"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>
-          <mdui-button full-width @click="sendSetting()">确认</mdui-button>
+          <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

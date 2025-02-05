@@ -40,6 +40,7 @@ func init() {
 		InitTask(DataConfig())
 		pwd, _ := InitSetting(DataConfig())
 		InitSession(DataConfig())
+		InitRepo(DataConfig())
 		if pwd != "" {
 			log.Printf("Dashboard password is %s\n", pwd)
 		}

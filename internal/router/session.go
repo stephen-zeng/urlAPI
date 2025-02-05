@@ -33,47 +33,63 @@ func sessionListener() {
 			return
 		}
 		typ, err := session.Auth(session.SessionConfig(
-			session.WithToken(token),
-			session.WithTime(time.Now()),
-			session.WithIP(c.ClientIP())))
+			session.WithSessionToken(token),
+			session.WithSessionTime(time.Now()),
+			session.WithSessionIP(c.ClientIP())))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
-		var edit [][]string
-		var part string
-		var term bool
-		var task string
-		var by string
-		if _, ok := dat["edit"]; ok {
-			edit = convertInterfaceToString(dat["edit"])
+		var loginTerm bool
+		var settingEdit [][]string
+		var settingPart string
+		var taskBy string
+		var taskCatagory string
+		var repoAPI string
+		var repoInfo string
+		var repoUUID string
+		switch dat["operation"].(string) {
+		case "login":
+			loginTerm = dat["login_term"].(bool)
+		case "logout":
+			loginTerm = dat["login_term"].(bool)
+		case "exit":
+			loginTerm = dat["login_term"].(bool)
+		case "fetchTask":
+			taskCatagory = dat["task_catagory"].(string)
+			taskBy = dat["task_by"].(string)
+		case "fetchSetting":
+			settingPart = dat["setting_part"].(string)
+		case "editSetting":
+			settingEdit = convertInterfaceToString(dat["setting_edit"])
+			settingPart = dat["setting_part"].(string)
+		case "newRepo":
+			repoAPI = dat["repo_api"].(string)
+			repoInfo = dat["repo_info"].(string)
+		case "refreshRepo":
+			repoUUID = dat["repo_uuid"].(string)
+		case "delRepo":
+			repoUUID = dat["repo_uuid"].(string)
 		}
-		if _, ok := dat["part"]; ok {
-			part = dat["part"].(string)
-		}
-		if _, ok := dat["term"]; ok {
-			term = dat["term"].(bool)
-		}
-		if _, ok := dat["task"]; ok {
-			task = dat["task"].(string)
-		}
-		if _, ok := dat["by"]; ok {
-			by = dat["by"].(string)
-		}
+
 		response, err := session.New(session.SessionConfig(
-			session.WithToken(token),
-			session.WithType(typ),
-			session.WithTerm(term),
 			session.WithOperation(dat["operation"].(string)),
-			session.WithPart(part),
-			session.WithEdit(edit),
-			session.WithBy(by),
-			session.WithTask(task)))
+			session.WithSessionToken(token),
+			session.WithSessionType(typ),
+			session.WithSessionTerm(loginTerm),
+			session.WithTaskCatagory(taskCatagory),
+			session.WithTaskBy(taskBy),
+			session.WithSettingPart(settingPart),
+			session.WithSettingEdit(settingEdit),
+			session.WithRepoAPI(repoAPI),
+			session.WithRepoInfo(repoInfo),
+			session.WithRepoUUID(repoUUID),
+		))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
-		response.IP = c.ClientIP()
+		response.SessionIP = c.ClientIP()
 		c.JSON(http.StatusOK, response)
 	})
 }

@@ -13,10 +13,14 @@ var typeMap = map[string]string{
 	"txt.gen":  "文字生成",
 	"img.gen":  "图片生成",
 	"download": "文件下载",
+	"rand":     "随机图片",
 }
 
 func frequencyCheck(IP, Type, Target string) error {
-	list, err := data.FetchTask(data.DataConfig(data.WithIP(IP)))
+	if Type == "rand" {
+		return nil
+	}
+	list, err := data.FetchTask(data.DataConfig(data.WithTaskIP(IP)))
 	if err != nil {
 		if err.Error() == "Record not found" {
 			return nil
@@ -34,11 +38,12 @@ func frequencyCheck(IP, Type, Target string) error {
 }
 
 func sourceCheck(source string) error {
+	return nil
 	if source == "" {
 		log.Println("The source domain is empty.")
 		return errors.New("sourceCheck failed")
 	}
-	list, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"allowedref"})))
+	list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"allowedref"})))
 	if err != nil {
 		return err
 	}
@@ -61,11 +66,15 @@ func txtGenCheck(Target string) error {
 		log.Println("The target domain is empty.")
 		return errors.New("txtGenTargetCheck failed")
 	}
-	txtEnabled, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"txtgenenabled"})))
+	txt, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt", "txtgenenabled"})))
 	if err != nil {
 		return err
 	}
-	for _, item := range txtEnabled[0] {
+	if txt[0][0] != "true" {
+		log.Println("Txt disabled.")
+		return errors.New("Txt disabled")
+	}
+	for _, item := range txt[1] {
 		if item == Target {
 			return nil
 		}
@@ -75,7 +84,7 @@ func txtGenCheck(Target string) error {
 }
 
 func imgGenCheck() error {
-	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"img"})))
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 	if err != nil {
 		return err
 	}
@@ -83,6 +92,26 @@ func imgGenCheck() error {
 		return nil
 	} else {
 		log.Println("The imgGen isn't enabled.")
-		return errors.New("imgGenCheck failed")
+		return errors.New("Img Disabled")
+	}
+}
+
+func randCheck(API, Info string) error {
+	rd, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"rand"})))
+	if err != nil {
+		return err
+	}
+	if rd[0][0] != "true" {
+		log.Println("Random picture isn't enabled.")
+		return errors.New("Random picture disabled")
+	}
+	_, err = data.FetchRepo(data.DataConfig(
+		data.WithBy("api&info"),
+		data.WithAPI(API),
+		data.WithRepoInfo(Info)))
+	if err != nil {
+		return err
+	} else {
+		return nil
 	}
 }

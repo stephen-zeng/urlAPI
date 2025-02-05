@@ -34,14 +34,16 @@ func InitSetting(data Config) (string, error) {
 	txtgenenabled := []string{"_"}
 	txtsumenabled := []string{"_"}
 
-	img := []string{"false", "alibaba", "https://raw.githubusercontent.com", "60", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png"}
+	img := []string{"false", "alibaba", "60", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png"}
 
 	web := []string{"false", "false", "alibaba"}
 	webimgallowed := []string{"_"}
 	websumblocked := []string{"_"}
+
+	rd := []string{"false", "https://raw.githubusercontent.com", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png"}
 	err := editSetting(
-		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked"},
-		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked})
+		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand"},
+		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd})
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -52,7 +54,7 @@ func InitSetting(data Config) (string, error) {
 }
 
 func EditSetting(data Config) error {
-	err := editSetting(data.Name, data.Edit)
+	err := editSetting(data.SettingName, data.SettingEdit)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -62,7 +64,7 @@ func EditSetting(data Config) error {
 }
 
 func FetchSetting(data Config) ([][]string, error) {
-	ret, err := fetchSetting(data.Name)
+	ret, err := fetchSetting(data.SettingName)
 	if err != nil {
 		log.Println(err)
 		return nil, err

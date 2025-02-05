@@ -5,51 +5,14 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 )
 
-var Part = map[string][]string{
-	"openai":   []string{"openai"},
-	"deepseek": []string{"deepseek"},
-	"alibaba":  []string{"alibaba"},
-	"otherapi": []string{"otherapi"},
-	"security": []string{"dash", "dashallowedip", "allowedref"},
-	"txt":      []string{"txt", "txtgenenabled", "txtsumenabled"},
-	"img":      []string{"img"},
-	"web":      []string{"web", "webimgallowed", "websumblocked"},
-}
-
-func fetch(part string) (SetResponse, error) {
-	list, err := data.FetchSetting(
-		data.DataConfig(
-			data.WithName(Part[part])))
+func RePwd() (SetResponse, error) {
+	dat, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"dash"})))
 	if err != nil {
 		return SetResponse{}, err
-	} else {
-		return SetResponse{
-			Name:    Part[part],
-			Setting: list,
-		}, nil
-	}
-}
-
-func edit(part string, edit [][]string) (SetResponse, error) {
-	err := data.EditSetting(data.DataConfig(
-		data.WithName(Part[part]),
-		data.WithEdit(edit)))
-	if err != nil {
-		return SetResponse{}, err
-	} else {
-		return SetResponse{
-			Name: Part[part],
-		}, err
-	}
-}
-
-func repwd() (string, error) {
-	dat, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"dash"})))
-	if err != nil {
-		return "", err
 	}
 	rand.Seed(time.Now().UnixNano())
 	acsii := []int{10, 26, 26}
@@ -61,7 +24,34 @@ func repwd() (string, error) {
 	}
 	dat[0][0] = fmt.Sprintf("%x", sha256.Sum256([]byte(pwd)))
 	err = data.EditSetting(data.DataConfig(
-		data.WithName([]string{"dash"}),
-		data.WithEdit(dat)))
-	return pwd, err
+		data.WithSettingName([]string{"dash"}),
+		data.WithSettingEdit(dat)))
+	return SetResponse{
+		Pwd: pwd,
+	}, err
+}
+
+func Restore() (SetResponse, error) {
+	err := data.InitSession(data.DataConfig(data.WithType("restore")))
+	if err != nil {
+		return SetResponse{}, err
+	}
+	pwd, err := data.InitSetting(data.DataConfig(data.WithType("restore")))
+	return SetResponse{
+		Pwd: pwd,
+	}, err
+}
+
+func Clear() error {
+	os.RemoveAll("assets/img")
+	os.Mkdir("assets/img", 0777)
+	err := data.InitTask(data.DataConfig(data.WithType("restore")))
+	return err
+}
+
+func ClearIP() error {
+	err := data.EditSetting(data.DataConfig(
+		data.WithSettingName([]string{"dashallowedip"}),
+		data.WithSettingEdit([][]string{{"*"}})))
+	return err
 }

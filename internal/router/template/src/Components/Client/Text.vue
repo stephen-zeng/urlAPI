@@ -15,14 +15,14 @@ async function getSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "fetch",
-      "part": "txt"
+      "operation": "fetchSetting",
+      "setting_part": "txt"
     }
   })
   if (session.error) {
     Notification(session.error)
   } else {
-    settings.value = session.setting
+    settings.value = session.setting_data
   }
 }
 
@@ -30,9 +30,9 @@ async function sendSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "edit",
-      "part": "txt",
-      "edit": settings.value,
+      "operation": "editSetting",
+      "setting_part": "txt",
+      "setting_edit": settings.value,
     }
   })
   if (session.error) {

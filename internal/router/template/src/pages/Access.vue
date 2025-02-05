@@ -20,15 +20,15 @@
     const session = await Post(url + "session", {
       "Token": Cookies.get("token"),
       "Send": {
-        "operation": "task",
-        "by": catagory.value,
-        "task": by.value,
+        "operation": "fetchTask",
+        "task_catagory": catagory.value,
+        "task_by": by.value,
       }
     })
     if (session.error) {
       Notification(session.error)
     } else {
-      task.value = session.task
+      task.value = session.task_data
     }
   }
 

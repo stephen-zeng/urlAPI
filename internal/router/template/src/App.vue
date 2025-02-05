@@ -30,7 +30,8 @@ import {Notification, Post} from "@/fetch.js";
       const session = await Post(url + "session", {
         "Token": Cookies.get("token"),
         "Send": {
-          "operation": "login"
+          "operation": "login",
+          "login_term": false,
         }
       })
       if (session.error) {
@@ -46,7 +47,8 @@ import {Notification, Post} from "@/fetch.js";
       const session = await Post(url + "session", {
         "Token": Cookies.get("token"),
         "Send": {
-          "operation": "exit"
+          "operation": "exit",
+          "login_term": false,
         }
       })
       login.value = false

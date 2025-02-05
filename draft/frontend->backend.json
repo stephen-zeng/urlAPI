@@ -1,9 +1,12 @@
-Authorization: Token
+Authorization: SessionToken
 {
-    "operation": "fetch / edit / login / logout / clear / exit / task",
-    "term": false,
-    "part": "txt",
-    "edit": [[],[]],
-    "by": "region / status / type",
-    "task": ""
+    "operation": "fetchTask / fetchSetting / editSetting / newRepo / refreshRepo / fetchRepo / delRepo / login / logout / exit",
+    "login_term": false,
+    "setting_part": "openai / alibaba / deepseek / otherapi / txt / img / rand / web / security",
+    "setting_edit": [[],[]],
+    "task_catagory": "region / status / type",
+    "task_by": "...",
+    "repo_api": "",
+    "repo_info": "",
+    "repo_uuid": ""
 }

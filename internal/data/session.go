@@ -18,9 +18,9 @@ func InitSession(data Config) error {
 }
 func AddSession(data Config) error {
 	err := addSession(
-		data.Token,
-		data.Term,
-		data.Expire)
+		data.SessionToken,
+		data.SessionTerm,
+		data.SessionExpire)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -29,7 +29,7 @@ func AddSession(data Config) error {
 	}
 }
 func DelSession(data Config) error {
-	err := delSession(data.Token)
+	err := delSession(data.SessionToken)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -38,5 +38,5 @@ func DelSession(data Config) error {
 	}
 }
 func FetchSession(data Config) ([]Session, error) {
-	return fetchSession(data.Token)
+	return fetchSession(data.SessionToken)
 }

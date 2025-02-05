@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func login(dat Config) (string, error) {
+func newLogin(Term bool) (string, error) {
 	rand.Seed(time.Now().UnixNano())
 	acsii := []int{10, 26, 26}
 	acsiiPlus := []int{48, 65, 97}
@@ -17,32 +17,32 @@ func login(dat Config) (string, error) {
 		tk += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
 	}
 	var exp time.Time
-	if dat.Term == true {
+	if Term == true {
 		exp = time.Now().AddDate(0, 0, 7)
 	} else {
 		exp = time.Now().Add(time.Hour * 12)
 	}
 	err := data.AddSession(data.DataConfig(
-		data.WithToken(tk),
-		data.WithExpire(exp),
-		data.WithTerm(dat.Term)))
+		data.WithSessionToken(tk),
+		data.WithSessionExpire(exp),
+		data.WithSessionTerm(Term)))
 	if err != nil {
 		return "", err
 	} else {
 		return tk, nil
 	}
 }
-func logout(dat Config) error {
-	return data.DelSession(data.DataConfig(data.WithToken(dat.Token)))
+func logout(Token string) error {
+	return data.DelSession(data.DataConfig(data.WithSessionToken(Token)))
 }
-func exit(dat Config) error {
-	sessions, err := data.FetchSession(data.DataConfig(data.WithToken(dat.Token)))
+func exit(Token string) error {
+	sessions, err := data.FetchSession(data.DataConfig(data.WithSessionToken(Token)))
 	if err != nil {
 		return err
 	}
 	if sessions[0].Term == false {
 		log.Println("Temporary session logout")
-		return data.DelSession(data.DataConfig(data.WithToken(dat.Token)))
+		return data.DelSession(data.DataConfig(data.WithSessionToken(Token)))
 	} else {
 		return nil
 	}

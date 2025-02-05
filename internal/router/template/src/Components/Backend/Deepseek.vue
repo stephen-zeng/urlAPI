@@ -10,14 +10,14 @@ async function getSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "fetch",
-      "part": "deepseek"
+      "operation": "fetchSetting",
+      "setting_part": "deepseek"
     }
   })
   if (session.error) {
     Notification(session.error)
   } else {
-    settings.value = session.setting
+    settings.value = session.setting_data
   }
 }
 
@@ -25,9 +25,9 @@ async function sendSetting() {
   const session = await Post(url+"session", {
     "Token": Cookies.get("token"),
     "Send": {
-      "operation": "edit",
-      "part": "deepseek",
-      "edit": settings.value,
+      "operation": "editSetting",
+      "setting_part": "deepseek",
+      "setting_edit": settings.value,
     }
   })
   if (session.error) {

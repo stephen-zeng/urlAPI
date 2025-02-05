@@ -3,6 +3,8 @@
   import Theme from "@/Components/Theme.vue";
   import Cookies from "js-cookie";
   import {snackbar} from "mdui";
+  import {Notification, Post} from "@/fetch.js";
+  import {sha256} from "js-sha256";
 
   const props = defineProps(['title'])
   const sidebarStatus = inject('sidebarStatus')
@@ -12,31 +14,21 @@
   function SidebarStatusChanged() {
     sidebarStatus.value = !sidebarStatus.value;
   }
-  function logout() {
-    fetch(url+"session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": Cookies.get("token"),
-      },
-      body: JSON.stringify({
-        operation: "logout",
-      })
-    }).then(res => res.json()).then((data) => {
-      if (data.error) {
-        snackbar({
-          message: data.error,
-          placement: "top-end",
-        })
-      } else {
-        login.value = false;
-        Cookies.remove("token");
-        snackbar({
-          message: "Logged out",
-          placement: "top-end",
-        })
+  async function logout() {
+    const session = await Post(url + "session", {
+      "Token": sha256(pwd.value),
+      "Send": {
+        "operation": "logout",
+        "login_term": false,
       }
     })
+    if (session.error) {
+      Notification(session.error)
+    } else {
+      Cookies.remove("token");
+      login.value = false;
+      Notification("Logout successful!");
+    }
   }
 </script>
 

@@ -22,7 +22,7 @@ type Task struct {
 	Region string    `json:"region"`
 }
 
-func addTask(Time time.Time, IP, Type, Status, Target, Region string) (string, error) {
+func addTask(Time time.Time, IP, Type, Status, Target, Region, Size string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
 		UUID:   id,
@@ -32,6 +32,7 @@ func addTask(Time time.Time, IP, Type, Status, Target, Region string) (string, e
 		Status: Status,
 		Target: Target,
 		Region: Region,
+		Size:   Size,
 	})
 	if err.Error != nil {
 		log.Println(err.Error)
@@ -85,7 +86,7 @@ func fetchTask(by, data string) ([]Task, error) {
 		return nil, err.Error
 	}
 	if len(ret) == 0 {
-		return nil, errors.New("Record not found")
+		return nil, errors.New("Task not found")
 	} else {
 		return ret, nil
 	}

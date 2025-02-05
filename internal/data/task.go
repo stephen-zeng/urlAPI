@@ -22,10 +22,16 @@ func InitTask(data Config) error {
 }
 
 func NewTask(data Config) (string, error) {
-	if data.Status == "" {
-		data.Status = "waiting"
+	if data.TaskStatus == "" {
+		data.TaskStatus = "waiting"
 	}
-	id, err := addTask(time.Now(), data.IP, data.Type, data.Status, data.Target, data.Region)
+	id, err := addTask(time.Now(),
+		data.Type,
+		data.TaskIP,
+		data.TaskStatus,
+		data.TaskTarget,
+		data.TaskRegion,
+		data.TaskSize)
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -38,8 +44,8 @@ func DelTask(data Config) error {
 	var err error
 	if data.UUID != "" {
 		err = delTask("uuid", data.UUID)
-	} else if data.Target != "" {
-		err = delTask("target", data.Target)
+	} else if data.TaskTarget != "" {
+		err = delTask("target", data.TaskTarget)
 	}
 	if err != nil {
 		log.Println(err)
@@ -56,11 +62,11 @@ func EditTask(data Config) error {
 	if data.UUID != "" {
 		by = "uuid"
 		byData = data.UUID
-	} else if data.Target != "" {
+	} else if data.TaskTarget != "" {
 		by = "target"
-		byData = data.Target
+		byData = data.TaskTarget
 	}
-	err = editTask(by, byData, data.Status, data.Return, data.Size, data.API, data.Region)
+	err = editTask(by, byData, data.TaskStatus, data.TaskReturn, data.TaskSize, data.API, data.TaskRegion)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -72,20 +78,20 @@ func EditTask(data Config) error {
 func FetchTask(data Config) ([]Task, error) {
 	var ret []Task
 	var err error
-	if data.By != "" {
-		ret, err = fetchTask(data.By, data.Type)
+	if data.Type != "" {
+		ret, err = fetchTask(data.Type, data.By)
 	} else if data.UUID != "" {
 		ret, err = fetchTask("uuid", data.UUID)
-	} else if data.Target != "" {
-		ret, err = fetchTask("target", data.Target)
-	} else if data.IP != "" {
-		ret, err = fetchTask("ip", data.IP)
+	} else if data.TaskTarget != "" {
+		ret, err = fetchTask("target", data.TaskTarget)
+	} else if data.TaskIP != "" {
+		ret, err = fetchTask("ip", data.TaskIP)
 	} else if data.Type != "" {
-		ret, err = fetchTask("type", data.IP)
-	} else if data.Region != "" {
-		ret, err = fetchTask("region", data.Region)
+		ret, err = fetchTask("type", data.TaskIP)
+	} else if data.TaskRegion != "" {
+		ret, err = fetchTask("region", data.TaskRegion)
 	} else {
-		ret, err = fetchTask("none", data.Status)
+		ret, err = fetchTask("none", data.TaskStatus)
 	}
 	if err != nil {
 		log.Println(err)

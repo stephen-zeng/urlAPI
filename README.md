@@ -3,6 +3,7 @@
 + [x] 安全检测
 + [x] 文字生成
 + [x] 图片生成
++ [x] 随机图片
 + [ ] 网页总结
 + [ ] 网页缩略图
 
@@ -16,18 +17,29 @@
 格式：https://api.example.com/txt? + 参数1=值1&参数2=值2&参数3=值3，参数如下
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
+| prompt（必填） | laugh, poem, sentence, 其他提示词 | laught为笑话，poem是诗句（创作），sentence是鸡汤 |
 | format（选填） | json | 默认直接输出，json为输出JSON格式 |
 | api（选填） | alibaba/openai/deepseek/otherapi | 在后台可以设置默认API |
-| prompt（必填） | laugh, poem, sentence, 其他提示词 | laught为笑话，poem是诗句（创作），sentence是鸡汤 |
+| regen（选填） | true | 强制重新生成 |
 
 ## 图片生成
 格式：https://api.example.com/txt? + 参数1=值1&参数2=值2&参数3=值3，参数如下
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
-| format（选填） | json | 默认直接输出，json为输出JSON格式 |
-| api（选填） | alibaba/openai | 在后台可以设置默认API |
 | prompt（必填） | / | 提示词 |
+| format（选填） | json | 默认直接跳转，json为输出JSON格式 |
+| api（选填） | alibaba/openai | 在后台可以设置默认API |
 | size（选填） | / | 后台可以设置默认大小，自定义的话参见对应的文档填入 |
+| regen（选填） | true | 强制重新生成 |
+
+## 图片生成
+格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下
+| 参数名 | 参数值 | 说明 |
+| ---- | ---- | ---- |
+| api（必填） | github/gitee | 使用的仓库 |
+| user（必填） | / | 仓库主人的用户名 |
+| repo（必填） | / | 仓库名称 |
+| format（选填） | json | 默认直接跳转，json为输出JSON格式 |
 
 参考文档：
 + OpenAI - https://platform.openai.com/docs/api-reference/images/create
@@ -43,8 +55,9 @@
 这里设置对接OpenAI，阿里巴巴等的接口，包括默认模型选择，API Key等等。
 
 ## 功能设置
-有安全，文字，图像，网页四个选项，具体讲解如图：
-![](https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/guide.png)
+有安全，文字，图像，随机图片，网页五个选项，具体讲解如图（新版本可能会有一点差异）：
+![](https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/guide/1.png)
+![]()
 
 # 启动设置
 启动参数（可选）

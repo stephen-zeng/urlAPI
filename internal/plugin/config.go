@@ -15,7 +15,7 @@ type Txt struct {
 }
 
 func fetchConfig(from string) (string, string, error) {
-	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{from})))
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{from})))
 	if err != nil {
 		log.Println(err)
 		return "", "", err
@@ -28,13 +28,11 @@ func fetchConfig(from string) (string, string, error) {
 type Config struct {
 	API       string
 	GenPrompt string
-	SumPrompt string
 	Size      string
 	ImgPrompt string
 	Model     string
-	User      string
-	Repo      string
 	IP        string
+	Repo      string
 }
 
 type PluginResponse struct {
@@ -44,6 +42,7 @@ type PluginResponse struct {
 	ActualPrompt string `json:"actual_prompt"`
 	Context      string `json:"context"`
 	Region       string `json:"region"`
+	Repo         string `json:"repo"`
 }
 
 type Option func(*Config)
@@ -56,11 +55,6 @@ func WithAPI(api string) Option {
 func WithGenPrompt(genPrompt string) Option {
 	return func(c *Config) {
 		c.GenPrompt = genPrompt
-	}
-}
-func WithSumPrompt(sumPrompt string) Option {
-	return func(c *Config) {
-		c.SumPrompt = sumPrompt
 	}
 }
 func WithSize(size string) Option {
@@ -78,9 +72,9 @@ func WithModel(model string) Option {
 		c.Model = model
 	}
 }
-func WithUser(user string) Option {
+func WithIP(ip string) Option {
 	return func(c *Config) {
-		c.User = user
+		c.IP = ip
 	}
 }
 func WithRepo(repo string) Option {
@@ -88,12 +82,6 @@ func WithRepo(repo string) Option {
 		c.Repo = repo
 	}
 }
-func WithIP(ip string) Option {
-	return func(c *Config) {
-		c.IP = ip
-	}
-}
-
 func PluginConfig(opts ...Option) Config {
 	config := Config{}
 	for _, opt := range opts {

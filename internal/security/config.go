@@ -2,11 +2,8 @@ package security
 
 type Config struct {
 	IP     string
-	Pwd    string
 	Type   string
 	API    string
-	Repo   string
-	User   string
 	Domain string
 	Target string
 }
@@ -17,11 +14,6 @@ func WithIP(ip string) Option {
 		config.IP = ip
 	}
 }
-func WithPwd(pwd string) Option {
-	return func(config *Config) {
-		config.Pwd = pwd
-	}
-}
 func WithType(t string) Option {
 	return func(config *Config) {
 		config.Type = t
@@ -30,16 +22,6 @@ func WithType(t string) Option {
 func WithAPI(api string) Option {
 	return func(config *Config) {
 		config.API = api
-	}
-}
-func WithRepo(repo string) Option {
-	return func(config *Config) {
-		config.Repo = repo
-	}
-}
-func WithUser(user string) Option {
-	return func(config *Config) {
-		config.User = user
 	}
 }
 func WithDomain(domain string) Option {

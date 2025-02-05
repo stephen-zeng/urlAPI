@@ -17,7 +17,7 @@ var shortcut = map[string]string{
 	"sentence": "写一句心灵鸡汤，不要换行",
 }
 
-func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
+func genRequest(IP, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
 	var target string
 	var expired = 60
 	if Target == "laugh" || Target == "sentence" || Target == "poem" {
@@ -28,7 +28,7 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 		target = Target
 		Target = "other"
 	}
-	config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"txt"})))
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt"})))
 	if err != nil {
 		return TxtResponse{}, err
 	}
@@ -53,14 +53,14 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 		return TxtResponse{}, err
 	}
 	if Model == "" {
-		config, err := data.FetchSetting(data.DataConfig(data.WithName([]string{API})))
+		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{API})))
 		if err != nil {
 			return TxtResponse{}, nil
 		}
 		Model = config[0][1]
 	}
-	last, err := data.FetchTask(data.DataConfig(data.WithTarget(target)))
-	if err == nil {
+	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(target)))
+	if err == nil && Regen != "true" {
 		for _, task := range last {
 			if time.Now().Sub(task.Time).Minutes() < float64(expired) && task.Status == "success" && task.API == API {
 				log.Println("Found old task")
@@ -74,10 +74,16 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 			}
 		}
 	}
+	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
+	if err != nil {
+		log.Println("Region fetch failed")
+	}
 	id, err := data.NewTask(data.DataConfig(
-		data.WithIP(IP),
-		data.WithTarget(target),
 		data.WithType("文字生成"),
+		data.WithAPI(API),
+		data.WithTaskIP(IP),
+		data.WithTaskTarget(target),
+		data.WithTaskRegion(region.Region),
 	))
 	if err != nil {
 		return TxtResponse{}, err
@@ -85,18 +91,14 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	response, err := plugin.Request(plugin.PluginConfig(
 		plugin.WithModel(Model),
 		plugin.WithAPI(API),
-		plugin.WithGenPrompt(target)))
-	region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(IP)))
-	if err != nil {
-		log.Println("Region fetch failed")
-	}
+		plugin.WithGenPrompt(target),
+	))
 	if err != nil {
 		editErr := data.EditTask(data.DataConfig(
 			data.WithUUID(id),
-			data.WithStatus("failed"),
-			data.WithAPI(API),
-			data.WithTarget(target),
-			data.WithRegion(region.Region)))
+			data.WithTaskStatus("failed"),
+			data.WithTaskReturn(err.Error()),
+		))
 		if editErr != nil {
 			err = editErr
 		}
@@ -113,10 +115,9 @@ func genRequest(IP, Domain, Model, API, Target string) (TxtResponse, error) {
 	}
 	err = data.EditTask(data.DataConfig(
 		data.WithUUID(id),
-		data.WithReturn(string(jsonRet)),
-		data.WithStatus("success"),
-		data.WithAPI(API),
-		data.WithRegion(region.Region)))
+		data.WithTaskStatus("success"),
+		data.WithTaskReturn(string(jsonRet)),
+	))
 	if err != nil {
 		return TxtResponse{}, err
 	} else {

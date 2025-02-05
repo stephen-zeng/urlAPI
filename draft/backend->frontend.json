@@ -1,8 +1,9 @@
 {
-    "token": "asdfasdfasdfasdf",
-    "name": [],
-    "part": "part",
-    "setting": [[],[]],
-    "task": [{}, {}],
-    "ip": "ip"
+    "session_token": "asdfasdfasdfasdf",
+    "session_ip": "ip",
+    "setting_name": [],
+    "setting_part": "part",
+    "setting_data": [[],[]],
+    "task_data": [{}, {}],
+    "repo_data": [{}, {}]
 }

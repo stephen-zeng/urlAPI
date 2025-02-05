@@ -9,16 +9,15 @@ import (
 	"time"
 )
 
-// string --> pwd, token
 func Auth(dat Config) (string, error) {
-	dash, err := data.FetchSetting(data.DataConfig(data.WithName([]string{"dash", "dashallowedip"})))
+	dash, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"dash", "dashallowedip"})))
 	if err != nil {
 		return "", err
 	}
 	flag := false
 	for _, item := range dash[1] {
 		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, dat.IP)
+		match, err := regexp.MatchString(rgx, dat.SessionIP)
 		if err != nil {
 			continue
 		}
@@ -31,16 +30,16 @@ func Auth(dat Config) (string, error) {
 		log.Println("Authentication Failed by IP")
 		return "", errors.New("Authentication Failed by IP")
 	}
-	if dat.Token == dash[0][0] {
+	if dat.SessionToken == dash[0][0] {
 		return "pwd", nil
 	}
-	tokens, err := data.FetchSession(data.DataConfig(data.WithToken(dat.Token)))
+	tokens, err := data.FetchSession(data.DataConfig(data.WithSessionToken(dat.SessionToken)))
 	if err != nil {
 		return "", errors.New("Authentication Failed")
 	}
 	exp := tokens[0].Expire
 	if time.Now().After(exp) {
-		data.DelSession(data.DataConfig(data.WithToken(dat.Token)))
+		data.DelSession(data.DataConfig(data.WithSessionToken(dat.SessionToken)))
 		return "", errors.New("Token expired")
 	} else {
 		return "token", nil
@@ -50,63 +49,47 @@ func Auth(dat Config) (string, error) {
 func New(dat Config) (SessionResponse, error) {
 	var ret SessionResponse
 	var err error
-	if dat.Operation == "login" {
-		if dat.Type == "token" {
-			ret.Token = dat.Token
-			return ret, nil
-		} else {
-			ret.Token, err = login(SessionConfig(WithTerm(dat.Term)))
-			if err != nil {
-				return SessionResponse{}, err
-			} else {
-				return ret, nil
-			}
+	ret.SessionToken = dat.SessionToken
+	switch dat.Operation {
+	case "login":
+		if dat.SessionType == "pwd" {
+			ret.SessionToken, err = newLogin(dat.SessionTerm)
 		}
+	case "logout":
+		return SessionResponse{}, logout(dat.SessionToken)
+	case "exit":
+		return SessionResponse{}, exit(dat.SessionToken)
+	case "fetchSetting":
+		ret.SettingPart = dat.SettingPart
+		ret.SettingName, ret.SettingData, err = fetchSetting(dat.SettingPart)
+	case "editSetting":
+		ret.SettingPart = dat.SettingPart
+		ret.SettingName, err = editSetting(dat.SettingPart, dat.SettingEdit)
+	case "fetchTask":
+		ret.TaskData, err = data.FetchTask(data.DataConfig(
+			data.WithType(dat.TaskCatagory),
+			data.WithBy(dat.TaskBy)))
+	case "fetchRepo":
+		ret.RepoData, err = data.FetchRepo(data.DataConfig())
+	case "newRepo":
+		err = data.NewRepo(data.DataConfig(
+			data.WithAPI(dat.RepoAPI),
+			data.WithRepoInfo(dat.RepoInfo),
+		))
+	case "refreshRepo":
+		err = data.RefreshRepo(data.DataConfig(
+			data.WithUUID(dat.RepoUUID),
+		))
+	case "delRepo":
+		err = data.DelRepo(data.DataConfig(
+			data.WithUUID(dat.RepoUUID),
+		))
+	default:
+		return SessionResponse{}, errors.New("Invalid Session Operation")
 	}
-	if dat.Operation == "logout" {
-		return SessionResponse{}, logout(SessionConfig(WithToken(dat.Token)))
+	if err != nil {
+		return SessionResponse{}, err
+	} else {
+		return ret, nil
 	}
-	if dat.Operation == "exit" {
-		return SessionResponse{}, exit(SessionConfig(WithToken(dat.Token)))
-	}
-	if dat.Operation == "clear" {
-		return SessionResponse{}, data.InitSession(data.DataConfig(data.WithType("restore")))
-	}
-	if dat.Operation == "fetch" {
-		response, err := fetch(SessionConfig(WithPart(dat.Part)))
-		if err != nil {
-			return SessionResponse{}, err
-		} else {
-			ret.Token = dat.Token
-			ret.Part = dat.Part
-			ret.Name = response.Name
-			ret.Setting = response.Setting
-			return ret, nil
-		}
-	}
-	if dat.Operation == "edit" {
-		response, err := edit(SessionConfig(
-			WithPart(dat.Part),
-			WithEdit(dat.Edit)))
-		if err != nil {
-			return SessionResponse{}, err
-		} else {
-			ret.Token = dat.Token
-			ret.Part = dat.Part
-			ret.Name = response.Name
-			return ret, nil
-		}
-	}
-	if dat.Operation == "task" {
-		response, err := data.FetchTask(data.DataConfig(
-			data.WithBy(dat.By),
-			data.WithType(dat.Task)))
-		if err != nil {
-			return SessionResponse{}, err
-		} else {
-			ret.Task = response
-			return ret, nil
-		}
-	}
-	return SessionResponse{}, errors.New("Invalid Session Operation")
 }

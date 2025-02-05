@@ -15,13 +15,13 @@ async function login() {
     "Token": sha256(pwd.value),
     "Send": {
       "operation": "login",
-      "term": term.value,
+      "login_term": term.value,
     }
   })
   if (session.error) {
     Notification(session.error)
   } else {
-    Cookies.set("token", session.token);
+    Cookies.set("token", session.session_token);
     loginStatus.value = true;
     Notification("Login successful!");
   }
