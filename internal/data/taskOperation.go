@@ -22,10 +22,11 @@ type Task struct {
 	Region string    `json:"region"`
 }
 
-func addTask(Time time.Time, IP, Type, Status, Target, Region, Size string) (string, error) {
+func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
 		UUID:   id,
+		API:    API,
 		Time:   Time,
 		IP:     IP,
 		Type:   Type,

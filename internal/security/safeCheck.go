@@ -22,7 +22,7 @@ func frequencyCheck(IP, Type, Target string) error {
 	}
 	list, err := data.FetchTask(data.DataConfig(data.WithTaskIP(IP)))
 	if err != nil {
-		if err.Error() == "Record not found" {
+		if err.Error() == "Task not found" {
 			return nil
 		} else {
 			return err
@@ -38,7 +38,6 @@ func frequencyCheck(IP, Type, Target string) error {
 }
 
 func sourceCheck(source string) error {
-	return nil
 	if source == "" {
 		log.Println("The source domain is empty.")
 		return errors.New("sourceCheck failed")

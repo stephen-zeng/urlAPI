@@ -15,27 +15,17 @@ func NewRequest(data Config) error {
 	}
 	if data.Type == "txt.gen" || data.Type == "img.gen" {
 		err = modelCheck(data.Type, data.API)
-		if err != nil {
-			return err
-		}
 	}
-	if data.Type == "rand" {
-		err = randCheck(data.API, data.Target)
-		if err != nil {
-			return err
-		}
+	if err != nil {
+		return err
 	}
-	if data.Type == "txt.gen" {
+	switch data.Type {
+	case "txt.gen":
 		err = txtGenCheck(data.Target)
-		if err != nil {
-			return err
-		}
-	}
-	if data.Type == "img.gen" {
+	case "img.gen":
 		err = imgGenCheck()
-		if err != nil {
-			return err
-		}
+	case "rand":
+		err = randCheck(data.API, data.Target)
 	}
-	return nil
+	return err
 }

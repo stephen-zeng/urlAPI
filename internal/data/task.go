@@ -26,6 +26,7 @@ func NewTask(data Config) (string, error) {
 		data.TaskStatus = "waiting"
 	}
 	id, err := addTask(time.Now(),
+		data.API,
 		data.Type,
 		data.TaskIP,
 		data.TaskStatus,
