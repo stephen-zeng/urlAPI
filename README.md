@@ -57,7 +57,7 @@
 ## 功能设置
 有安全，文字，图像，随机图片，网页五个选项，具体讲解如图（新版本可能会有一点差异）：
 ![](https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/guide/1.png)
-<img src="https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/guide/2.png" width="100px"/>
+<img src="https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/guide/2.png" width="20rem"/>
 
 # 启动设置
 启动参数（可选）
