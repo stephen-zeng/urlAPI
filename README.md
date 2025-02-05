@@ -52,6 +52,7 @@
 + restore - 清空登录凭证，初始化设置
 + repwd - 重置后台登录密码
 + port .... - 将端口设置为....，默认端口是2233
++ clear_ip_restriction - 清除后台登录IP限制
 反向代理的时候注意将发送域名设置为`$http_host`
 
 # Demo

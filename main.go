@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/cmd/set"
-	"backend/internal/data"
 	"backend/internal/router"
 	"log"
 	"os"
@@ -36,18 +35,24 @@ func main() {
 			log.Printf("The new dashboard password is %s\n", pwd.Pwd)
 		}
 		if arg == "clear" {
-			log.Println("Clearing Tasks...")
-			os.RemoveAll("assets/img")
-			os.Mkdir("assets/img", 0777)
-			err = data.InitTask(data.DataConfig(data.WithType("restore")))
+			err := set.Clear()
+			if err != nil {
+				panic(err)
+			}
+			log.Printf("Cleared")
+		}
+		if arg == "clear_ip_restriction" {
+			err := set.ClearIP()
+			if err != nil {
+				panic(err)
+			}
+			log.Printf("Cleared IP restriction")
 		}
 		if arg == "port" {
 			setPort = true
 		}
 	}
-	if err != nil {
-		panic(err)
-	} else {
+	if len(os.Args) == 1 || os.Args[1] == "port" {
 		log.Printf("The server will start on port %s\n", port)
 		router.Start(port)
 	}

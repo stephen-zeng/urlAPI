@@ -2,6 +2,7 @@ package set
 
 import (
 	"backend/internal/data"
+	"os"
 )
 
 func Fetch(dat Config) (SetResponse, error) {
@@ -28,4 +29,18 @@ func Restore() (SetResponse, error) {
 	return SetResponse{
 		Pwd: pwd,
 	}, err
+}
+
+func Clear() error {
+	os.RemoveAll("assets/img")
+	os.Mkdir("assets/img", 0777)
+	err := data.InitTask(data.DataConfig(data.WithType("restore")))
+	return err
+}
+
+func ClearIP() error {
+	err := data.EditSetting(data.DataConfig(
+		data.WithName([]string{"dashallowedip"}),
+		data.WithEdit([][]string{{"*"}})))
+	return err
 }
