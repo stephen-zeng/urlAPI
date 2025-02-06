@@ -40,12 +40,10 @@ func InitSetting(data Config) (string, error) {
 	webimgallowed := []string{"_"}
 	websumblocked := []string{"_"}
 
-	test := []string{"--------"}
-
 	rd := []string{"false", "https://raw.githubusercontent.com", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png"}
 	err := editSetting(
-		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand", "test"},
-		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd, test},
+		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand"},
+		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd},
 		data.Type == "update")
 	if err != nil {
 		log.Println(err)
