@@ -41,7 +41,7 @@
 | repo（必填） | / | 仓库名称 |
 | format（选填） | json | 默认直接跳转，json为输出JSON格式 |
 
-参考文档：
+## 参考文档
 + OpenAI - https://platform.openai.com/docs/api-reference/images/create
 + 阿里巴巴（通义万象） - https://help.aliyun.com/zh/model-studio/developer-reference/image-generation-wanx/
 
