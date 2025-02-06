@@ -2,6 +2,7 @@
   import Region from "@/Components/Access/Region.vue";
   import Type from "@/Components/Access/Type.vue"
   import Showcase from "@/Components/Access/Showcase.vue";
+  import API from "@/Components/Access/API.vue";
   import {ref, provide, onMounted, inject} from 'vue';
   import Cookies from "js-cookie";
   import {snackbar} from "mdui";
@@ -44,6 +45,7 @@
       <Region :tasks="task" @refresh="fetchTask"></Region>
       <Type :tasks="task" @refresh="fetchTask"></Type>
       <Status :tasks="task" @refresh="fetchTask"></Status>
+      <API :tasks="task" @refresh="fetchTask"></API>
     </div>
   </mdui-layout-main>
 </template>

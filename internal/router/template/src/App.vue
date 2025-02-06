@@ -24,6 +24,23 @@ import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
   provide('pages', pages);
   provide('login', login);
 
+  onMounted(async() => {
+    if (Cookies.get("token")) {
+      const session = await Post(url + "session", {
+        "Token": Cookies.get("token"),
+        "Send": {
+          "operation": "login",
+          "login_term": false,
+        }
+      })
+      if (session.error) {
+        Notification(session.error)
+      } else {
+        login.value = true
+      }
+    }
+  })
+
   onUnmounted(async() => {
     if (Cookies.get("token")) {
       const session = await Post(url + "session", {

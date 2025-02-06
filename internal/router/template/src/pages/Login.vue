@@ -26,23 +26,6 @@ async function login() {
     Notification("Login successful!");
   }
 }
-
-onMounted(async() => {
-  if (Cookies.get("token")) {
-    const session = await Post(url + "session", {
-      "Token": Cookies.get("token"),
-      "Send": {
-        "operation": "login",
-        "login_term": false,
-      }
-    })
-    if (session.error) {
-      Notification(session.error)
-    } else {
-      login.value = true
-    }
-  }
-})
 </script>
 
 <template>

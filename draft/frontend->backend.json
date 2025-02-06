@@ -4,7 +4,7 @@ Authorization: SessionToken
     "login_term": false,
     "setting_part": "openai / alibaba / deepseek / otherapi / txt / img / rand / web / security",
     "setting_edit": [[],[]],
-    "task_catagory": "region / status / type",
+    "task_catagory": "region / status / type / api",
     "task_by": "...",
     "repo_api": "",
     "repo_info": "",
