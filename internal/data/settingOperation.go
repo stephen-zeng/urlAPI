@@ -2,6 +2,8 @@ package data
 
 import (
 	"encoding/json"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log"
 )
 
@@ -11,14 +13,20 @@ type Setting struct {
 	Value string `json:"value"`
 }
 
-func editSetting(name []string, value [][]string) error {
+func editSetting(name []string, value [][]string, Skip bool) error {
 	for index, nameItem := range name {
 		valueItem := value[index]
 		jsonData, _ := json.Marshal(valueItem)
-		err := db.Save(Setting{
+		newSetting := Setting{
 			Name:  nameItem,
 			Value: string(jsonData),
-		})
+		}
+		var err *gorm.DB
+		if Skip {
+			err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(&newSetting)
+		} else {
+			err = db.Save(&newSetting)
+		}
 		if err.Error != nil {
 			log.Println(err.Error)
 			return err.Error

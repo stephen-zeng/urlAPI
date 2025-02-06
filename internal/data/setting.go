@@ -9,7 +9,7 @@ import (
 )
 
 func InitSetting(data Config) (string, error) {
-	if data.Type != "restore" && db.Migrator().HasTable(&Setting{}) {
+	if data.Type == "" && db.Migrator().HasTable(&Setting{}) {
 		return "", nil
 	}
 	db.AutoMigrate(&Setting{})
@@ -40,10 +40,13 @@ func InitSetting(data Config) (string, error) {
 	webimgallowed := []string{"_"}
 	websumblocked := []string{"_"}
 
+	test := []string{"--------"}
+
 	rd := []string{"false", "https://raw.githubusercontent.com", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png"}
 	err := editSetting(
-		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand"},
-		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd})
+		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand", "test"},
+		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd, test},
+		data.Type == "update")
 	if err != nil {
 		log.Println(err)
 		return "", err
@@ -54,7 +57,7 @@ func InitSetting(data Config) (string, error) {
 }
 
 func EditSetting(data Config) error {
-	err := editSetting(data.SettingName, data.SettingEdit)
+	err := editSetting(data.SettingName, data.SettingEdit, false)
 	if err != nil {
 		log.Println(err)
 		return err

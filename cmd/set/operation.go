@@ -55,3 +55,8 @@ func ClearIP() error {
 		data.WithSettingEdit([][]string{{"*"}})))
 	return err
 }
+
+func Update() error {
+	_, err := data.InitSetting(data.DataConfig(data.WithType("update")))
+	return err
+}

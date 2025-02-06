@@ -18,38 +18,29 @@ func main() {
 			setPort = false
 			continue
 		}
-		if arg == "restore" {
+		switch arg {
+		case "restore":
 			log.Println("Restoring...")
 			pwd, err = set.Restore()
-			if err != nil {
-				panic(err)
-			}
 			log.Printf("The new dashboard password is %s\n", pwd.Pwd)
-		}
-		if arg == "repwd" {
+		case "repwd":
 			log.Println("Password Resetting...")
 			pwd, err = set.RePwd()
-			if err != nil {
-				panic(err)
-			}
 			log.Printf("The new dashboard password is %s\n", pwd.Pwd)
-		}
-		if arg == "clear" {
-			err := set.Clear()
-			if err != nil {
-				panic(err)
-			}
+		case "clear":
+			err = set.Clear()
 			log.Printf("Cleared")
-		}
-		if arg == "clear_ip_restriction" {
-			err := set.ClearIP()
-			if err != nil {
-				panic(err)
-			}
+		case "clear_ip_restriction":
+			err = set.ClearIP()
 			log.Printf("Cleared IP restriction")
-		}
-		if arg == "port" {
+		case "update":
+			err = set.Update()
+			log.Printf("Updated")
+		case "port":
 			setPort = true
+		}
+		if err != nil {
+			panic(err)
 		}
 	}
 	if len(os.Args) == 1 || os.Args[1] == "port" {
