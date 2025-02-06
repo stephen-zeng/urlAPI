@@ -40,12 +40,13 @@
 <template>
   <mdui-layout-main style="display: block">
     <Showcase :tasks="task" style="width: 100%" @refresh="fetchTask"></Showcase>
-    <Region :tasks="task" style="width: 100%" @refresh="fetchTask"></Region>
-    <Type :tasks="task" style="width: 100%" @refresh="fetchTask"></Type>
-    <Status :tasks="task" style="width: 100%" @refresh="fetchTask"></Status>
+    <div class="filter">
+      <Region :tasks="task" @refresh="fetchTask"></Region>
+      <Type :tasks="task" @refresh="fetchTask"></Type>
+      <Status :tasks="task" @refresh="fetchTask"></Status>
+    </div>
   </mdui-layout-main>
 </template>
 
 <style scoped>
-
 </style>

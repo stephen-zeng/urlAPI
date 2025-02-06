@@ -53,11 +53,28 @@ mdui-list-item mdui-card mdui-text-field {
     width: 80%
 }
 
-mdui-collapse {
-    width: 30rem;
-    flex-shrink: 0;
+@media (max-width: 500px) {
+    mdui-collapse {
+        width: calc(100%);
+    }
+}
+@media (min-width: 500px) and (max-width: 1000px) {
+    mdui-collapse {
+        width: calc(100% / 2);
+    }
+}
+@media (min-width: 1000px) and (max-width: 1500px) {
+    mdui-collapse {
+        width: calc(100% / 3);
+    }
+}
+@media (min-width: 1500px) {
+    mdui-collapse {
+        width: calc(100% / 4);
+    }
 }
 
-mdui-layout-main {
+mdui-layout-main, .filter {
     display: flex;
+    flex-flow: row wrap;
 }

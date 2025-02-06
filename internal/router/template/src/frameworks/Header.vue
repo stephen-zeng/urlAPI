@@ -16,7 +16,7 @@
   }
   async function logout() {
     const session = await Post(url + "session", {
-      "Token": sha256(pwd.value),
+      "Token": Cookies.get("token"),
       "Send": {
         "operation": "logout",
         "login_term": false,

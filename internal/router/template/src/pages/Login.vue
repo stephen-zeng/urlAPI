@@ -1,5 +1,5 @@
 <script setup>
-import {inject, ref} from 'vue';
+import {inject, onMounted, ref} from 'vue';
 import {snackbar} from "mdui";
 import { sha256 } from "js-sha256";
 import { Post, Notification } from "@/fetch.js";
@@ -26,6 +26,23 @@ async function login() {
     Notification("Login successful!");
   }
 }
+
+onMounted(async() => {
+  if (Cookies.get("token")) {
+    const session = await Post(url + "session", {
+      "Token": Cookies.get("token"),
+      "Send": {
+        "operation": "login",
+        "login_term": false,
+      }
+    })
+    if (session.error) {
+      Notification(session.error)
+    } else {
+      login.value = true
+    }
+  }
+})
 </script>
 
 <template>
@@ -35,8 +52,8 @@ async function login() {
       <h1>登录后台</h1>
       <mdui-text-field type="password" @keydown.enter="login()"
                        toggle-password label="密码"
-                       :value="pwd" @change="pwd = $event.target.value"></mdui-text-field>
-      <mdui-checkbox :checked="term" @change="term = !$event.target.checked">7天内保持登录</mdui-checkbox>
+                       :value="pwd" @input="pwd = $event.target.value"></mdui-text-field>
+      <mdui-checkbox :checked="term" @input="term = !$event.target.checked">7天内保持登录</mdui-checkbox>
       <mdui-button @click="login()">登录</mdui-button>
     </mdui-card>
   </mdui-layout-main>

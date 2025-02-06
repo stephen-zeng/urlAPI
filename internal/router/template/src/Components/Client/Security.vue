@@ -42,11 +42,6 @@ async function sendSetting() {
     Notification("Saved")
   }
 }
-function del(list, index) {
-  if (list.length > 1) {
-    list.splice(index, 1)
-  }
-}
 
 </script>
 
@@ -64,28 +59,30 @@ function del(list, index) {
                            @change="settings[0][0] = sha256($event.target.value)"
                            toggle-password label="密码"></mdui-text-field>
           <p style="margin-bottom: 0">允许登录后台的IP</p>
-          <mdui-text-field variant="outlined" label="输入*为该子段都可以使用" clearable @input="input1 = $event.target.value">
-            <mdui-button-icon slot="end-icon" icon="add" @click="settings[1].push(input1)"></mdui-button-icon>
+          <mdui-text-field variant="outlined" label="输入*为该子段都可以使用" clearable
+                           @input="input1 = $event.target.value" :value="input1">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!='') settings[1].push(input1);input1=''}"></mdui-button-icon>
           </mdui-text-field>
           <div class="list">
             <mdui-list>
               <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" nonclickable>
                 {{ item }}
-                <mdui-button-icon slot="end-icon" icon="delete" @click="del(settings[1], index)"></mdui-button-icon>
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[1].length>1) settings[1].splice(index, 1)}"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>
           <mdui-button @click="settings[1].push(ip)">添加本机IP</mdui-button>
           <mdui-divider></mdui-divider>
           <p style="margin-bottom: 0">可以使用urlAPI的网站（防盗）</p>
-          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable @input="input2 = $event.target.value">
-            <mdui-button-icon slot="end-icon" icon="add" @click="settings[2].push(input2)"></mdui-button-icon>
+          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable
+                           @input="input2 = $event.target.value" :value="input2">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!='') settings[2].push(input2);input2=''}"></mdui-button-icon>
           </mdui-text-field>
           <div class="list">
             <mdui-list>
               <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" nonclickable>
                 {{ item }}
-                <mdui-button-icon slot="end-icon" icon="delete" @click="del(settings[2], index)"></mdui-button-icon>
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[2].length>1) settings[2].splice(index, 1)}"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>

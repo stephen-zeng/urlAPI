@@ -7,8 +7,7 @@ import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
   import Client from "@/pages/Client.vue";
   import Login from "@/pages/Login.vue";
   import Cookies from "js-cookie";
-  import {snackbar} from "mdui";
-import {Notification, Post} from "@/fetch.js";
+  import {Notification, Post} from "@/fetch.js";
 
   const sidebarStatus = ref(false);
   const pages = ref([
@@ -24,23 +23,6 @@ import {Notification, Post} from "@/fetch.js";
   provide('sidebarStatus', sidebarStatus);
   provide('pages', pages);
   provide('login', login);
-
-  onMounted(async() => {
-    if (Cookies.get("token")) {
-      const session = await Post(url + "session", {
-        "Token": Cookies.get("token"),
-        "Send": {
-          "operation": "login",
-          "login_term": false,
-        }
-      })
-      if (session.error) {
-        Notification(session.error)
-      } else {
-        login.value = true
-      }
-    }
-  })
 
   onUnmounted(async() => {
     if (Cookies.get("token")) {
