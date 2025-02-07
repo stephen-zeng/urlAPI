@@ -37,7 +37,7 @@
 | size（选填） | / | 后台可以设置默认大小，自定义的话参见对应的文档填入 |
 | regen（选填） | true | 强制重新生成 |
 
-## 图片生成
+## 随机图片
 格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
@@ -45,6 +45,8 @@
 | user（必填） | / | 仓库主人的用户名 |
 | repo（必填） | / | 仓库名称 |
 | format（选填） | json | 默认直接跳转，json为输出JSON格式 |
+
+**请注意，仓库内不要出现文件夹，否则会添加失败**
 
 ## 参考文档
 + OpenAI - https://platform.openai.com/docs/api-reference/images/create
