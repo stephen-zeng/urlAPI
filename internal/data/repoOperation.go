@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"io/ioutil"
@@ -95,7 +96,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	if API == "github" {
 		url = "https://api.github.com/repos/" + Info + "/contents"
 	} else if API == "gitee" {
-		url = "https://gitee.com/api/v5/repos" + Info + "/contents"
+		url = "https://gitee.com/api/v5/repos/" + Info + "/contents"
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -110,6 +111,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(jsonResponse))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to fetch repo contents")
 	}
