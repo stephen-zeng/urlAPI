@@ -3,7 +3,6 @@ package data
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"io/ioutil"
@@ -111,7 +110,6 @@ func scanRepo(API, Info string) ([]string, error) {
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(jsonResponse))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to fetch repo contents")
 	}
