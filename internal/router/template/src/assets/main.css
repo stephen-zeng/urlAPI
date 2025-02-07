@@ -19,38 +19,37 @@ html, body, #app  {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-mdui-dialog mdui-text-field{
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
+
 mdui-top-app-bar, mdui-navigation-drawer {
     box-shadow: 0px 0px 10px #000000;
 }
-mdui-card p, mdui-card h1, mdui-card mdui-button {
-    margin: 1rem;
+
+p, h1, mdui-button, mdui-checkbox, mdui-radio, mdui-text-field {
+    margin: 0.5rem
 }
-mdui-card mdui-text-field {
-    margin-bottom: 1rem;
-    margin-top: 1rem;
+
+.list {
+    width: 100%;
+    max-height: 20rem; /* 设置最大高度 */
+    overflow-y: auto;  /* 启用垂直滚动 */
 }
-mdui-checkbox, mdui-radio {
-    margin: 1rem;
+
+mdui-card  {
+    padding: 0.5rem;
 }
+
 mdui-layout-main {
     padding-top: 4rem;
 }
 
-/*Access*/
-mdui-list-item mdui-card {
-    width: 100%;
-    height: 50%;
+mdui-button {
+    width: calc(100%);
+}
+
+mdui-card, mdui-radio-group {
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
-}
-mdui-list-item mdui-card mdui-text-field {
-    width: 80%
 }
 
 @media (max-width: 500px) {

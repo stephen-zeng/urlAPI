@@ -1,6 +1,6 @@
 package txt
 
-func Request(Format, API, Model, Target, Type, IP, Domain, Regen string) (TxtResponse, error) {
+func Request(API, Model, Target, Type, IP, Domain, Regen string) (TxtResponse, error) {
 	if Type == "sum" {
 		return TxtResponse{
 			Response: "test",

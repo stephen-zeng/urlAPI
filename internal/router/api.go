@@ -36,7 +36,7 @@ func txtRequest() {
 		prompt := c.Query("prompt")
 		typ := c.Query("type")
 		regen := c.Query("regen")
-		response, err := txt.Request(format, api, model, prompt, typ, c.ClientIP(), domain, regen)
+		response, err := txt.Request(api, model, prompt, typ, c.ClientIP(), domain, regen)
 		if err != nil {
 			log.Println(err)
 			c.String(200, err.Error())

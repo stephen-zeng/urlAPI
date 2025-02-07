@@ -1,5 +1,6 @@
 <script setup>
   import { inject } from 'vue';
+  import Cookies from "js-cookie";
 
   const openStatus = inject('sidebarStatus');
   const tab = inject('tab');
@@ -10,6 +11,7 @@
   }
   function changeTab(newTab) {
     tab.value = newTab;
+    Cookies.set('tab', newTab);
     sidebarClose();
   }
 </script>
@@ -24,6 +26,8 @@
       @click="changeTab(1)">{{ pages[1] }}</mdui-list-item>
       <mdui-list-item icon="auto_fix_high"
       @click="changeTab(2)">{{ pages[2] }}</mdui-list-item>
+      <mdui-list-item icon="dashboard"
+      @click="changeTab(3)">{{ pages[3] }}</mdui-list-item>
     </mdui-list>
   </mdui-navigation-drawer>
 </template>

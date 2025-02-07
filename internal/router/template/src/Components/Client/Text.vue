@@ -74,14 +74,14 @@ function find(list, status, value, operation) {
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
-          <p style="margin-bottom: 0">总开关</p>
+          <p>总开关</p>
           <mdui-radio-group :value="settings?settings[0][0]:'false'"
                             @change="settings[0][0]=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">随机生成的启用情况</p>
+          <p>随机生成的启用情况</p>
           <div class="mdui-checkbox-group">
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'laugh', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'laugh', 'edit')">
@@ -96,7 +96,7 @@ function find(list, status, value, operation) {
                            @change="find(settings?settings[1]:[], $event.target.checked, 'other', 'edit')">
               自定义提示词</mdui-checkbox>
           </div>
-          <p style="margin-bottom: 0">随机生成使用的API</p>
+          <p>随机生成使用的API</p>
           <mdui-radio-group :value="settings?settings[0][1]:'openai'"
                             @change="settings[0][1]=$event.target.value"
                             style="margin-top: 0">
@@ -106,7 +106,7 @@ function find(list, status, value, operation) {
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">文字总结的启用情况</p>
+          <p>文字总结的启用情况</p>
           <div class="mdui-checkbox-group">
             <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'pdf', 'find')"
                            @change="find(settings?settings[2]:[], $event.target.checked, 'pdf', 'edit')">
@@ -118,7 +118,7 @@ function find(list, status, value, operation) {
                            @change="find(settings?settings[2]:[], $event.target.checked, 'md', 'edit')">
               MarkDown</mdui-checkbox>
           </div>
-          <p style="margin-bottom: 0">文字总结使用的API</p>
+          <p>文字总结使用的API</p>
           <mdui-radio-group :value="settings?settings[0][2]:'openai'"
                             @change="settings[0][2]=$event.target.value"
                             style="margin-top: 0">
@@ -128,11 +128,11 @@ function find(list, status, value, operation) {
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">过期时间</p>
+          <p>过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"
                            :value="settings?settings[0][3]:'60'"
                            @change="settings[0][3] = $event.target.value"></mdui-text-field>
-          <mdui-button full-width @click="sendSetting">确认</mdui-button>
+          <mdui-button @click="sendSetting">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

@@ -79,14 +79,14 @@ function del(list, index) {
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
-          <p style="margin-bottom: 0">网页总结开关</p>
+          <p>网页总结开关</p>
           <mdui-radio-group :value="settings?settings[0][0]:'false'"
                             @change="settings[0][0]=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">网页总结使用的API</p>
+          <p>网页总结使用的API</p>
           <mdui-radio-group :value="settings?settings[0][2]:'openai'"
                             @change="settings[0][2]=$event.target.value"
                             style="margin-top: 0">
@@ -96,14 +96,14 @@ function del(list, index) {
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">网页缩略图开关</p>
+          <p>网页缩略图开关</p>
           <mdui-radio-group :value="settings?settings[0][1]:'false'"
                             @change="settings[0][1]=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">允许生成缩略图的网站</p>
+          <p>允许生成缩略图的网站</p>
           <div class="mdui-checkbox-group">
 <!--            <mdui-checkbox>Github（需要网络支持）</mdui-checkbox>-->
 <!--            <mdui-checkbox>YouTube（需要网络支持）</mdui-checkbox>-->
@@ -127,7 +127,7 @@ function del(list, index) {
               B站</mdui-checkbox>
           </div>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">不能使用“总结”功能的网站（黑名单）</p>
+          <p>不能使用“总结”功能的网站（黑名单）</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable @input="input2 = $event.target.value">
             <mdui-button-icon slot="end-icon" icon="add" @click="settings[2].push(input2)"></mdui-button-icon>
           </mdui-text-field>
@@ -139,11 +139,11 @@ function del(list, index) {
             </mdui-list>
           </div>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">过期时间</p>
+          <p>过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"
                            :value="settings?settings[0][3]:'60'"
                            @change="settings[0][3] = $event.target.value"></mdui-text-field>
-          <mdui-button full-width @click="sendSetting">确认</mdui-button>
+          <mdui-button @click="sendSetting">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

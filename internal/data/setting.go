@@ -1,56 +1,40 @@
 package data
 
 import (
-	"crypto/sha256"
-	"fmt"
+	"bufio"
+	"embed"
 	"log"
-	"math/rand"
-	"time"
+	"strings"
 )
 
+//go:embed setting.init
+var Init embed.FS
+
 func InitSetting(data Config) (string, error) {
+	var names []string
+	var edits [][]string
 	if data.Type == "" && db.Migrator().HasTable(&Setting{}) {
 		return "", nil
 	}
 	db.AutoMigrate(&Setting{})
-	rand.Seed(time.Now().UnixNano())
-	acsii := []int{10, 26, 26}
-	acsiiPlus := []int{48, 65, 97}
-	pwd := ""
-	for i := 1; i <= 8; i++ {
-		choose := rand.Int() % len(acsii)
-		pwd += string(rand.Int()%acsii[choose] + acsiiPlus[choose])
+	f, _ := Init.Open("setting.init")
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		if len(names) == 0 {
+			names = strings.Split(scanner.Text(), ";")
+			continue
+		}
+		tmp := strings.Split(scanner.Text(), ";")
+		edits = append(edits, tmp)
 	}
-	openai := []string{"", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024", "https://api.openai.com/v1/chat/completions"}
-	deepseek := []string{"", "deepseek-chat", "deepseek-chat"}
-	alibaba := []string{"", "qwen-plus", "qwen-turbo", "wanx2.0-t2i-turbo", "1024x768"}
-	otherapi := []string{"", "", "", ""}
-
-	dash := []string{fmt.Sprintf("%x", sha256.Sum256([]byte(pwd)))}
-	dashallowedip := []string{"*"}
-	allowedref := []string{"*"}
-
-	txt := []string{"false", "alibaba", "alibaba", "60"}
-	txtgenenabled := []string{"_"}
-	txtsumenabled := []string{"_"}
-
-	img := []string{"false", "alibaba", "60", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png"}
-
-	web := []string{"false", "false", "alibaba"}
-	webimgallowed := []string{"_"}
-	websumblocked := []string{"_"}
-
-	rd := []string{"false", "https://raw.githubusercontent.com", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png"}
-	err := editSetting(
-		[]string{"openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "txtsumenabled", "img", "web", "webimgallowed", "websumblocked", "rand"},
-		[][]string{openai, deepseek, alibaba, otherapi, dash, dashallowedip, allowedref, txt, txtgenenabled, txtsumenabled, img, web, webimgallowed, websumblocked, rd},
-		data.Type == "update")
+	defer f.Close()
+	err := editSetting(names, edits, data.Type == "update")
 	if err != nil {
 		log.Println(err)
 		return "", err
 	} else {
 		log.Println("Initialized Setting")
-		return pwd, nil
+		return "123456", nil
 	}
 }
 

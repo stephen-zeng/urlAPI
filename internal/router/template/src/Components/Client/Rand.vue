@@ -104,14 +104,14 @@ function del(list, index) {
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
-          <p style="margin-bottom: 0">总开关</p>
+          <p>总开关</p>
           <mdui-radio-group :value="settings?settings[0][0]:'false'"
                             @change="settings[0][0]=$event.target.value"
                             style="margin-top: 0">
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">添加可用仓库</p>
+          <p>添加可用仓库</p>
           <mdui-radio-group :value="repoAPI"
                             @change="repoAPI=$event.target.value"
                             style="margin-top: 0; margin-bottom: 0">
@@ -132,11 +132,11 @@ function del(list, index) {
             </mdui-list>
           </div>
           <mdui-divider></mdui-divider>
-          <p style="margin-bottom: 0">Github随机图片中RAW网址</p>
+          <p>Github随机图片中RAW网址</p>
           <mdui-text-field variant="outlined" label="反代地址"
                            :value="settings?settings[0][1]:''"
                            @change="settings[0][1] = $event.target.value"></mdui-text-field>
-          <p style="margin-bottom: 0">生成失败时返回的图片</p>
+          <p>生成失败时返回的图片</p>
           <mdui-text-field variant="outlined" label="URL"
                            :value="settings?settings[0][2]:''"
                            @change="settings[0][2] = $event.target.value"></mdui-text-field>
@@ -149,9 +149,4 @@ function del(list, index) {
 
 <style scoped>
 
-.list {
-  width: 100%;
-  max-height: 20rem; /* 设置最大高度 */
-  overflow-y: auto;  /* 启用垂直滚动 */
-}
 </style>

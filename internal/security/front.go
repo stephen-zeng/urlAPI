@@ -1,6 +1,6 @@
 package security
 
-// Type: gen, sum, img, web, rand
+// Type: gen, sum, img, template, rand
 // API: openai, alibaba, deepseek, otherapi, github, gitee
 // Target: prompt, repositories
 func NewRequest(data Config) error {

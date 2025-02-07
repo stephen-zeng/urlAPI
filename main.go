@@ -26,7 +26,7 @@ func main() {
 		case "repwd":
 			log.Println("Password Resetting...")
 			pwd, err = set.RePwd()
-			log.Printf("The new dashboard password is %s\n", pwd.Pwd)
+			log.Printf("Dashboard password is %s, please change it ASAP\n", pwd.Pwd)
 		case "clear":
 			err = set.Clear()
 			log.Printf("Cleared")

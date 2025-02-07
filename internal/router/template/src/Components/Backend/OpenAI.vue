@@ -56,25 +56,25 @@ async function sendSetting() {
           <mdui-text-field variant="outlined" label="API地址"
                            :value="settings?settings[0][5]:'https://api.openai.com/v1/chat/completions'"
                            @change="settings[0][5] = $event.target.value"></mdui-text-field>
-          <p style="margin-bottom: 0">默认文字生成模型</p>
+          <p>默认文字生成模型</p>
           <mdui-radio-group :value="settings?settings[0][1]:'gpt-4o'" style="margin-top: 0"
                             @change="settings[0][1]=$event.target.value">
             <mdui-radio value="gpt-4o">GPT-4o</mdui-radio>
             <mdui-radio value="gpt-4o-mini">GPT-4o-mini</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认总结模型</p>
+          <p>默认总结模型</p>
           <mdui-radio-group :value="settings?settings[0][2]:'gpt-4o'" style="margin-top: 0"
                             @change="settings[0][2]=$event.target.value">
             <mdui-radio value="gpt-4o">GPT-4o</mdui-radio>
             <mdui-radio value="gpt-4o-mini">GPT-4o-mini</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认图片生成模型</p>
+          <p>默认图片生成模型</p>
           <mdui-radio-group :value="settings?settings[0][3]:'dall-e-3'" style="margin-top: 0"
                             @change="settings[0][3]=$event.target.value">
             <mdui-radio value="dall-e-3">DALL·E 3</mdui-radio>
             <mdui-radio value="dall-e-2">DALL·E 2</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认图片生成大小</p>
+          <p>默认图片生成大小</p>
           <mdui-radio-group :value="settings?settings[0][4]:'1024x1024'" style="margin-top: 0"
                             v-if="settings?settings[0][3]=='dall-e-3':false"
                             @change="settings[0][4]=$event.target.value">
@@ -89,7 +89,7 @@ async function sendSetting() {
             <mdui-radio value="512x512">中（512x512）</mdui-radio>
             <mdui-radio value="1024x1024">大 (1024x1024)</mdui-radio>
           </mdui-radio-group>
-          <mdui-button full-width @click="sendSetting()">确认</mdui-button>
+          <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

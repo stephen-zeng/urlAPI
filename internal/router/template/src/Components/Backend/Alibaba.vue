@@ -51,7 +51,7 @@
           <mdui-text-field variant="outlined" label="API Key" type="password" toggle-password
                            :value="settings?settings[0][0]:''"
                            @change="settings[0][0] = $event.target.value"></mdui-text-field>
-          <p style="margin-bottom: 0">默认文字生成模型</p>
+          <p>默认文字生成模型</p>
           <mdui-radio-group :value="settings?settings[0][1]:'qwen-plus'"
                             @change="settings[0][1]=$event.target.value"
                             style="margin-top: 0">
@@ -60,7 +60,7 @@
             <mdui-radio value="qwen-turbo">通义千问-Turbo</mdui-radio>
             <mdui-radio value="qwen-long">通义千问-Long</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认总结模型</p>
+          <p>默认总结模型</p>
           <mdui-radio-group :value="settings?settings[0][2]:'qwen-plus'"
                             @change="settings[0][2]=$event.target.value"
                             style="margin-top: 0">
@@ -69,7 +69,7 @@
             <mdui-radio value="qwen-turbo">通义千问 Turbo</mdui-radio>
             <mdui-radio value="qwen-long">通义千问 Long</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认图片生成模型</p>
+          <p>默认图片生成模型</p>
           <mdui-radio-group :value="settings?settings[0][3]:'wanx2.1-t2i-turbo'"
                             @change="settings[0][3]=$event.target.value"
                             style="margin-top: 0">
@@ -78,7 +78,7 @@
             <mdui-radio value="wanx2.0-t2i-turbo">通义万相文生图 2.0</mdui-radio>
             <mdui-radio value="wanx-v1">通义万相文生图 1.0</mdui-radio>
           </mdui-radio-group>
-          <p style="margin-bottom: 0">默认图片生成大小</p>
+          <p>默认图片生成大小</p>
           <mdui-radio-group :value="settings?settings[0][4]:'1024*1024'"
                             @change="settings[0][4]=$event.target.value"
                             v-if="settings?settings[0][3]=='wanx-v1':false"

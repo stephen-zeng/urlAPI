@@ -16,6 +16,10 @@ func Auth(dat Config) (string, error) {
 	}
 	flag := false
 	for _, item := range dash[1] {
+		if dat.SessionIP == "::1" || dat.SessionIP == "127.0.0.1" {
+			flag = true
+			break
+		}
 		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
 		match, err := regexp.MatchString(rgx, dat.SessionIP)
 		if err != nil {

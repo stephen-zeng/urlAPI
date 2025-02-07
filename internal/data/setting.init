@@ -1,0 +1,16 @@
+openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled;txtsumenabled;img;web;webimgallowed;websumblocked;rand
+;gpt-4o;gpt-4o-mini;dall-e-3;1024x1024;https://api.openai.com/v1/chat/completions
+;deepseek-chat;deepseek-chat
+;qwen-plus;qwen-turbo;wanx2.1-t2i-turbo;1024*768
+;;;
+8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+*
+*
+false;alibaba;alibaba;60
+_
+_
+false;alibaba;60;https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png
+false;false;alibaba
+_
+_
+false;https://raw.githubusercontent.com;https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png

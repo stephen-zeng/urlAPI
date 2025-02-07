@@ -5,15 +5,17 @@ import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
   import Access from "@/pages/Access.vue";
   import Backend from "@/pages/Backend.vue";
   import Client from "@/pages/Client.vue";
+  import Workshop from "@/pages/Workshop.vue";
   import Login from "@/pages/Login.vue";
   import Cookies from "js-cookie";
   import {Notification, Post} from "@/fetch.js";
-x
+
   const sidebarStatus = ref(false);
   const pages = ref([
       '访问情况',
       '接口设置',
       '功能设置',
+      '工作台',
   ])
   const tab = ref(0);
   const login = ref(false);
@@ -25,6 +27,9 @@ x
   provide('login', login);
 
   onMounted(async() => {
+    if (Cookies.get("tab")) {
+      tab.value = Cookies.get("tab");
+    }
     if (Cookies.get("token")) {
       const session = await Post(url + "session", {
         "Token": Cookies.get("token"),
@@ -63,6 +68,7 @@ x
     <Access v-if="tab==0 && login"></Access>
     <Backend v-if="tab==1 && login"></Backend>
     <Client v-if="tab==2 && login"></Client>
+    <Workshop v-if="tab==3 && login"></Workshop>
     <Login v-if="!login"></Login>
   </mdui-layout>
 

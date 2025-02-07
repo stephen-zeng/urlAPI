@@ -62,7 +62,7 @@ async function sendSetting() {
           <mdui-text-field variant="outlined" label="文字总结模型"
                            :value="settings?settings[0][1]:''"
                            @change="settings[0][1] = $event.target.value"></mdui-text-field>
-          <mdui-button full-width @click="sendSetting()">确认</mdui-button>
+          <mdui-button @click="sendSetting()">确认</mdui-button>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

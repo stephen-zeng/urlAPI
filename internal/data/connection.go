@@ -42,7 +42,7 @@ func init() {
 		InitSession(DataConfig())
 		InitRepo(DataConfig())
 		if pwd != "" {
-			log.Printf("Dashboard password is %s\n", pwd)
+			log.Printf("Dashboard password is %s, please change it ASAP.\n", pwd)
 		}
 	}
 }

@@ -57,6 +57,9 @@ mdui-layout-main mdui-card {
   align-items: center;
   flex-direction: column;
 }
+mdui-button {
+  width: 80%;
+}
 
 mdui-text-field {
   width: 80%;
