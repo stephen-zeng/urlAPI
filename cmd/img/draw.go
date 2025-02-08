@@ -17,7 +17,7 @@ func arrange(Str string) []string {
 	Content := []rune(Str)
 	var ret []string
 	for i := 0; true; i += 20 {
-		if i+10 >= len(Content) {
+		if i+20 >= len(Content) {
 			ret = append(ret, string(Content[i:len(Content)]))
 			break
 		} else {

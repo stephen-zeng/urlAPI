@@ -37,8 +37,8 @@ function update(id, value) {
     <h1>工作台</h1>
     <p>测试API的使用情况，请将API的域名添加到Referer白名单中</p>
     <mdui-radio-group :value="type" @change="update('type',$event.target.value)">
-      <mdui-radio value="img">图片</mdui-radio>
-      <mdui-radio value="txt">文字</mdui-radio>
+      <mdui-radio value="img">图片 (img)</mdui-radio>
+      <mdui-radio value="txt">文字 (iframe)</mdui-radio>
     </mdui-radio-group>
     <mdui-text-field variant="outlined" label="Host"
                      :value="host" @input="update('host', $event.target.value)"></mdui-text-field>

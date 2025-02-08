@@ -3,6 +3,7 @@ package txt
 import (
 	"backend/cmd/img"
 	"backend/internal/data"
+	"backend/internal/file"
 	"backend/internal/plugin"
 	"backend/internal/security"
 	"encoding/json"
@@ -13,9 +14,9 @@ import (
 )
 
 var shortcut = map[string]string{
-	"laugh":    "讲一个笑话，不要换行",
-	"poem":     "做几句诗歌，不要换行。",
-	"sentence": "写几句心灵鸡汤，不要换行",
+	"laugh":    "讲一个笑话，不要换行，需要句中有标点符号",
+	"poem":     "做几句诗歌，不要换行，需要句中有标点符号",
+	"sentence": "写几句心灵鸡汤，不要换行，需要句中有标点符号",
 }
 
 func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
@@ -63,14 +64,31 @@ func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse
 	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(target)))
 	if err == nil && Regen != "true" {
 		for _, task := range last {
-			if time.Now().Sub(task.Time).Minutes() < float64(expired) && task.Status == "success" && task.API == API {
-				log.Println("Found old task")
-				var ret TxtResponse
-				err := json.Unmarshal([]byte(task.Return), &ret)
-				if err != nil {
-					return TxtResponse{}, err
+			if task.Status == "success" && task.API == API {
+				if time.Now().Sub(task.Time).Minutes() < float64(expired) {
+					log.Println("Found old task")
+					var ret TxtResponse
+					err := json.Unmarshal([]byte(task.Return), &ret)
+					if err != nil {
+						return TxtResponse{}, err
+					} else if Regen != "true" {
+						return ret, nil
+					}
 				} else {
-					return ret, nil
+					log.Println("Found outdated task")
+					err = file.Del(file.FileConfig(
+						file.WithType("img"),
+						file.WithUUID(task.UUID)))
+					if err != nil {
+						log.Println(err)
+					}
+					err = data.EditTask(data.DataConfig(
+						data.WithUUID(task.UUID),
+						data.WithTaskStatus("outdated")))
+					if err != nil {
+						log.Println(err)
+						return TxtResponse{}, err
+					}
 				}
 			}
 		}
