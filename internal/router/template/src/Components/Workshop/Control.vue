@@ -51,7 +51,7 @@ function update(id, value) {
                         @click="update('configs', config)"></mdui-button-icon>
     </mdui-text-field>
     <mdui-text-field variant="outlined" label="URL" autosize
-                     disabled :value="url"></mdui-text-field>
+                     readonly :value="url"></mdui-text-field>
     <mdui-button @click="show=true">Go</mdui-button>
   </mdui-card>
 </template>

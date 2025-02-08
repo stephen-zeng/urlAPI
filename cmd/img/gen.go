@@ -122,7 +122,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgRe
 	url = strings.ReplaceAll(url, "\\u003c", "<")
 	url = strings.ReplaceAll(url, "\\u003e", ">")
 	err = file.Add(file.FileConfig(
-		file.WithType("img"),
+		file.WithType("img.download"),
 		file.WithUUID(id),
 		file.WithURL(url),
 	))

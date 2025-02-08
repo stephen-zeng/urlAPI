@@ -34,17 +34,22 @@ func txtRequest() {
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
-		typ := c.Query("type")
 		regen := c.Query("regen")
-		response, err := txt.Request(api, model, prompt, typ, c.ClientIP(), domain, regen)
+		response, err := txt.GenRequest(
+			c.ClientIP(), getScheme(c)+c.Request.Host,
+			domain, model, api, prompt, regen)
 		if err != nil {
 			log.Println(err)
-			c.String(200, err.Error())
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
 		} else {
 			if format == "json" {
 				c.JSON(200, response)
-			} else {
+			} else if format == "txt" {
 				c.String(200, response.Response)
+			} else {
+				c.Redirect(302, response.URL)
 			}
 		}
 	})

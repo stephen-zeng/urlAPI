@@ -1,6 +1,7 @@
 package txt
 
 import (
+	"backend/cmd/img"
 	"backend/internal/data"
 	"backend/internal/plugin"
 	"backend/internal/security"
@@ -17,7 +18,7 @@ var shortcut = map[string]string{
 	"sentence": "写一句心灵鸡汤，不要换行",
 }
 
-func genRequest(IP, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
+func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
 	var target string
 	var expired = 60
 	if Target == "laugh" || Target == "sentence" || Target == "poem" {
@@ -104,10 +105,15 @@ func genRequest(IP, Domain, Model, API, Target, Regen string) (TxtResponse, erro
 		}
 		return TxtResponse{}, err
 	}
+	imgResponse, err := img.DrawRequest(id, response.Response, From)
+	if err != nil {
+		log.Println(err)
+	}
 	ret := TxtResponse{
 		Response: response.Response,
 		Prompt:   response.InitPrompt,
 		Context:  response.Context,
+		URL:      imgResponse.URL,
 	}
 	jsonRet, err := json.Marshal(ret)
 	if err != nil {

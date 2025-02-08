@@ -19,7 +19,7 @@ func init() {
 	os.MkdirAll(imgPath, 0777)
 }
 
-func addImg(UUID, URL string) error {
+func downloadImg(UUID, URL string) error {
 	client := &http.Client{
 		Timeout: time.Second * 5,
 	}
@@ -38,6 +38,10 @@ func addImg(UUID, URL string) error {
 		log.Println(err)
 		return err
 	}
+	return saveImg(img, UUID)
+}
+
+func saveImg(img image.Image, UUID string) error {
 	output, err := os.Create(imgPath + UUID + ".png")
 	if err != nil {
 		log.Println(err)

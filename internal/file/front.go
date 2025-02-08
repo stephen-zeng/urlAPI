@@ -6,19 +6,16 @@ import (
 )
 
 func Add(data Config) error {
-	if data.Type == "img" {
-		err := addImg(data.UUID, data.URL)
-		if err != nil {
-			return err
-		} else {
-			return nil
-		}
-	} else if data.Type == "md" {
-		return nil
-	} else {
-		log.Printf("Unknown file type")
-		return errors.New("Unknown file type")
+	var err error
+	switch data.Type {
+	case "img.download":
+		err = downloadImg(data.UUID, data.URL)
+	case "img.save":
+		err = saveImg(data.Img, data.UUID)
+	default:
+		err = errors.New("unknown file type")
 	}
+	return err
 }
 
 func Del(data Config) error {

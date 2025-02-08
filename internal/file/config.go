@@ -1,10 +1,12 @@
 package file
 
+import "image"
+
 type Config struct {
 	Type string
 	UUID string
 	URL  string
-	File string
+	Img  image.Image
 }
 type Option func(*Config)
 
@@ -23,9 +25,9 @@ func WithURL(url string) Option {
 		c.URL = url
 	}
 }
-func WithFile(file string) Option {
+func WithImg(img image.Image) Option {
 	return func(c *Config) {
-		c.File = file
+		c.Img = img
 	}
 }
 func FileConfig(opts ...Option) Config {
