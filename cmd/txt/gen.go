@@ -13,9 +13,9 @@ import (
 )
 
 var shortcut = map[string]string{
-	"laugh":    "讲一个笑话，要求在20个字以内，不要换行",
-	"poem":     "做诗歌，两句，不要换行。",
-	"sentence": "写一句心灵鸡汤，不要换行",
+	"laugh":    "讲一个笑话，不要换行",
+	"poem":     "做几句诗歌，不要换行。",
+	"sentence": "写几句心灵鸡汤，不要换行",
 }
 
 func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
