@@ -14,9 +14,9 @@ import (
 )
 
 var shortcut = map[string]string{
-	"laugh":    "讲一个笑话，不要换行，需要句中有标点符号",
-	"poem":     "做几句诗歌，不要换行，需要句中有标点符号",
-	"sentence": "写几句心灵鸡汤，不要换行，需要句中有标点符号",
+	"laugh":    "讲一个笑话，中文，不要换行，需要句中有标点符号",
+	"poem":     "做几句诗歌，中文，不要换行，需要句中有标点符号",
+	"sentence": "写几句心灵鸡汤，中文，不要换行，需要句中有标点符号",
 }
 
 func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
