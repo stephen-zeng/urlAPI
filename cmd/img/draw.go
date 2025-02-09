@@ -41,7 +41,7 @@ func DrawRequest(UUID, Str, From string) (ImgResponse, error) {
 
 	Content := arrange(Str)
 
-	templateImg := image.NewRGBA(image.Rect(0, 0, (25 + 40*utf8.RuneCountInString(Content[0])), (50*len(Content) + 13)))
+	templateImg := image.NewRGBA(image.Rect(0, 0, (25 + 40*utf8.RuneCountInString(Content[0])), (60*len(Content) + 13)))
 	drawer := freetype.NewContext()
 	drawer.SetDPI(144)
 	drawer.SetDst(templateImg)
@@ -52,9 +52,9 @@ func DrawRequest(UUID, Str, From string) (ImgResponse, error) {
 
 	for index, content := range Content {
 		drawer.SetSrc(image.NewUniform(color.RGBA{100, 100, 100, 255}))
-		drawer.DrawString(content, freetype.Pt(15, 50*(index+1)+2))
+		drawer.DrawString(content, freetype.Pt(15, 60*(index+1)+2))
 		drawer.SetSrc(image.White)
-		drawer.DrawString(content, freetype.Pt(13, 50*(index+1)))
+		drawer.DrawString(content, freetype.Pt(13, 60*(index+1)))
 
 	}
 
