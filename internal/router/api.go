@@ -40,9 +40,7 @@ func txtRequest() {
 			domain, model, api, prompt, regen)
 		if err != nil {
 			log.Println(err)
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
+			c.Redirect(302, response.URL)
 		} else {
 			if format == "json" {
 				c.JSON(200, response)
