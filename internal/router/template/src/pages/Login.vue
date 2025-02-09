@@ -21,7 +21,7 @@ async function login() {
   if (session.error) {
     Notification(session.error)
   } else {
-    Cookies.set("token", session.session_token);
+    Cookies.set("token", session.session_token, {expires: 7});
     loginStatus.value = true;
     Notification("Login successful!");
   }

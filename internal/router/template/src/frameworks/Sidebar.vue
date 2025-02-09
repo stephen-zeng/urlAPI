@@ -11,7 +11,7 @@
   }
   function changeTab(newTab) {
     tab.value = newTab;
-    Cookies.set('tab', newTab);
+    Cookies.set('tab', newTab, {expires: 7});
     sidebarClose();
   }
 </script>

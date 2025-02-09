@@ -133,6 +133,10 @@ function find(list, status, value, operation) {
                            :value="settings?settings[0][3]:'60'"
                            @change="settings[0][3] = $event.target.value"></mdui-text-field>
           <mdui-button @click="sendSetting">确认</mdui-button>
+          <p>生成失败时返回的图片</p>
+          <mdui-text-field variant="outlined" label="URL"
+                           :value="settings?settings[0][4]:''"
+                           @change="settings[0][4] = $event.target.value"></mdui-text-field>
         </mdui-card>
       </mdui-list-item>
     </mdui-collapse-item>

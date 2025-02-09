@@ -6,7 +6,7 @@ openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled
 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
 *
 *
-false;alibaba;alibaba;60
+false;alibaba;alibaba;60;https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png
 _
 _
 false;alibaba;60;https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png
