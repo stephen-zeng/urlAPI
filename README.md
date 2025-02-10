@@ -51,6 +51,16 @@
 
 **请注意，仓库内不要出现文件夹，否则会添加失败**
 
+## 网页总结
+格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下
+| 参数名 | 参数值 | 说明 |
+| ---- | ---- | ---- |
+| img（选填） | URL | 网页缩略图 |
+| sum（选填，暂未完成） | URL | 网页总结 |
+| format（选填） | json | 默认返回图片，json为返回JSON |
+
+**img和sum同时填写的话默认为img**
+
 ## 参考文档
 + OpenAI - https://platform.openai.com/docs/api-reference/images/create
 + 阿里巴巴（通义万象） - https://help.aliyun.com/zh/model-studio/developer-reference/image-generation-wanx/

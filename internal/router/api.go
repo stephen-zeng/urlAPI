@@ -112,23 +112,25 @@ func webRequest() {
 		}
 		format := c.Query("format")
 		img := c.Query("img")
-		sum := c.Query("sum")
+		//sum := c.Query("sum")
 		regen := c.Query("regen")
 		var targetURL *url.URL
 		var target string
+		var response web.WebResponse
 		if img != "" {
 			target = img
 			targetURL, err = url.Parse(img)
+			response, err = web.ImgRequest(
+				c.ClientIP(),                // IP
+				getScheme(c)+c.Request.Host, // https://api.example.com
+				referer.Hostname(),          // referer domain
+				targetURL.Hostname(),        // github.com ...
+				target, regen)
 		} else {
-			target = sum
-			targetURL, err = url.Parse(sum)
+			log.Println("Empty request")
+			c.Redirect(302, fallbackURL)
+			return
 		}
-		response, err := web.ImgRequest(
-			c.ClientIP(),                // IP
-			getScheme(c)+c.Request.Host, // https://api.example.com
-			referer.Hostname(),          // referer domain
-			targetURL.Hostname(),        // github.com ...
-			target, regen)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
