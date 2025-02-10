@@ -1,5 +1,7 @@
 package security
 
+import "errors"
+
 // Type: gen, sum, img, template, rand
 // API: openai, alibaba, deepseek, otherapi, github, gitee
 // Target: prompt, repositories
@@ -26,6 +28,12 @@ func NewRequest(data Config) error {
 		err = imgGenCheck()
 	case "rand":
 		err = randCheck(data.API, data.Target)
+	case "web.img":
+		err = webImgCheck(data.API)
+	case "download":
+		err = nil
+	default:
+		err = errors.New("unknown type")
 	}
 	return err
 }

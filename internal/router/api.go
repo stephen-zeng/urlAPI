@@ -3,6 +3,7 @@ package router
 import (
 	"backend/cmd/img"
 	"backend/cmd/txt"
+	"backend/cmd/web"
 	"backend/internal/data"
 	"backend/internal/plugin"
 	"backend/internal/security"
@@ -23,11 +24,16 @@ func getScheme(c *gin.Context) string {
 
 func txtRequest() {
 	r.GET("/txt", func(c *gin.Context) {
+		fallbackURL := data.FallbackURL
+		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt"})))
+		if len(config[0]) > 4 {
+			fallbackURL = config[0][4]
+		}
 		referer, err := url.Parse(c.Request.Referer())
 		if err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
+			log.Println(err)
+			c.Redirect(302, fallbackURL)
+			return
 		}
 		domain := referer.Hostname()
 		format := c.Query("format")
@@ -40,7 +46,7 @@ func txtRequest() {
 			domain, model, api, prompt, regen)
 		if err != nil {
 			log.Println(err)
-			c.Redirect(302, response.URL)
+			c.Redirect(302, fallbackURL)
 		} else {
 			if format == "json" {
 				c.JSON(200, response)
@@ -55,11 +61,16 @@ func txtRequest() {
 
 func imgRequest() {
 	r.GET("/img", func(c *gin.Context) {
+		fallbackURL := data.FallbackURL
+		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
+		if len(config[0]) > 3 {
+			fallbackURL = config[0][3]
+		}
 		referer, err := url.Parse(c.Request.Referer())
 		if err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
+			log.Println(err)
+			c.Redirect(302, fallbackURL)
+			return
 		}
 		domain := referer.Hostname()
 		format := c.Query("format")
@@ -75,7 +86,7 @@ func imgRequest() {
 			regen)
 		if err != nil {
 			log.Println(err)
-			c.Redirect(302, response.URL)
+			c.Redirect(302, fallbackURL)
 		} else {
 			if format == "json" {
 				c.JSON(200, response)
@@ -86,13 +97,60 @@ func imgRequest() {
 	})
 }
 
-func randRequest() {
-	r.GET("/rand", func(c *gin.Context) {
+func webRequest() {
+	r.GET("/web", func(c *gin.Context) {
+		fallbackURL := data.FallbackURL
+		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"web"})))
+		if len(config[0]) > 4 {
+			fallbackURL = config[0][4]
+		}
 		referer, err := url.Parse(c.Request.Referer())
 		if err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
+			log.Println(err)
+			c.Redirect(302, fallbackURL)
+			return
+		}
+		format := c.Query("format")
+		img := c.Query("img")
+		sum := c.Query("sum")
+		regen := c.Query("regen")
+		var targetURL *url.URL
+		var target string
+		if img != "" {
+			target = img
+			targetURL, err = url.Parse(img)
+		} else {
+			target = sum
+			targetURL, err = url.Parse(sum)
+		}
+		response, err := web.ImgRequest(
+			c.ClientIP(),                // IP
+			getScheme(c)+c.Request.Host, // https://api.example.com
+			referer.Hostname(),          // referer domain
+			targetURL.Hostname(),        // github.com ...
+			target, regen)
+		if err != nil {
+			log.Println(err)
+			c.Redirect(302, fallbackURL)
+			return
+		}
+		if format == "json" {
+			c.JSON(200, response)
+		} else {
+			c.Redirect(302, response.URL)
+		}
+	})
+}
+
+func randRequest() {
+	r.GET("/rand", func(c *gin.Context) {
+		fallbackURL := data.FallbackURL
+		list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"rand"})))
+		fallbackURL = list[0][2]
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			log.Println(err)
+			c.Redirect(302, fallbackURL)
 			return
 		}
 		domain := referer.Hostname()
@@ -100,14 +158,6 @@ func randRequest() {
 		api := c.Query("api")
 		user := c.Query("user")
 		repo := c.Query("repo")
-		list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"rand"})))
-		if err != nil {
-			log.Println(err)
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
-		}
-		fallback := list[0][2]
 		err = security.NewRequest(security.SecurityConfig(
 			security.WithType("rand"),
 			security.WithAPI(api),
@@ -116,7 +166,7 @@ func randRequest() {
 		))
 		if err != nil {
 			log.Println(err)
-			c.Redirect(302, fallback)
+			c.Redirect(302, fallbackURL)
 			return
 		}
 		region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(c.ClientIP())))
@@ -144,7 +194,7 @@ func randRequest() {
 				err = editErr
 			}
 			log.Println(err)
-			c.Redirect(302, fallback)
+			c.Redirect(302, fallbackURL)
 			return
 		}
 		err = data.EditTask(data.DataConfig(
@@ -154,7 +204,7 @@ func randRequest() {
 		))
 		if err != nil {
 			log.Println(err)
-			c.Redirect(302, fallback)
+			c.Redirect(302, fallbackURL)
 			return
 		}
 		if format == "json" {
@@ -173,4 +223,5 @@ func setAPI() {
 	txtRequest()
 	imgRequest()
 	randRequest()
+	webRequest()
 }

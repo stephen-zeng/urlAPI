@@ -40,51 +40,36 @@ func sessionListener() {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return
 		}
-		var loginTerm bool
-		var settingEdit [][]string
-		var settingPart string
-		var taskBy string
-		var taskCatagory string
-		var repoAPI string
-		var repoInfo string
-		var repoUUID string
+		sessionConfig := session.Config{
+			Operation:    dat["operation"].(string),
+			SessionToken: token,
+			SessionType:  typ,
+		}
 		switch dat["operation"].(string) {
 		case "login":
-			loginTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat["login_term"].(bool)
 		case "logout":
-			loginTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat["login_term"].(bool)
 		case "exit":
-			loginTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat["login_term"].(bool)
 		case "fetchTask":
-			taskCatagory = dat["task_catagory"].(string)
-			taskBy = dat["task_by"].(string)
+			sessionConfig.TaskBy = dat["task_by"].(string)
+			sessionConfig.TaskCatagory = dat["task_catagory"].(string)
 		case "fetchSetting":
-			settingPart = dat["setting_part"].(string)
+			sessionConfig.SettingPart = dat["setting_part"].(string)
 		case "editSetting":
-			settingEdit = convertInterfaceToString(dat["setting_edit"])
-			settingPart = dat["setting_part"].(string)
+			sessionConfig.SettingPart = dat["setting_part"].(string)
+			sessionConfig.SettingEdit = convertInterfaceToString(dat["setting_edit"])
 		case "newRepo":
-			repoAPI = dat["repo_api"].(string)
-			repoInfo = dat["repo_info"].(string)
+			sessionConfig.RepoAPI = dat["repo_api"].(string)
+			sessionConfig.RepoInfo = dat["repo_info"].(string)
 		case "refreshRepo":
-			repoUUID = dat["repo_uuid"].(string)
+			sessionConfig.RepoUUID = dat["repo_uuid"].(string)
 		case "delRepo":
-			repoUUID = dat["repo_uuid"].(string)
+			sessionConfig.RepoUUID = dat["repo_uuid"].(string)
 		}
 
-		response, err := session.New(session.SessionConfig(
-			session.WithOperation(dat["operation"].(string)),
-			session.WithSessionToken(token),
-			session.WithSessionType(typ),
-			session.WithSessionTerm(loginTerm),
-			session.WithTaskCatagory(taskCatagory),
-			session.WithTaskBy(taskBy),
-			session.WithSettingPart(settingPart),
-			session.WithSettingEdit(settingEdit),
-			session.WithRepoAPI(repoAPI),
-			session.WithRepoInfo(repoInfo),
-			session.WithRepoUUID(repoUUID),
-		))
+		response, err := session.New(sessionConfig)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			return

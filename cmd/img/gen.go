@@ -13,8 +13,7 @@ import (
 )
 
 func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgResponse, error) {
-	var expired = 60
-	var fallbackURL = "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png"
+	var expired = data.Expired
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 	if err != nil {
 		return ImgResponse{}, err
@@ -27,9 +26,6 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgRe
 		if err != nil {
 			return ImgResponse{}, err
 		}
-	}
-	if len(config[0]) > 3 {
-		fallbackURL = config[0][3]
 	}
 	err = security.NewRequest(security.SecurityConfig(
 		security.WithType("img.gen"),
@@ -113,9 +109,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgRe
 		if editErr != nil {
 			err = editErr
 		}
-		return ImgResponse{
-			URL: fallbackURL,
-		}, err
+		return ImgResponse{}, err
 	}
 	url := response.URL
 	url = strings.ReplaceAll(url, "\\u0026", "&")

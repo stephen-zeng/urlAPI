@@ -14,6 +14,7 @@ var typeMap = map[string]string{
 	"img.gen":  "图片生成",
 	"download": "文件下载",
 	"rand":     "随机图片",
+	"web.img":  "网站缩略图",
 }
 
 func frequencyCheck(IP, Type, Target string) error {
@@ -113,4 +114,22 @@ func randCheck(API, Info string) error {
 	} else {
 		return nil
 	}
+}
+
+func webImgCheck(API string) error {
+	list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"web", "webimgallowed"})))
+	if err != nil {
+		return err
+	}
+	if list[0][1] != "true" {
+		log.Println("WebImg isn't enabled.")
+		return errors.New("WebImg Disabled")
+	}
+	for _, item := range list[1] {
+		if item == API {
+			return nil
+		}
+	}
+	log.Println("The Website " + API + " is NOT enabled for webimg.")
+	return errors.New("webImgCheck failed")
 }

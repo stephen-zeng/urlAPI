@@ -22,7 +22,6 @@ var shortcut = map[string]string{
 func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
 	var target string
 	var expired = 60
-	var fallbackURL = "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png"
 	if Target == "laugh" || Target == "sentence" || Target == "poem" {
 		target = shortcut[Target]
 	} else if Target == "" {
@@ -45,9 +44,6 @@ func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse
 			return TxtResponse{}, err
 		}
 	}
-	if len(config[0]) > 4 {
-		fallbackURL = config[0][4]
-	}
 	err = security.NewRequest(security.SecurityConfig(
 		security.WithType("txt.gen"),
 		security.WithAPI(API),
@@ -66,7 +62,7 @@ func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse
 		Model = config[0][1]
 	}
 	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(target)))
-	if err == nil && Regen != "true" {
+	if err == nil {
 		for _, task := range last {
 			if task.Status == "success" && task.API == API {
 				if time.Now().Sub(task.Time).Minutes() < float64(expired) {
@@ -125,11 +121,9 @@ func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse
 		if editErr != nil {
 			err = editErr
 		}
-		return TxtResponse{
-			URL: fallbackURL,
-		}, err
+		return TxtResponse{}, err
 	}
-	imgResponse, err := img.DrawRequest(id, response.Response, From)
+	imgResponse, err := img.TxtDrawRequest(id, response.Response, From)
 	if err != nil {
 		log.Println(err)
 	}

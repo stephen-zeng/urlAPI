@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -109,7 +109,7 @@ func scanRepo(API, Info string) ([]string, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	jsonResponse, err := ioutil.ReadAll(resp.Body)
+	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil, errors.New("failed to fetch repo contents")
 	}

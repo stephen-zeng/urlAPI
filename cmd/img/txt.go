@@ -11,7 +11,7 @@ import (
 )
 
 //go:embed ssfonts.ttf
-var fontFile embed.FS
+var SmileySans embed.FS
 
 func arrange(Str string) []string {
 	Content := []rune(Str)
@@ -27,8 +27,8 @@ func arrange(Str string) []string {
 	return ret
 }
 
-func DrawRequest(UUID, Str, From string) (ImgResponse, error) {
-	reader, err := fontFile.ReadFile("ssfonts.ttf")
+func TxtDrawRequest(UUID, Str, From string) (ImgResponse, error) {
+	reader, err := SmileySans.ReadFile("ssfonts.ttf")
 	if err != nil {
 		log.Println("Failed to load font file")
 		return ImgResponse{}, err
@@ -55,7 +55,6 @@ func DrawRequest(UUID, Str, From string) (ImgResponse, error) {
 		drawer.DrawString(content, freetype.Pt(15, 60*(index+1)+2))
 		drawer.SetSrc(image.White)
 		drawer.DrawString(content, freetype.Pt(13, 60*(index+1)))
-
 	}
 
 	return ImgResponse{

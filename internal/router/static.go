@@ -9,11 +9,11 @@ import (
 )
 
 //go:embed template/dist/*
-var web embed.FS
+var webFS embed.FS
 
 func dashboard() {
-	rootFS, _ := fs.Sub(web, "template/dist")
-	assetsFS, _ := fs.Sub(web, "template/dist/assets")
+	rootFS, _ := fs.Sub(webFS, "template/dist")
+	assetsFS, _ := fs.Sub(webFS, "template/dist/assets")
 	r.StaticFS("/assets", http.FS(assetsFS))
 	tpl := template.Must(template.ParseFS(rootFS, "*.html"))
 	r.SetHTMLTemplate(tpl)

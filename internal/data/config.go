@@ -2,6 +2,9 @@ package data
 
 import "time"
 
+var FallbackURL = "https://raw.githubusercontent.com/stephen-zeng/urlAPI/main/fallback.png"
+var Expired = 60
+
 type Config struct {
 	UUID          string
 	Type          string

@@ -12,7 +12,7 @@ var PartMap = map[string][]string{
 	"security": []string{"dash", "dashallowedip", "allowedref"},
 	"txt":      []string{"txt", "txtgenenabled", "txtsumenabled"},
 	"img":      []string{"img"},
-	"template": []string{"template", "webimgallowed", "websumblocked"},
+	"web":      []string{"web", "webimgallowed", "websumblocked"},
 	"rand":     []string{"rand"},
 }
 
