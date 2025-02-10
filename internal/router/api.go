@@ -24,6 +24,11 @@ func getScheme(c *gin.Context) string {
 
 func txtRequest() {
 	r.GET("/txt", func(c *gin.Context) {
+		if c.Request.Referer() == "" {
+			c.JSON(301, gin.H{
+				"error": "Empty Source",
+			})
+		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt"})))
 		if len(config[0]) > 4 {
@@ -61,6 +66,11 @@ func txtRequest() {
 
 func imgRequest() {
 	r.GET("/img", func(c *gin.Context) {
+		if c.Request.Referer() == "" {
+			c.JSON(301, gin.H{
+				"error": "Empty Source",
+			})
+		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 		if len(config[0]) > 3 {
@@ -99,6 +109,11 @@ func imgRequest() {
 
 func webRequest() {
 	r.GET("/web", func(c *gin.Context) {
+		if c.Request.Referer() == "" {
+			c.JSON(301, gin.H{
+				"error": "Empty Source",
+			})
+		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"web"})))
 		if len(config[0]) > 4 {
@@ -146,6 +161,11 @@ func webRequest() {
 
 func randRequest() {
 	r.GET("/rand", func(c *gin.Context) {
+		if c.Request.Referer() == "" {
+			c.JSON(301, gin.H{
+				"error": "Empty Source",
+			})
+		}
 		fallbackURL := data.FallbackURL
 		list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"rand"})))
 		fallbackURL = list[0][2]

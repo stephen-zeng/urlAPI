@@ -39,10 +39,6 @@ func frequencyCheck(IP, Type, Target string) error {
 }
 
 func sourceCheck(source string) error {
-	if source == "" {
-		log.Println("The source domain is empty.")
-		return errors.New("sourceCheck failed")
-	}
 	list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"allowedref"})))
 	if err != nil {
 		return err
