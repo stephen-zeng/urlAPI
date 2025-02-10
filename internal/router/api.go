@@ -28,6 +28,7 @@ func txtRequest() {
 			c.JSON(301, gin.H{
 				"error": "Empty Source",
 			})
+			return
 		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt"})))
@@ -70,6 +71,7 @@ func imgRequest() {
 			c.JSON(301, gin.H{
 				"error": "Empty Source",
 			})
+			return
 		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
@@ -113,6 +115,7 @@ func webRequest() {
 			c.JSON(301, gin.H{
 				"error": "Empty Source",
 			})
+			return
 		}
 		fallbackURL := data.FallbackURL
 		config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"web"})))
@@ -165,6 +168,7 @@ func randRequest() {
 			c.JSON(301, gin.H{
 				"error": "Empty Source",
 			})
+			return
 		}
 		fallbackURL := data.FallbackURL
 		list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"rand"})))
