@@ -46,10 +46,9 @@ func txtRequest() {
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
-		regen := c.Query("regen")
 		response, err := txt.GenRequest(
 			c.ClientIP(), getScheme(c)+c.Request.Host,
-			domain, model, api, prompt, regen)
+			domain, model, api, prompt)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -90,12 +89,10 @@ func imgRequest() {
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		size := c.Query("size")
-		regen := c.Query("regen")
 		response, err := img.GenRequest(
 			c.ClientIP(), domain,
 			model, api, prompt, size,
-			getScheme(c)+c.Request.Host,
-			regen)
+			getScheme(c)+c.Request.Host)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -131,7 +128,6 @@ func webRequest() {
 		format := c.Query("format")
 		img := c.Query("img")
 		//sum := c.Query("sum")
-		regen := c.Query("regen")
 		var targetURL *url.URL
 		var target string
 		var response web.WebResponse
@@ -143,7 +139,7 @@ func webRequest() {
 				getScheme(c)+c.Request.Host, // https://api.example.com
 				referer.Hostname(),          // referer domain
 				targetURL.Hostname(),        // github.com ...
-				target, regen)
+				target)
 		} else {
 			log.Println("Empty request")
 			c.Redirect(302, fallbackURL)

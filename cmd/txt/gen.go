@@ -19,7 +19,7 @@ var shortcut = map[string]string{
 	"sentence": "写几句心灵鸡汤，中文，不要换行，需要句中有标点符号",
 }
 
-func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse, error) {
+func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error) {
 	var target string
 	var expired = 60
 	if Target == "laugh" || Target == "sentence" || Target == "poem" {
@@ -71,7 +71,7 @@ func GenRequest(IP, From, Domain, Model, API, Target, Regen string) (TxtResponse
 					err := json.Unmarshal([]byte(task.Return), &ret)
 					if err != nil {
 						return TxtResponse{}, err
-					} else if Regen != "true" {
+					} else {
 						return ret, nil
 					}
 				} else {

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgResponse, error) {
+func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse, error) {
 	var expired = data.Expired
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 	if err != nil {
@@ -58,7 +58,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From, Regen string) (ImgRe
 					err := json.Unmarshal([]byte(task.Return), &ret)
 					if err != nil {
 						return ImgResponse{}, err
-					} else if Regen != "true" {
+					} else {
 						return ret, nil
 					}
 				} else {

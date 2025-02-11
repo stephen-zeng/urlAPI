@@ -21,7 +21,7 @@ var webMap = map[string]string{
 	"youtube.com":   "youtube",
 }
 
-func ImgRequest(IP, From, Domain, API, Target, Regen string) (WebResponse, error) {
+func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
 	var expired = data.Expired
 	API = webMap[API] // github.com --> github
 	err := security.NewRequest(security.SecurityConfig(
@@ -53,7 +53,7 @@ func ImgRequest(IP, From, Domain, API, Target, Regen string) (WebResponse, error
 					err := json.Unmarshal([]byte(task.Return), &ret)
 					if err != nil {
 						return WebResponse{}, err
-					} else if Regen != "true" {
+					} else {
 						return ret, nil
 					}
 				} else {

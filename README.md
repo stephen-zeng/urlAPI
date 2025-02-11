@@ -25,7 +25,6 @@
 | prompt（必填） | laugh, poem, sentence, 其他提示词 | laught为笑话，poem是诗句（创作），sentence是鸡汤 |
 | format（选填） | json, txt | 默认直接输出图片，json为输出JSON格式, txt为输出文字（需要使用iframe） |
 | api（选填） | alibaba/openai/deepseek/otherapi | 在后台可以设置默认API |
-| regen（选填） | true | 强制重新生成 |
 
 + 图片上使用的字体是得意黑:)
 + v1.2及以上的版本支持图片输出以及参数值`txt`，v1.1及以下版本默认直接输出文字。
@@ -38,7 +37,6 @@
 | format（选填） | json | 默认直接跳转，json为输出JSON格式 |
 | api（选填） | alibaba, openai | 在后台可以设置默认API |
 | size（选填） | / | 后台可以设置默认大小，自定义的话参见对应的文档填入 |
-| regen（选填） | true | 强制重新生成 |
 
 ## 随机图片
 格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下

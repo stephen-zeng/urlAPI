@@ -1,6 +1,7 @@
 <script setup>
   import {ref, onMounted} from 'vue'
   import {setColorScheme} from "mdui";
+  import Cookies from "js-cookie";
 
   const theme = ref(0)
   const color = ref(0)
@@ -19,12 +20,15 @@
     if (theme.value % 3 === 0) { // dark -> auto
       document.documentElement.classList.remove("mdui-theme-dark");
       document.documentElement.classList.add("mdui-theme-auto");
+      Cookies.set("theme", "mdui-theme-auto", {expires: 365});
     } else if (theme.value % 3 === 1) { // auto -> light
       document.documentElement.classList.remove("mdui-theme-auto");
       document.documentElement.classList.add("mdui-theme-light");
+      Cookies.set("theme", "mdui-theme-light", {expires: 365});
     } else if (theme.value % 3 === 2) { // light -> dark
       document.documentElement.classList.remove("mdui-theme-light");
       document.documentElement.classList.add("mdui-theme-dark");
+      Cookies.set("theme", "mdui-theme-dark", {expires: 365});
     }
   }
   function changeColor() {
@@ -36,7 +40,8 @@
   }
 
   onMounted(() => {
-    document.documentElement.classList.add("mdui-theme-auto");
+    if (Cookies.get("theme")) document.documentElement.classList.add(Cookies.get("theme"));
+    else document.documentElement.classList.add("mdui-theme-auto");
     setColorScheme('#00ff77');
   })
 </script>
