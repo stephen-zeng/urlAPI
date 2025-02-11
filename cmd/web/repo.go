@@ -34,7 +34,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Println("Error getting github repo info")
-		return WebResponse{}, errors.New("failed to read github response")
+		return WebResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
 	var repo map[string]interface{}
 	err = json.Unmarshal(jsonResp, &repo)

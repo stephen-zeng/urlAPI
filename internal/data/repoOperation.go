@@ -111,7 +111,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.New("failed to fetch repo contents")
+		return nil, errors.Join(err, errors.New(resp.Status))
 	}
 	var content []map[string]interface{}
 	var ret []string

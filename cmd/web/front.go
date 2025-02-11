@@ -17,8 +17,7 @@ var webMap = map[string]string{
 	"github.com":       "github",
 	"gitee.com":        "gitee",
 	"www.bilibili.com": "bilibili",
-	"music.163.com":    "wyy",
-	"youtube.com":      "youtube",
+	"www.youtube.com":  "youtube",
 }
 
 func getBiliABV(URL string) string {
@@ -28,6 +27,14 @@ func getBiliABV(URL string) string {
 		}
 	}
 	return ""
+}
+func getYtbID(URL string) string {
+	for i := 32; i < len(URL); i++ {
+		if URL[i] == '&' {
+			return URL[32:i]
+		}
+	}
+	return URL[32:]
 }
 
 func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
@@ -106,6 +113,12 @@ func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
 		ret, err = repo(strings.ReplaceAll(Target, "https://gitee.com", "https://gitee.com/api/v5/repos"), From, id, token)
 	case "bilibili":
 		ret, err = bili(getBiliABV(Target), From, id)
+	case "youtube":
+		if len(config[0]) > 6 {
+			ret, err = ytb(getYtbID(Target), From, id, config[0][6])
+		} else {
+			err = errors.New("No Youtube API Token")
+		}
 	default:
 		err = errors.New("Unsupported websites")
 	}

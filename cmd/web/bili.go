@@ -43,7 +43,7 @@ func bili(ABV, From, UUID string) (WebResponse, error) {
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Println("Error getting video info")
-		return WebResponse{}, err
+		return WebResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
 	var info map[string]interface{}
 	err = json.Unmarshal(jsonResp, &info)

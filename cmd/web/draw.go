@@ -181,7 +181,7 @@ func drawVideo(PicURL, Name, Author, Description, View, Favorite, Like, Coin, UU
 	templatePic := image.NewRGBA(pic.Bounds())
 	draw.Draw(templatePic, templatePic.Bounds(), pic, pic.Bounds().Min, draw.Over)
 	drawRoundedRect(templatePic, "boarder")
-	
+
 	width := max(nameLen, authorLen, statLen) + templatePic.Bounds().Dx() + 100
 	desriptionContent := arrange(Description, width)
 	height := len(desriptionContent)*50 + templatePic.Bounds().Dy() + 100
@@ -217,13 +217,13 @@ func drawVideo(PicURL, Name, Author, Description, View, Favorite, Like, Coin, UU
 	}
 
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+100, 300, width, height), playIcon, playIcon.Bounds().Min, draw.Over)
-	drawer.DrawString(View, freetype.Pt(templatePic.Bounds().Dx()+180, 360))
+	drawer.DrawString(View, freetype.Pt(templatePic.Bounds().Dx()+180, 350))
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+200, 300, width, height), favIcon, favIcon.Bounds().Min, draw.Over)
-	drawer.DrawString(Favorite, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 360))
+	drawer.DrawString(Favorite, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 350))
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+100, 400, width, height), likeIcon, likeIcon.Bounds().Min, draw.Over)
-	drawer.DrawString(Like, freetype.Pt(templatePic.Bounds().Dx()+180, 460))
+	drawer.DrawString(Like, freetype.Pt(templatePic.Bounds().Dx()+180, 450))
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+200, 400, width, height), coinIcon, coinIcon.Bounds().Min, draw.Over)
-	drawer.DrawString(Coin, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 460))
+	drawer.DrawString(Coin, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 450))
 
 	return file.Add(file.FileConfig(
 		file.WithType("img.save"),

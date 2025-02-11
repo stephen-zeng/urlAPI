@@ -124,23 +124,24 @@ function del(list, index) {
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'github', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'github', 'edit')">
               Github（需要网络支持）</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'youtube', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'youtube', 'edit')">
-              YouTube（需要网络支持）</mdui-checkbox>
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'gitee', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'gitee', 'edit')">
               Gitee</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'wyy', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'wyy', 'edit')">
-              网易云</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'youtube', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'youtube', 'edit')">
+              Youtube（需要网络支持）</mdui-checkbox>
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'bilibili', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'bilibili', 'edit')">
               B站</mdui-checkbox>
           </div>
-          <p>Github App Token（用于增加API可用次数）</p>
-          <mdui-text-field variant="outlined" label="API-Key"
+          <p>Github App Token（选填）</p>
+          <mdui-text-field variant="outlined" label="用于增加API可用次数"
                            :value="settings?settings[0][5]:''"
                            @change="settings[0][5] = $event.target.value"></mdui-text-field>
+          <p>YouTube API Token（必填）</p>
+          <mdui-text-field variant="outlined" label=否则无法使用
+                           :value="settings?settings[0][6]:''"
+                           @change="settings[0][6] = $event.target.value"></mdui-text-field>
           <mdui-divider></mdui-divider>
           <p>过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"

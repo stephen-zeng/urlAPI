@@ -15,7 +15,11 @@ func convertInterfaceToString(ori interface{}) [][]string {
 	for _, i := range ori.([]interface{}) {
 		var tmp []string
 		for _, j := range i.([]interface{}) {
-			tmp = append(tmp, j.(string))
+			if j == nil {
+				tmp = append(tmp, "")
+			} else {
+				tmp = append(tmp, j.(string))
+			}
 		}
 		ret = append(ret, tmp)
 	}
