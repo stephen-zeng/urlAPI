@@ -63,7 +63,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 		log.Println("Unable to decode github background image")
 		return WebResponse{}, err
 	}
-	err = DrawRepo(bgImg, name, author, description, star, fork, UUID)
+	err = drawRepo(bgImg, name, author, description, star, fork, UUID)
 	if err != nil {
 		log.Println("Error when drawing the img")
 		return WebResponse{}, err

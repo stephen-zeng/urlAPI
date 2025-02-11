@@ -14,11 +14,20 @@ import (
 )
 
 var webMap = map[string]string{
-	"github.com":    "github",
-	"gitee.com":     "gitee",
-	"bilibili.com":  "bilibili",
-	"music.163.com": "wyy",
-	"youtube.com":   "youtube",
+	"github.com":       "github",
+	"gitee.com":        "gitee",
+	"www.bilibili.com": "bilibili",
+	"music.163.com":    "wyy",
+	"youtube.com":      "youtube",
+}
+
+func getBiliABV(URL string) string {
+	for i := 31; i < len(URL); i++ {
+		if URL[i] == '/' {
+			return URL[31:i]
+		}
+	}
+	return ""
 }
 
 func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
@@ -95,6 +104,8 @@ func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
 		ret, err = repo(strings.ReplaceAll(Target, "https://github.com", "https://api.github.com/repos"), From, id, token)
 	case "gitee":
 		ret, err = repo(strings.ReplaceAll(Target, "https://gitee.com", "https://gitee.com/api/v5/repos"), From, id, token)
+	case "bilibili":
+		ret, err = bili(getBiliABV(Target), From, id)
 	default:
 		err = errors.New("Unsupported websites")
 	}
