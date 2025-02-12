@@ -59,6 +59,8 @@
             <mdui-radio value="qwen-plus">通义千问-Plus</mdui-radio>
             <mdui-radio value="qwen-turbo">通义千问-Turbo</mdui-radio>
             <mdui-radio value="qwen-long">通义千问-Long</mdui-radio>
+            <mdui-radio value="deepseek-v3">DeepSeek V3</mdui-radio>
+            <mdui-radio value="deepseek-r1">DeepSeek R1</mdui-radio>
           </mdui-radio-group>
           <p>默认总结模型</p>
           <mdui-radio-group :value="settings?settings[0][2]:'qwen-plus'"
@@ -68,6 +70,8 @@
             <mdui-radio value="qwen-plus">通义千问 Plus</mdui-radio>
             <mdui-radio value="qwen-turbo">通义千问 Turbo</mdui-radio>
             <mdui-radio value="qwen-long">通义千问 Long</mdui-radio>
+            <mdui-radio value="deepseek-v3">DeepSeek V3</mdui-radio>
+            <mdui-radio value="deepseek-r1">DeepSeek R1</mdui-radio>
           </mdui-radio-group>
           <p>默认图片生成模型</p>
           <mdui-radio-group :value="settings?settings[0][3]:'wanx2.1-t2i-turbo'"
