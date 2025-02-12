@@ -29,7 +29,7 @@
     if (session.error) {
       Notification(session.error)
     } else {
-      task.value = session.task_data
+      task.value = session.task_data.sort((a, b) => new Date(b.time) - new Date(a.time));
     }
   }
 

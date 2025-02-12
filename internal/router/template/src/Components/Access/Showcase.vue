@@ -1,5 +1,5 @@
 <script setup>
-  import {ref, provide, inject} from 'vue';
+import {ref, provide, inject, onMounted} from 'vue';
   import Detail from "@/Components/Access/Detail.vue";
 
   const dialogStatus = ref(false);
