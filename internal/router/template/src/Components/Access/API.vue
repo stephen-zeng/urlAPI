@@ -18,6 +18,8 @@ function getValue(tasks) {
       map.value[task.api] = 1;
     }
   }
+  const sortedEntries = Object.entries(map.value).sort((a, b) => b[1] - a[1]);
+  map.value = Object.fromEntries(sortedEntries);
 }
 function setFilter(filter) {
   catagory.value = "api";
