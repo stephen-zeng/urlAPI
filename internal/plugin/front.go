@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	genContext string = "You are a helpful assistant and need to give some sentence based on the prompt. Do not greet and give the answer directly."
+	genContext string = "你是一个助手，需要根据提示词写出对应的语。语句中不要有空格，不要打招呼，直接给出答案。"
 	//	sumContext string = "You are a helpful assistant and need to summarize the text from the prompt. Do not greet and give the answer directly."
 )
 
