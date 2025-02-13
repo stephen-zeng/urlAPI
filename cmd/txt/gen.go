@@ -60,7 +60,7 @@ func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error
 	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(target)))
 	if err == nil {
 		for _, task := range last {
-			if task.Status == "success" && task.API == API {
+			if task.Status == "success" && task.API == API+"."+Model {
 				if time.Now().Sub(task.Time).Minutes() < float64(expired) {
 					log.Println("Found old task")
 					var ret TxtResponse
@@ -95,7 +95,7 @@ func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error
 	}
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("文字生成"),
-		data.WithAPI(API),
+		data.WithAPI(API+"."+Model),
 		data.WithTaskIP(IP),
 		data.WithTaskTarget(target),
 		data.WithTaskRegion(region.Region),
