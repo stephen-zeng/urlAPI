@@ -13,33 +13,29 @@ import (
 	"time"
 )
 
-var shortcut = map[string]string{
-	"laugh":    "讲一个笑话，中文，不要换行，需要句中有标点符号",
-	"poem":     "做几句诗歌，中文，不要换行，需要句中有标点符号",
-	"sentence": "写几句心灵鸡汤，中文，不要换行，需要句中有标点符号",
-}
-
 func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error) {
 	var target string
 	var expired = 60
-	if Target == "laugh" || Target == "sentence" || Target == "poem" {
-		target = shortcut[Target]
-	} else if Target == "" {
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"prompt", "txt"})))
+	switch Target {
+	case "laugh":
+		target = config[0][0]
+	case "poem":
+		target = config[0][1]
+	case "sentence":
+		target = config[0][2]
+	case "":
 		return TxtResponse{}, errors.New("prompt required")
-	} else {
+	default:
 		target = Target
 		Target = "other"
 	}
-	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt"})))
-	if err != nil {
-		return TxtResponse{}, err
-	}
 	if API == "" {
-		API = config[0][1]
+		API = config[1][1]
 	}
-	if len(config[0]) > 3 {
+	if len(config[1]) > 3 {
 		var err error
-		expired, err = strconv.Atoi(config[0][3])
+		expired, err = strconv.Atoi(config[1][3])
 		if err != nil {
 			return TxtResponse{}, err
 		}

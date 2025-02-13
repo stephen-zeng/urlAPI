@@ -1,7 +1,7 @@
-openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled;txtsumenabled;img;web;webimgallowed;websumblocked;rand
+openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled;txtsumenabled;img;web;webimgallowed;websumblocked;rand;context;prompt
 ;gpt-4o;gpt-4o-mini;dall-e-3;1024x1024;https://api.openai.com/v1/chat/completions
 ;deepseek-chat;deepseek-chat
-;qwen-plus;qwen-turbo;wanx2.1-t2i-turbo;1024*768
+;deepseek-v3;qwen-turbo;wanx2.1-t2i-turbo;1024*768
 ;;;
 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
 *
@@ -14,3 +14,5 @@ false;false;alibaba;10;https://raw.githubusercontent.com/stephen-zeng/urlAPI/img
 _
 *
 false;https://raw.githubusercontent.com;https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png
+你是一个助手，需要根据提示词写出对应的语句。语句中不要有空格，不要有换行。不要打招呼，直接给出答案。;你是一个助手，需要根据提示词进行总结。总结中不要有空格，不要有换行。不要打招呼，直接给出答案。
+讲一个笑话，中文，不要换行，需要句中有标点符号;做几句诗歌，中文，不要换行，需要句中有标点符号;写几句心灵鸡汤，中文，不要换行，需要句中有标点符号

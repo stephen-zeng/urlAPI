@@ -1,43 +1,47 @@
 package plugin
 
 import (
+	"backend/internal/data"
 	"errors"
 )
 
-const (
-	genContext string = "你是一个助手，需要根据提示词写出对应的语。语句中不要有空格，不要打招呼，直接给出答案。"
-	//	sumContext string = "You are a helpful assistant and need to summarize the text from the prompt. Do not greet and give the answer directly."
-)
+var genContext, sumContext string
 
-func Request(data Config) (PluginResponse, error) {
-	if data.API == "openai" {
-		return openai(data)
-	} else if data.API == "alibaba" {
-		return alibaba(data)
-	} else if data.API == "deepseek" {
-		return deepseek(data)
-	} else if data.API == "otherapi" {
-		return otherapi(data)
-	} else if data.API == "github" || data.API == "gitee" {
-		return random(data.API, data.Repo)
+func Request(dat Config) (PluginResponse, error) {
+	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"context"})))
+	if err != nil {
+		return PluginResponse{}, err
+	}
+	genContext = config[0][0]
+	sumContext = config[0][1]
+	if dat.API == "openai" {
+		return openai(dat)
+	} else if dat.API == "alibaba" {
+		return alibaba(dat)
+	} else if dat.API == "deepseek" {
+		return deepseek(dat)
+	} else if dat.API == "otherapi" {
+		return otherapi(dat)
+	} else if dat.API == "github" || dat.API == "gitee" {
+		return random(dat.API, dat.Repo)
 	} else {
 		return PluginResponse{}, errors.New("No Valid API Option")
 	}
 }
 
-func openai(data Config) (PluginResponse, error) {
-	model := data.Model
-	if data.ImgPrompt != "" {
-		prompt := data.ImgPrompt
-		size := data.Size
+func openai(dat Config) (PluginResponse, error) {
+	model := dat.Model
+	if dat.ImgPrompt != "" {
+		prompt := dat.ImgPrompt
+		size := dat.Size
 		response, err := openaiImg(prompt, model, size)
 		if err != nil {
 			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
-	} else if data.GenPrompt != "" {
-		prompt := data.GenPrompt
+	} else if dat.GenPrompt != "" {
+		prompt := dat.GenPrompt
 		contxt := genContext
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
@@ -50,19 +54,19 @@ func openai(data Config) (PluginResponse, error) {
 	}
 }
 
-func alibaba(data Config) (PluginResponse, error) {
-	model := data.Model
-	if data.ImgPrompt != "" {
-		prompt := data.ImgPrompt
-		size := data.Size
+func alibaba(dat Config) (PluginResponse, error) {
+	model := dat.Model
+	if dat.ImgPrompt != "" {
+		prompt := dat.ImgPrompt
+		size := dat.Size
 		response, err := alibabaImg(prompt, model, size)
 		if err != nil {
 			return PluginResponse{}, err
 		} else {
 			return response, nil
 		}
-	} else if data.GenPrompt != "" {
-		prompt := data.GenPrompt
+	} else if dat.GenPrompt != "" {
+		prompt := dat.GenPrompt
 		contxt := genContext
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
@@ -75,10 +79,10 @@ func alibaba(data Config) (PluginResponse, error) {
 	}
 }
 
-func deepseek(data Config) (PluginResponse, error) {
-	model := data.Model
-	if data.GenPrompt != "" {
-		prompt := data.GenPrompt
+func deepseek(dat Config) (PluginResponse, error) {
+	model := dat.Model
+	if dat.GenPrompt != "" {
+		prompt := dat.GenPrompt
 		contxt := genContext
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
@@ -91,11 +95,11 @@ func deepseek(data Config) (PluginResponse, error) {
 	}
 }
 
-func otherapi(data Config) (PluginResponse, error) {
-	model := data.Model
-	if data.GenPrompt != "" {
-		prompt := data.GenPrompt
-		contxt := "You are a helpful assistant and need to give some sentence based on the prompt"
+func otherapi(dat Config) (PluginResponse, error) {
+	model := dat.Model
+	if dat.GenPrompt != "" {
+		prompt := dat.GenPrompt
+		contxt := genContext
 		response, err := otherapiTxt(prompt, contxt, model)
 		if err != nil {
 			return PluginResponse{}, err

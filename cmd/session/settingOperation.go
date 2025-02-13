@@ -14,6 +14,7 @@ var PartMap = map[string][]string{
 	"img":      []string{"img"},
 	"web":      []string{"web", "webimgallowed", "websumblocked"},
 	"rand":     []string{"rand"},
+	"contxt":   []string{"context", "prompt"},
 }
 
 func fetchSetting(Part string) ([]string, [][]string, error) {
