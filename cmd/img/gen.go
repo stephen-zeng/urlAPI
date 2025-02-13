@@ -7,13 +7,15 @@ import (
 	"backend/internal/security"
 	"encoding/json"
 	"log"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse, error) {
+func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (ImgResponse, error) {
 	var expired = data.Expired
+	Domain := Referer.Hostname()
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
 	if err != nil {
 		return ImgResponse{}, err
@@ -87,7 +89,7 @@ func GenRequest(IP, Domain, Model, API, Target, Size, From string) (ImgResponse,
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("图片生成"),
 		data.WithAPI(API+"."+Model),
-		data.WithTaskIP(IP),
+		data.WithTaskIP(IP+", from "+Referer.String()),
 		data.WithTaskTarget(Target),
 		data.WithTaskSize(Size),
 		data.WithTaskRegion(region.Region),

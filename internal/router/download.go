@@ -70,7 +70,7 @@ func download() {
 			log.Println("Region fetch failed")
 		}
 		_, err = data.NewTask(data.DataConfig(
-			data.WithTaskIP(c.ClientIP()),
+			data.WithTaskIP(c.ClientIP()+", from "+referer.String()),
 			data.WithTaskRegion(region.Region),
 			data.WithType("文件下载"),
 			data.WithTaskStatus("success"),

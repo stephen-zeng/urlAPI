@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -37,8 +38,9 @@ func getYtbID(URL string) string {
 	return URL[32:]
 }
 
-func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
+func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, error) {
 	var expired = data.Expired
+	Domain := Referer.Hostname()
 	API = webMap[API] // github.com --> github
 	err := security.NewRequest(security.SecurityConfig(
 		security.WithType("web.img"),
@@ -98,7 +100,7 @@ func ImgRequest(IP, From, Domain, API, Target string) (WebResponse, error) {
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("网站缩略图"),
 		data.WithAPI(API),
-		data.WithTaskIP(IP),
+		data.WithTaskIP(IP+", from "+Referer.String()),
 		data.WithTaskTarget(Target),
 		data.WithTaskRegion(region.Region)))
 	var ret WebResponse

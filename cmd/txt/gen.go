@@ -9,13 +9,15 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net/url"
 	"strconv"
 	"time"
 )
 
-func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error) {
+func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtResponse, error) {
 	var target string
 	var expired = 60
+	Domain := Referer.Hostname()
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"prompt", "txt"})))
 	switch Target {
 	case "laugh":
@@ -96,7 +98,7 @@ func GenRequest(IP, From, Domain, Model, API, Target string) (TxtResponse, error
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("文字生成"),
 		data.WithAPI(API+"."+Model),
-		data.WithTaskIP(IP),
+		data.WithTaskIP(IP+", from "+Referer.String()),
 		data.WithTaskTarget(target),
 		data.WithTaskRegion(region.Region),
 	))

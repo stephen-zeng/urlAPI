@@ -41,14 +41,13 @@ func txtRequest() {
 			c.Redirect(302, fallbackURL)
 			return
 		}
-		domain := referer.Hostname()
 		format := c.Query("format")
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		response, err := txt.GenRequest(
 			c.ClientIP(), getScheme(c)+c.Request.Host,
-			domain, model, api, prompt)
+			model, api, prompt, referer)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -83,16 +82,16 @@ func imgRequest() {
 			c.Redirect(302, fallbackURL)
 			return
 		}
-		domain := referer.Hostname()
 		format := c.Query("format")
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		size := c.Query("size")
 		response, err := img.GenRequest(
-			c.ClientIP(), domain,
+			c.ClientIP(),
 			model, api, prompt, size,
-			getScheme(c)+c.Request.Host)
+			getScheme(c)+c.Request.Host,
+			referer)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -137,9 +136,8 @@ func webRequest() {
 			response, err = web.ImgRequest(
 				c.ClientIP(),                // IP
 				getScheme(c)+c.Request.Host, // https://api.example.com
-				referer.Hostname(),          // referer domain
 				targetURL.Hostname(),        // github.com ...
-				target)
+				target, referer)
 		} else {
 			log.Println("Empty request")
 			c.Redirect(302, fallbackURL)
@@ -200,7 +198,7 @@ func randRequest() {
 			data.WithType("随机图片"),
 			data.WithTaskTarget(user+"/"+repo),
 			data.WithTaskRegion(region.Region),
-			data.WithTaskIP(c.ClientIP()),
+			data.WithTaskIP(c.ClientIP()+", from "+referer.String()),
 		))
 		response, err := plugin.Request(plugin.PluginConfig(
 			plugin.WithAPI(api),
