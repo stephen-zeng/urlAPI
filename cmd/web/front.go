@@ -100,9 +100,11 @@ func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, er
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("网站缩略图"),
 		data.WithAPI(API),
-		data.WithTaskIP(IP+", from "+Referer.String()),
+		data.WithTaskIP(IP),
 		data.WithTaskTarget(Target),
-		data.WithTaskRegion(region.Region)))
+		data.WithTaskRegion(region.Region),
+		data.WithTaskReferer(Referer.String()),
+	))
 	var ret WebResponse
 	var token string
 	switch API {

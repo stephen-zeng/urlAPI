@@ -53,7 +53,7 @@ func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (Im
 	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(Target)))
 	if err == nil {
 		for _, task := range last {
-			if task.Status == "success" && task.Size == Size && task.API == API+"."+Model {
+			if task.Status == "success" && task.Size == Size && task.API == API {
 				if time.Now().Sub(task.Time).Minutes() < float64(expired) {
 					log.Println("Found old task")
 					var ret ImgResponse
@@ -88,11 +88,13 @@ func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (Im
 	}
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("图片生成"),
-		data.WithAPI(API+"."+Model),
-		data.WithTaskIP(IP+", from "+Referer.String()),
+		data.WithAPI(API),
+		data.WithTaskIP(IP),
 		data.WithTaskTarget(Target),
 		data.WithTaskSize(Size),
 		data.WithTaskRegion(region.Region),
+		data.WithTaskModel(Model),
+		data.WithTaskReferer(Referer.String()),
 	))
 	if err != nil {
 		return ImgResponse{}, err

@@ -10,30 +10,34 @@ import (
 )
 
 type Task struct {
-	UUID   string    `gorm:"primaryKey" json:"uuid"`
-	Time   time.Time `json:"time"`
-	IP     string    `json:"ip"`
-	Type   string    `json:"type"`
-	Status string    `json:"status"`
-	Target string    `json:"target"`
-	Return string    `json:"return"`
-	Size   string    `json:"size"`
-	API    string    `json:"api"`
-	Region string    `json:"region"`
+	UUID    string    `gorm:"primaryKey" json:"uuid"`
+	Time    time.Time `json:"time"`
+	IP      string    `json:"ip"`
+	Type    string    `json:"type"`
+	Status  string    `json:"status"`
+	Target  string    `json:"target"`
+	Return  string    `json:"return"`
+	Size    string    `json:"size"`
+	API     string    `json:"api"`
+	Region  string    `json:"region"`
+	Model   string    `json:"model"`
+	Referer string    `json:"referer"`
 }
 
-func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size string) (string, error) {
+func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size, Model, Referer string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
-		UUID:   id,
-		API:    API,
-		Time:   Time,
-		IP:     IP,
-		Type:   Type,
-		Status: Status,
-		Target: Target,
-		Region: Region,
-		Size:   Size,
+		UUID:    id,
+		API:     API,
+		Time:    Time,
+		IP:      IP,
+		Type:    Type,
+		Status:  Status,
+		Target:  Target,
+		Region:  Region,
+		Size:    Size,
+		Model:   Model,
+		Referer: Referer,
 	})
 	if err.Error != nil {
 		log.Println(err.Error)

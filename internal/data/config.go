@@ -16,6 +16,8 @@ type Config struct {
 	TaskSize      string
 	TaskRegion    string
 	TaskIP        string
+	TaskModel     string
+	TaskReferer   string
 	SettingName   []string
 	SettingEdit   [][]string
 	SessionToken  string
@@ -93,6 +95,16 @@ func WithSessionTerm(term bool) Option {
 func WithTaskRegion(region string) Option {
 	return func(config *Config) {
 		config.TaskRegion = region
+	}
+}
+func WithTaskModel(model string) Option {
+	return func(config *Config) {
+		config.TaskModel = model
+	}
+}
+func WithTaskReferer(referer string) Option {
+	return func(config *Config) {
+		config.TaskReferer = referer
 	}
 }
 func WithBy(by string) Option {

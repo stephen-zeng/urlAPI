@@ -198,7 +198,8 @@ func randRequest() {
 			data.WithType("随机图片"),
 			data.WithTaskTarget(user+"/"+repo),
 			data.WithTaskRegion(region.Region),
-			data.WithTaskIP(c.ClientIP()+", from "+referer.String()),
+			data.WithTaskIP(c.ClientIP()),
+			data.WithTaskReferer(referer.String()),
 		))
 		response, err := plugin.Request(plugin.PluginConfig(
 			plugin.WithAPI(api),

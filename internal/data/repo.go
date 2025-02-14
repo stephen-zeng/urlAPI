@@ -12,11 +12,12 @@ type RepoResponse struct {
 }
 
 func InitRepo(data Config) error {
-	if data.Type != "restore" && db.Migrator().HasTable(&Repo{}) {
-		return nil
-	} else {
-		db.AutoMigrate(&Repo{})
-		err := db.Where("1=1").Delete(&Repo{})
+	err = db.AutoMigrate(&Repo{})
+	if err != nil {
+		return err
+	}
+	if data.Type == "restore" {
+		err := db.Where("1 = 1").Delete(&Repo{})
 		if err.Error != nil {
 			return err.Error
 		} else {
@@ -24,6 +25,7 @@ func InitRepo(data Config) error {
 			return nil
 		}
 	}
+	return nil
 }
 
 func NewRepo(data Config) error {

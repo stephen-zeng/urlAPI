@@ -3,10 +3,11 @@ package data
 import "log"
 
 func InitSession(data Config) error {
-	if data.Type != "restore" && db.Migrator().HasTable(&Session{}) {
-		return nil
-	} else {
-		db.AutoMigrate(&Session{})
+	err = db.AutoMigrate(&Session{})
+	if err != nil {
+		return err
+	}
+	if data.Type == "restore" {
 		err := db.Where("1 = 1").Delete(&Session{})
 		if err.Error != nil {
 			return err.Error
@@ -15,6 +16,7 @@ func InitSession(data Config) error {
 			return nil
 		}
 	}
+	return nil
 }
 func AddSession(data Config) error {
 	err := addSession(

@@ -7,10 +7,11 @@ import (
 )
 
 func InitTask(data Config) error {
-	if data.Type != "restore" && db.Migrator().HasTable(&Task{}) {
-		return nil
-	} else {
-		db.AutoMigrate(&Task{})
+	err = db.AutoMigrate(&Task{})
+	if err != nil {
+		return err
+	}
+	if data.Type == "restore" {
 		err := db.Where("1 = 1").Delete(&Task{})
 		if err.Error != nil {
 			return err.Error
@@ -19,6 +20,7 @@ func InitTask(data Config) error {
 			return nil
 		}
 	}
+	return nil
 }
 
 func NewTask(data Config) (string, error) {
@@ -32,7 +34,9 @@ func NewTask(data Config) (string, error) {
 		data.TaskStatus,
 		data.TaskTarget,
 		data.TaskRegion,
-		data.TaskSize)
+		data.TaskSize,
+		data.TaskModel,
+		data.TaskReferer)
 	if err != nil {
 		log.Println(err)
 		return "", err

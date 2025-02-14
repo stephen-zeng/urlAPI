@@ -62,7 +62,7 @@ func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtRespo
 	last, err := data.FetchTask(data.DataConfig(data.WithTaskTarget(target)))
 	if err == nil {
 		for _, task := range last {
-			if task.Status == "success" && task.API == API+"."+Model {
+			if task.Status == "success" && task.API == API {
 				if time.Now().Sub(task.Time).Minutes() < float64(expired) {
 					log.Println("Found old task")
 					var ret TxtResponse
@@ -97,10 +97,12 @@ func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtRespo
 	}
 	id, err := data.NewTask(data.DataConfig(
 		data.WithType("文字生成"),
-		data.WithAPI(API+"."+Model),
-		data.WithTaskIP(IP+", from "+Referer.String()),
+		data.WithAPI(API),
+		data.WithTaskIP(IP),
 		data.WithTaskTarget(target),
 		data.WithTaskRegion(region.Region),
+		data.WithTaskModel(Model),
+		data.WithTaskReferer(Referer.String()),
 	))
 	if err != nil {
 		return TxtResponse{}, err
