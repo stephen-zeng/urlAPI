@@ -9,6 +9,7 @@
   import {snackbar} from "mdui";
   import { Post, Notification } from "@/fetch.js"
   import Status from "@/Components/Access/Status.vue";
+  import Referer from "@/Components/Access/Referer.vue";
 
   const catagory = ref("");
   const by = ref("")
@@ -48,6 +49,7 @@
       <Status :tasks="task" @refresh="fetchTask"></Status>
       <API :tasks="task" @refresh="fetchTask"></API>
       <Model :tasks="task" @refresh="fetchTask"></Model>
+      <Referer :tasks="task" @refresh="fetchTask"></Referer>
     </div>
   </mdui-layout-main>
 </template>
