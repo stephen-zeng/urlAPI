@@ -1,16 +1,16 @@
 package img
 
 import (
-	"backend/internal/data"
-	"backend/internal/file"
-	"backend/internal/plugin"
-	"backend/internal/security"
 	"encoding/json"
 	"log"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+	"urlAPI/internal/data"
+	"urlAPI/internal/file"
+	"urlAPI/internal/plugin"
+	"urlAPI/internal/security"
 )
 
 func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (ImgResponse, error) {

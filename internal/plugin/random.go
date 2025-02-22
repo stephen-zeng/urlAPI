@@ -1,9 +1,9 @@
 package plugin
 
 import (
-	"backend/internal/data"
 	"math/rand"
 	"time"
+	"urlAPI/internal/data"
 )
 
 func random(API, Info string) (PluginResponse, error) {

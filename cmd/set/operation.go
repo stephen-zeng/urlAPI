@@ -1,12 +1,12 @@
 package set
 
 import (
-	"backend/internal/data"
 	"crypto/sha256"
 	"fmt"
 	"math/rand"
 	"os"
 	"time"
+	"urlAPI/internal/data"
 )
 
 func RePwd() (SetResponse, error) {

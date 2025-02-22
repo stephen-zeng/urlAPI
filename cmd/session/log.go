@@ -1,10 +1,10 @@
 package session
 
 import (
-	"backend/internal/data"
 	"log"
 	"math/rand"
 	"time"
+	"urlAPI/internal/data"
 )
 
 func newLogin(Term bool) (string, error) {

@@ -1,8 +1,8 @@
 package plugin
 
 import (
-	"backend/internal/data"
 	"errors"
+	"urlAPI/internal/data"
 )
 
 var genContext, sumContext string

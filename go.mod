@@ -1,4 +1,4 @@
-module backend
+module urlAPI
 
 go 1.23
 

@@ -1,12 +1,12 @@
 package session
 
 import (
-	"backend/internal/data"
 	"errors"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+	"urlAPI/internal/data"
 )
 
 func Auth(dat Config) (string, error) {

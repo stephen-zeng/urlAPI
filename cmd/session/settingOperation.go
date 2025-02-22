@@ -1,7 +1,7 @@
 package session
 
 import (
-	"backend/internal/data"
+	"urlAPI/internal/data"
 )
 
 var PartMap = map[string][]string{

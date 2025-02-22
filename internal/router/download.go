@@ -1,14 +1,14 @@
 package router
 
 import (
-	"backend/internal/data"
-	"backend/internal/file"
-	"backend/internal/plugin"
-	"backend/internal/security"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/url"
+	"urlAPI/internal/data"
+	"urlAPI/internal/file"
+	"urlAPI/internal/plugin"
+	"urlAPI/internal/security"
 )
 
 func download() {

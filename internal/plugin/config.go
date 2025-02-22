@@ -1,8 +1,8 @@
 package plugin
 
 import (
-	"backend/internal/data"
 	"log"
+	"urlAPI/internal/data"
 )
 
 type TxtMessage struct {

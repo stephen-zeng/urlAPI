@@ -1,10 +1,6 @@
 package web
 
 import (
-	"backend/internal/data"
-	"backend/internal/file"
-	"backend/internal/plugin"
-	"backend/internal/security"
 	"encoding/json"
 	"errors"
 	"log"
@@ -12,6 +8,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"urlAPI/internal/data"
+	"urlAPI/internal/file"
+	"urlAPI/internal/plugin"
+	"urlAPI/internal/security"
 )
 
 var webMap = map[string]string{

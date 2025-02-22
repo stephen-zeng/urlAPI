@@ -1,12 +1,12 @@
 package security
 
 import (
-	"backend/internal/data"
 	"errors"
 	"log"
 	"regexp"
 	"strings"
 	"time"
+	"urlAPI/internal/data"
 )
 
 var typeMap = map[string]string{

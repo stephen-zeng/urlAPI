@@ -1,15 +1,15 @@
 package router
 
 import (
-	"backend/cmd/img"
-	"backend/cmd/txt"
-	"backend/cmd/web"
-	"backend/internal/data"
-	"backend/internal/plugin"
-	"backend/internal/security"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/url"
+	"urlAPI/cmd/img"
+	"urlAPI/cmd/txt"
+	"urlAPI/cmd/web"
+	"urlAPI/internal/data"
+	"urlAPI/internal/plugin"
+	"urlAPI/internal/security"
 )
 
 func getScheme(c *gin.Context) string {

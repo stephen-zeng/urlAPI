@@ -1,8 +1,8 @@
 package session
 
 import (
-	"backend/internal/data"
 	"time"
+	"urlAPI/internal/data"
 )
 
 type SessionResponse struct {

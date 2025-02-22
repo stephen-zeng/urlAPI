@@ -1,10 +1,10 @@
 package main
 
 import (
-	"backend/cmd/set"
-	"backend/internal/router"
 	"log"
 	"os"
+	"urlAPI/cmd/set"
+	"urlAPI/internal/router"
 )
 
 func main() {

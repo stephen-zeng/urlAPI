@@ -1,8 +1,6 @@
 package web
 
 import (
-	"backend/cmd/img"
-	"backend/internal/file"
 	"embed"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
@@ -14,6 +12,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"urlAPI/cmd/img"
+	"urlAPI/internal/file"
 )
 
 //go:embed fork_icon.png star_icon.png play_icon.png fav_icon.png coin_icon.png like_icon.png

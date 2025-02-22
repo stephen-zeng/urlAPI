@@ -1,13 +1,13 @@
 package img
 
 import (
-	"backend/internal/file"
 	"embed"
 	"github.com/golang/freetype"
 	"image"
 	"image/color"
 	"log"
 	"unicode/utf8"
+	"urlAPI/internal/file"
 )
 
 //go:embed ssfonts.ttf

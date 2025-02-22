@@ -1,17 +1,17 @@
 package txt
 
 import (
-	"backend/cmd/img"
-	"backend/internal/data"
-	"backend/internal/file"
-	"backend/internal/plugin"
-	"backend/internal/security"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/url"
 	"strconv"
 	"time"
+	"urlAPI/cmd/img"
+	"urlAPI/internal/data"
+	"urlAPI/internal/file"
+	"urlAPI/internal/plugin"
+	"urlAPI/internal/security"
 )
 
 func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtResponse, error) {
