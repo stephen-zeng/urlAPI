@@ -7,22 +7,30 @@ const map = ref({})
 const catagory = inject("catagory");
 const by = inject("by");
 
+function getDate(ori) {
+  const date = new Date(ori);
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 1).toString();
+  return year + "." + month;
+}
+
 function getValue(tasks) {
   if (Object.keys(map.value).length) {
     map.value = {}
   }
   for (let task of tasks) {
-    if (task.api in map.value) {
-      map.value[task.api]++;
+    const date = getDate(task.time);
+    if (date in map.value) {
+      map.value[date]++;
     } else {
-      map.value[task.api] = 1;
+      map.value[date] = 1;
     }
   }
   const sortedEntries = Object.entries(map.value).sort((a, b) => b[1] - a[1]);
   map.value = Object.fromEntries(sortedEntries);
 }
 function setFilter(filter) {
-  catagory.value = "api";
+  catagory.value = "time";
   by.value = filter;
   emits("refresh")
 }
@@ -31,8 +39,8 @@ function setFilter(filter) {
 <template>
   <mdui-collapse>
     <mdui-collapse-item rounded>
-      <mdui-list-item slot="header" icon="settings_applications" rounded @click="getValue(props.tasks)">
-        接口
+      <mdui-list-item slot="header" icon="date_range" rounded @click="getValue(props.tasks)">
+        时间
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>
       <div style="margin-left: 2.5rem">

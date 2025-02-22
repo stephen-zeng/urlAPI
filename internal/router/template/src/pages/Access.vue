@@ -10,6 +10,7 @@
   import { Post, Notification } from "@/fetch.js"
   import Status from "@/Components/Access/Status.vue";
   import Referer from "@/Components/Access/Referer.vue";
+  import Time from "@/Components/Access/Time.vue";
 
   const catagory = ref("");
   const by = ref("")
@@ -50,6 +51,7 @@
       <API :tasks="task" @refresh="fetchTask"></API>
       <Model :tasks="task" @refresh="fetchTask"></Model>
       <Referer :tasks="task" @refresh="fetchTask"></Referer>
+      <Time :tasks="task" @refresh="fetchTask"></Time>
     </div>
   </mdui-layout-main>
 </template>

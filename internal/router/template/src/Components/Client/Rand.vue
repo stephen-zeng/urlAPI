@@ -21,7 +21,6 @@ async function getRepos() {
     Notification(session.error)
   } else {
     repos.value = session.repo_data
-    console.log(repos.value)
   }
 }
 async function editRepo(operation, id) {

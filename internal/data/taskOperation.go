@@ -6,6 +6,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -79,12 +81,25 @@ func editTask(by, data string, Status, Return, Size, API, Region string) error {
 
 // by中需要是SQL里面的数据类型
 // data中是by对应的值
+func parseDate(ori string) (int, int) {
+	parts := strings.Split(ori, ".")
+	year, _ := strconv.Atoi(parts[0])
+	month, _ := strconv.Atoi(parts[1])
+	return year, month
+}
+
 func fetchTask(by, data string) ([]Task, error) {
 	var ret []Task
 	var err *gorm.DB
-	if by == "none" {
+	switch by {
+	case "time":
+		year, month := parseDate(data)
+		start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+		end := start.AddDate(0, 1, 0)
+		err = db.Where("time >= ? AND time < ?", start, end).Find(&ret)
+	case "none":
 		err = db.Find(&ret)
-	} else {
+	default:
 		err = db.Where(by+"=?", data).Find(&ret)
 	}
 	if err.Error != nil {
