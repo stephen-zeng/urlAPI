@@ -133,6 +133,9 @@ function del(list, index) {
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'bilibili', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'bilibili', 'edit')">
               B站</mdui-checkbox>
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'arxiv', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'arxiv', 'edit')">
+              Arxiv</mdui-checkbox>
           </div>
           <p>Github App Token（选填）</p>
           <mdui-text-field variant="outlined" label="用于增加API可用次数"

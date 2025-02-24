@@ -19,6 +19,7 @@ var webMap = map[string]string{
 	"gitee.com":        "gitee",
 	"www.bilibili.com": "bilibili",
 	"www.youtube.com":  "youtube",
+	"arxiv.org":        "arxiv",
 }
 
 func getBiliABV(URL string) string {
@@ -123,6 +124,8 @@ func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, er
 		} else {
 			err = errors.New("No Youtube API Token")
 		}
+	case "arxiv":
+		ret, err = arxiv(Target, From, id)
 	default:
 		err = errors.New("Unsupported websites")
 	}

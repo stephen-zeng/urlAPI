@@ -71,6 +71,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 		return WebResponse{}, err
 	}
 	return WebResponse{
-		URL: From + "/download?img=" + UUID,
+		Target: URL,
+		URL:    From + "/download?img=" + UUID,
 	}, err
 }

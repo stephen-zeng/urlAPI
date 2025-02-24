@@ -2,9 +2,10 @@ package web
 
 import (
 	"bytes"
+	"embed"
 	"errors"
-	"fmt"
 	"golang.org/x/net/html"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
@@ -18,6 +19,9 @@ var (
 	author      string
 	description string
 )
+
+//go:embed arxiv_logo.png
+var logoFS embed.FS
 
 func findItem(n *html.Node) string {
 	var ret string
@@ -48,7 +52,7 @@ func traverse(n *html.Node) {
 	}
 }
 
-func Arxiv(URL, From, UUID string) (WebResponse, error) {
+func arxiv(URL, From, UUID string) (WebResponse, error) {
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		return WebResponse{}, err
@@ -72,6 +76,11 @@ func Arxiv(URL, From, UUID string) (WebResponse, error) {
 	}
 	id = URL[22:]
 	traverse(doc)
-	fmt.Println(id, title, author, description)
-	return WebResponse{}, nil
+	logoFile, err := logoFS.Open("arxiv_logo.png")
+	logoImg, err := png.Decode(logoFile)
+	err = DrawPaper(logoImg, id, title, author, description, UUID)
+	return WebResponse{
+		Target: URL,
+		URL:    From + "/download?img=" + UUID,
+	}, err
 }

@@ -51,6 +51,9 @@ func arrange(Str string, Width int) []string {
 			break
 		} else {
 			ret = append(ret, string(Content[i:i+maxlen]))
+			if (Content[i+maxlen] >= 'a' && Content[i+maxlen] <= 'z') || (Content[i+maxlen] >= 'A' && Content[i+maxlen] <= 'Z') {
+				ret[len(ret)-1] += "-"
+			}
 		}
 	}
 	return ret
@@ -148,8 +151,8 @@ func drawRepo(logo image.Image, Name, Author, Description, Star, Fork, UUID stri
 		file.WithImg(templateImg)))
 }
 
-func drawVideo(PicURL, Name, Author, Description, View, Favorite, Like, Coin, UUID string) error {
-	req, err := http.NewRequest("GET", PicURL, nil)
+func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, UUID string) error {
+	req, err := http.NewRequest("GET", CoverURL, nil)
 	if err != nil {
 		return err
 	}
@@ -224,6 +227,41 @@ func drawVideo(PicURL, Name, Author, Description, View, Favorite, Like, Coin, UU
 	drawer.DrawString(Like, freetype.Pt(templatePic.Bounds().Dx()+180, 450))
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+200, 400, width, height), coinIcon, coinIcon.Bounds().Min, draw.Over)
 	drawer.DrawString(Coin, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 450))
+
+	return file.Add(file.FileConfig(
+		file.WithType("img.save"),
+		file.WithUUID(UUID),
+		file.WithImg(templateImg)))
+}
+
+func DrawPaper(logo image.Image, ID, Title, Author, Description, UUID string) error {
+	titleLen := len(Title) * 25
+	Author = "By " + Author
+	authorLen := len(Author) * 16
+	width := max(titleLen, authorLen) + 60 + logo.Bounds().Dx()
+	discriptionContent := arrange(Description, width)
+	height := len(discriptionContent)*50 + logo.Bounds().Dy() + 100
+
+	templateImg := image.NewRGBA(image.Rect(0, 0, width, height))
+	drawRoundedRect(templateImg, "fill")
+	draw.Draw(templateImg, image.Rect(30, 30, width, height), logo, logo.Bounds().Min, draw.Over)
+
+	drawer.SetDst(templateImg)
+	drawer.SetClip(templateImg.Bounds())
+
+	drawer.SetFontSize(15)
+	drawer.DrawString(ID, freetype.Pt(60+logo.Bounds().Dx(), 50))
+
+	drawer.SetFontSize(32)
+	drawer.DrawString(Title, freetype.Pt(60+logo.Bounds().Dx(), 130))
+
+	drawer.SetFontSize(20)
+	drawer.DrawString(Author, freetype.Pt(60+logo.Bounds().Dx(), 200))
+
+	drawer.SetFontSize(20)
+	for index, content := range discriptionContent {
+		drawer.DrawString(content, freetype.Pt(30, 300+index*50))
+	}
 
 	return file.Add(file.FileConfig(
 		file.WithType("img.save"),
