@@ -4,10 +4,13 @@ import (
 	"log"
 	"os"
 	"urlAPI/cmd/set"
+	"urlAPI/cmd/web"
 	"urlAPI/internal/router"
 )
 
 func main() {
+	web.Arxiv("https://arxiv.org/abs/2408.07666", "", "")
+	return
 	var err error
 	var pwd set.SetResponse
 	var port = "2233"
