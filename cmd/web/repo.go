@@ -4,7 +4,6 @@ import (
 	"embed"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"image/png"
 	"io"
 	"log"
@@ -33,7 +32,6 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
-	fmt.Println(string(jsonResp))
 	if err != nil || resp.StatusCode != http.StatusOK {
 		log.Println("Error getting github repo info")
 		return WebResponse{}, errors.Join(err, errors.New(resp.Status))

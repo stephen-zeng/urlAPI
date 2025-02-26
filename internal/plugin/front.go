@@ -40,9 +40,15 @@ func openai(dat Config) (PluginResponse, error) {
 		} else {
 			return response, nil
 		}
-	} else if dat.GenPrompt != "" {
-		prompt := dat.GenPrompt
-		contxt := genContext
+	} else if dat.GenPrompt != "" || dat.SumPrompt != "" {
+		var prompt, contxt string
+		if dat.GenPrompt != "" {
+			prompt = dat.GenPrompt
+			contxt = genContext
+		} else {
+			prompt = dat.SumPrompt
+			contxt = sumContext
+		}
 		response, err := openaiTxt(prompt, contxt, model)
 		if err != nil {
 			return PluginResponse{}, err
@@ -65,9 +71,15 @@ func alibaba(dat Config) (PluginResponse, error) {
 		} else {
 			return response, nil
 		}
-	} else if dat.GenPrompt != "" {
-		prompt := dat.GenPrompt
-		contxt := genContext
+	} else if dat.GenPrompt != "" || dat.SumPrompt != "" {
+		var prompt, contxt string
+		if dat.GenPrompt != "" {
+			prompt = dat.GenPrompt
+			contxt = genContext
+		} else {
+			prompt = dat.SumPrompt
+			contxt = sumContext
+		}
 		response, err := alibabaTxt(prompt, contxt, model)
 		if err != nil {
 			return PluginResponse{}, err
@@ -81,9 +93,15 @@ func alibaba(dat Config) (PluginResponse, error) {
 
 func deepseek(dat Config) (PluginResponse, error) {
 	model := dat.Model
-	if dat.GenPrompt != "" {
-		prompt := dat.GenPrompt
-		contxt := genContext
+	if dat.GenPrompt != "" || dat.SumPrompt != "" {
+		var prompt, contxt string
+		if dat.GenPrompt != "" {
+			prompt = dat.GenPrompt
+			contxt = genContext
+		} else {
+			prompt = dat.SumPrompt
+			contxt = sumContext
+		}
 		response, err := deepseekTxt(prompt, contxt, model)
 		if err != nil {
 			return PluginResponse{}, err
@@ -97,9 +115,15 @@ func deepseek(dat Config) (PluginResponse, error) {
 
 func otherapi(dat Config) (PluginResponse, error) {
 	model := dat.Model
-	if dat.GenPrompt != "" {
-		prompt := dat.GenPrompt
-		contxt := genContext
+	if dat.GenPrompt != "" || dat.SumPrompt != "" {
+		var prompt, contxt string
+		if dat.GenPrompt != "" {
+			prompt = dat.GenPrompt
+			contxt = genContext
+		} else {
+			prompt = dat.SumPrompt
+			contxt = sumContext
+		}
 		response, err := otherapiTxt(prompt, contxt, model)
 		if err != nil {
 			return PluginResponse{}, err

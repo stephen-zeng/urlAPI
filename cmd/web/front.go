@@ -20,6 +20,7 @@ var webMap = map[string]string{
 	"www.bilibili.com": "bilibili",
 	"www.youtube.com":  "youtube",
 	"arxiv.org":        "arxiv",
+	"www.ithome.com":   "ithome",
 }
 
 func getBiliABV(URL string) string {
@@ -126,6 +127,8 @@ func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, er
 		}
 	case "arxiv":
 		ret, err = arxiv(Target, From, id)
+	case "ithome":
+		ret, err = ithome(Target, From, id, IP, Referer)
 	default:
 		err = errors.New("Unsupported websites")
 	}

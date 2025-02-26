@@ -106,18 +106,18 @@ function find(list, status, value, operation) {
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-          <p>文字总结的启用情况</p>
-          <div class="mdui-checkbox-group">
-            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'pdf', 'find')"
-                           @change="find(settings?settings[2]:[], $event.target.checked, 'pdf', 'edit')">
-              PDF</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'word', 'find')"
-                           @change="find(settings?settings[2]:[], $event.target.checked, 'word', 'edit')">
-              Word</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'md', 'find')"
-                           @change="find(settings?settings[2]:[], $event.target.checked, 'md', 'edit')">
-              MarkDown</mdui-checkbox>
-          </div>
+<!--          <p>文字总结的启用情况</p>-->
+<!--          <div class="mdui-checkbox-group">-->
+<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'pdf', 'find')"-->
+<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'pdf', 'edit')">-->
+<!--              PDF</mdui-checkbox>-->
+<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'word', 'find')"-->
+<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'word', 'edit')">-->
+<!--              Word</mdui-checkbox>-->
+<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'md', 'find')"-->
+<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'md', 'edit')">-->
+<!--              MarkDown</mdui-checkbox>-->
+<!--          </div>-->
           <p>文字总结使用的API</p>
           <mdui-radio-group :value="settings?settings[0][2]:'openai'"
                             @change="settings[0][2]=$event.target.value"

@@ -234,11 +234,16 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 		file.WithImg(templateImg)))
 }
 
-func DrawPaper(logo image.Image, ID, Title, Author, Description, UUID string) error {
+func DrawArticle(logo image.Image, ID, Title, Author, Description, UUID, Time string) error {
 	titleLen := len(Title) * 25
-	Author = "By " + Author
-	authorLen := len(Author) * 16
-	width := max(titleLen, authorLen) + 60 + logo.Bounds().Dx()
+	var secondTitle string
+	if Author != "" {
+		secondTitle = "By " + Author
+	} else {
+		secondTitle = "Time: " + Time
+	}
+	secondLen := len(secondTitle) * 16
+	width := max(titleLen, secondLen) + 60 + logo.Bounds().Dx()
 	discriptionContent := arrange(Description, width)
 	height := len(discriptionContent)*50 + logo.Bounds().Dy() + 100
 
@@ -256,7 +261,7 @@ func DrawPaper(logo image.Image, ID, Title, Author, Description, UUID string) er
 	drawer.DrawString(Title, freetype.Pt(60+logo.Bounds().Dx(), 130))
 
 	drawer.SetFontSize(20)
-	drawer.DrawString(Author, freetype.Pt(60+logo.Bounds().Dx(), 200))
+	drawer.DrawString(secondTitle, freetype.Pt(60+logo.Bounds().Dx(), 200))
 
 	drawer.SetFontSize(20)
 	for index, content := range discriptionContent {

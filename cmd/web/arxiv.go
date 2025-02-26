@@ -9,33 +9,13 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
-var (
-	id          string
-	title       string
-	author      string
-	description string
-)
-
 //go:embed arxiv_logo.png
-var logoFS embed.FS
+var arxivFS embed.FS
 
-func findItem(n *html.Node) string {
-	var ret string
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		if c.Type == html.TextNode {
-			ret += strings.TrimSpace(c.Data)
-		} else if c.Type == html.ElementNode && c.Data == "a" {
-			ret += findItem(c)
-		}
-	}
-	return ret
-}
-
-func traverse(n *html.Node) {
+func traverseArxiv(n *html.Node, title, author, description string) (string, string, string) {
 	if n.Type == html.ElementNode {
 		for _, attr := range n.Attr {
 			if n.Data == "h1" && attr.Key == "class" && attr.Val == "title mathjax" {
@@ -48,8 +28,9 @@ func traverse(n *html.Node) {
 		}
 	}
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		traverse(c)
+		title, author, description = traverseArxiv(c, title, author, description)
 	}
+	return title, author, description
 }
 
 func arxiv(URL, From, UUID string) (WebResponse, error) {
@@ -74,11 +55,11 @@ func arxiv(URL, From, UUID string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	id = URL[22:]
-	traverse(doc)
-	logoFile, err := logoFS.Open("arxiv_logo.png")
+	id := URL[22:]
+	title, author, description := traverseArxiv(doc, "", "", "")
+	logoFile, err := arxivFS.Open("arxiv_logo.png")
 	logoImg, err := png.Decode(logoFile)
-	err = DrawPaper(logoImg, id, title, author, description, UUID)
+	err = DrawArticle(logoImg, id, title, author, description, UUID, "")
 	return WebResponse{
 		Target: URL,
 		URL:    From + "/download?img=" + UUID,

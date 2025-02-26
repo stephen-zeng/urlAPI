@@ -1,4 +1,4 @@
-openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled;txtsumenabled;img;web;webimgallowed;websumblocked;rand;context;prompt
+openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled;img;web;webimgallowed;websumblocked;rand;context;prompt
 ;gpt-4o;gpt-4o-mini;dall-e-3;1024x1024;https://api.openai.com/v1/chat/completions
 ;deepseek-chat;deepseek-chat
 ;deepseek-v3;qwen-turbo;wanx2.1-t2i-turbo;1024*768
@@ -7,7 +7,6 @@ openai;deepseek;alibaba;otherapi;dash;dashallowedip;allowedref;txt;txtgenenabled
 *
 *
 false;alibaba;alibaba;60;https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png
-_
 _
 false;alibaba;60;https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png
 false;false;alibaba;10;https://raw.githubusercontent.com/stephen-zeng/urlAPI/img/master/fallback.png

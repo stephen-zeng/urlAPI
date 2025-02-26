@@ -14,6 +14,7 @@ type Txt struct {
 	Messages []TxtMessage `json:"messages"`
 }
 
+// used in actual action
 func fetchConfig(from string) (string, string, error) {
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{from})))
 	if err != nil {
@@ -28,6 +29,7 @@ func fetchConfig(from string) (string, string, error) {
 type Config struct {
 	API       string
 	GenPrompt string
+	SumPrompt string
 	Size      string
 	ImgPrompt string
 	Model     string
@@ -80,6 +82,11 @@ func WithIP(ip string) Option {
 func WithRepo(repo string) Option {
 	return func(c *Config) {
 		c.Repo = repo
+	}
+}
+func WithSumPrompt(sumPrompt string) Option {
+	return func(c *Config) {
+		c.SumPrompt = sumPrompt
 	}
 }
 func PluginConfig(opts ...Option) Config {

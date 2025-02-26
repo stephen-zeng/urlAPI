@@ -11,6 +11,7 @@ import (
 
 var typeMap = map[string]string{
 	"txt.gen":  "文字生成",
+	"txt.sum":  "文字总结",
 	"img.gen":  "图片生成",
 	"download": "文件下载",
 	"rand":     "随机图片",
@@ -57,10 +58,10 @@ func sourceCheck(source string) error {
 	return errors.New("sourceCheck failed")
 }
 
-func txtGenCheck(Target string) error {
+func txtCheck(Target, Type string) error {
 	if Target == "" {
-		log.Println("The target domain is empty.")
-		return errors.New("txtGenTargetCheck failed")
+		log.Println("The target is empty.")
+		return errors.New("txtTargetCheck failed")
 	}
 	txt, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"txt", "txtgenenabled"})))
 	if err != nil {
@@ -70,13 +71,17 @@ func txtGenCheck(Target string) error {
 		log.Println("Txt disabled.")
 		return errors.New("Txt disabled")
 	}
-	for _, item := range txt[1] {
-		if item == Target {
-			return nil
+	if Type == "txt.gen" {
+		for _, item := range txt[1] {
+			if item == Target {
+				return nil
+			}
 		}
+		log.Println("The target " + Target + " is NOT enabled.")
+		return errors.New("txtGenCheck failed")
+	} else {
+		return nil
 	}
-	log.Println("The target " + Target + " is NOT enabled.")
-	return errors.New("txtGenCheck failed")
 }
 
 func imgGenCheck() error {

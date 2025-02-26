@@ -10,7 +10,7 @@ var txtAPI = []string{"openai", "alibaba", "deepseek", "otherapi"}
 var imgAPI = []string{"openai", "alibaba"}
 
 func modelCheck(Type, API string) error {
-	if Type == "txt.gen" {
+	if Type == "txt.gen" || Type == "txt.sum" {
 		for _, api := range txtAPI {
 			if API == api {
 				return nil

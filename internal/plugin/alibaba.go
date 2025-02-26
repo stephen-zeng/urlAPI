@@ -46,7 +46,7 @@ func alibabaTxt(prompt, contxt, model string) (PluginResponse, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{
-		Timeout: time.Second * 30,
+		Timeout: time.Second * 60,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

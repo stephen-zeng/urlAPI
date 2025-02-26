@@ -1,5 +1,10 @@
 package web
 
+import (
+	"golang.org/x/net/html"
+	"strings"
+)
+
 type WebResponse struct {
 	URL    string `json:"url"`
 	Target string `json:"target"`
@@ -27,4 +32,16 @@ func WebConfig(opts ...Option) Config {
 		opt(&config)
 	}
 	return config
+}
+
+func findItem(n *html.Node) string {
+	var ret string
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if c.Type == html.TextNode {
+			ret += strings.TrimSpace(c.Data)
+		} else if c.Type == html.ElementNode {
+			ret += findItem(c)
+		}
+	}
+	return ret
 }

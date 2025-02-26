@@ -15,7 +15,7 @@ func NewRequest(data Config) error {
 	if err != nil {
 		return err
 	}
-	if data.Type == "txt.gen" || data.Type == "img.gen" {
+	if data.Type == "txt.gen" || data.Type == "img.gen" || data.Type == "txt.sum" {
 		err = modelCheck(data.Type, data.API)
 	}
 	if err != nil {
@@ -23,7 +23,9 @@ func NewRequest(data Config) error {
 	}
 	switch data.Type {
 	case "txt.gen":
-		err = txtGenCheck(data.Target)
+		err = txtCheck(data.Target, data.Type)
+	case "txt.sum":
+		err = txtCheck(data.Target, data.Type)
 	case "img.gen":
 		err = imgGenCheck()
 	case "rand":
