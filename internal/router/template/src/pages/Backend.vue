@@ -5,6 +5,7 @@ import Alibaba from "@/Components/Backend/Alibaba.vue";
 import Other from "@/Components/Backend/Other.vue";
 import Deepseek from "@/Components/Backend/Deepseek.vue";
 import Context from "@/Components/Backend/Context.vue";
+import WebAPI from "@/Components/Backend/WebAPI.vue";
 </script>
 
 <template>
@@ -14,6 +15,7 @@ import Context from "@/Components/Backend/Context.vue";
     <Deepseek></Deepseek>
     <Other></Other>
     <Context></Context>
+    <WebAPI></WebAPI>
   </mdui-layout-main>
 </template>
 

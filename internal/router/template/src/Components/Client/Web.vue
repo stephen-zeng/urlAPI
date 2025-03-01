@@ -116,11 +116,6 @@ function del(list, index) {
           </mdui-radio-group>
           <p>允许生成缩略图的网站</p>
           <div class="mdui-checkbox-group">
-<!--            <mdui-checkbox>Github（需要网络支持）</mdui-checkbox>-->
-<!--            <mdui-checkbox>YouTube（需要网络支持）</mdui-checkbox>-->
-<!--            <mdui-checkbox>Gitee</mdui-checkbox>-->
-<!--            <mdui-checkbox>网易云</mdui-checkbox>-->
-<!--            <mdui-checkbox>Bilibili</mdui-checkbox>-->
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'github', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'github', 'edit')">
               Github（需要网络支持）</mdui-checkbox>
@@ -140,15 +135,6 @@ function del(list, index) {
                            @change="find(settings?settings[1]:[], $event.target.checked, 'ithome', 'edit')">
               IT之家</mdui-checkbox>
           </div>
-          <p>Github App Token（选填）</p>
-          <mdui-text-field variant="outlined" label="用于增加API可用次数"
-                           :value="settings?settings[0][5]:''"
-                           @change="settings[0][5] = $event.target.value"></mdui-text-field>
-          <p>YouTube API Token（必填）</p>
-          <mdui-text-field variant="outlined" label=否则无法使用
-                           :value="settings?settings[0][6]:''"
-                           @change="settings[0][6] = $event.target.value"></mdui-text-field>
-          <mdui-divider></mdui-divider>
           <p>过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"
                            :value="settings?settings[0][3]:'60'"
