@@ -26,7 +26,7 @@ func getScheme(c *gin.Context) string {
 }
 
 func getDeviceType(ua string) string {
-	mobileRegexp := `(?i)|Mobile|Tablet|Android|iOS|iPhone|iPad|iPod`
+	mobileRegexp := `(?i)(Mobile|Tablet|Android|iOS|iPhone|iPad|iPod)`
 	desktopRegexp := `(?i)(Desktop|Windows|Macintosh|Linux)`
 	botRegexp := `(?i)(Bot)`
 	matched, _ := regexp.MatchString(mobileRegexp, ua)
@@ -41,7 +41,6 @@ func getDeviceType(ua string) string {
 	if matched {
 		return "Bot"
 	}
-	return ""
 }
 
 func downloadRequest() {
