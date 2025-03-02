@@ -26,7 +26,7 @@ func convertInterfaceToString(ori interface{}) [][]string {
 	return ret
 }
 
-func sessionListener() {
+func setSession() {
 	r.POST("/dashsession", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		dat := make(map[string]interface{})

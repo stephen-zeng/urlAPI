@@ -35,7 +35,7 @@ func traverseITHome(n *html.Node, title, tim, content string) (string, string, s
 	return title, tim, content
 }
 
-func ithome(URL, From, UUID, IP string, Referer *url.URL) (WebResponse, error) {
+func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, error) {
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		return WebResponse{}, err
@@ -58,7 +58,7 @@ func ithome(URL, From, UUID, IP string, Referer *url.URL) (WebResponse, error) {
 		return WebResponse{}, err
 	}
 	title, tim, content := traverseITHome(doc, "", "", "")
-	sumRet, err := txt.SumRequest(IP, From, "", "", content, Referer)
+	sumRet, err := txt.SumRequest(IP, From, "", "", content, Device, Referer)
 	if err != nil {
 		return WebResponse{}, err
 	}

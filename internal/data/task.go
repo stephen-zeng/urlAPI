@@ -36,7 +36,8 @@ func NewTask(data Config) (string, error) {
 		data.TaskRegion,
 		data.TaskSize,
 		data.TaskModel,
-		data.TaskReferer)
+		data.TaskReferer,
+		data.TaskDevice)
 	if err != nil {
 		log.Println(err)
 		return "", err

@@ -1,4 +1,9 @@
 draft/*
 .idea/*
 .vscode/*
+assets/*
+assets
+urlAPI
+bin/*
+bin
 

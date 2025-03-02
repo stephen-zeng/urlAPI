@@ -24,9 +24,10 @@ type Task struct {
 	Region  string    `json:"region"`
 	Model   string    `json:"model"`
 	Referer string    `json:"referer"`
+	Device  string    `json:"device"`
 }
 
-func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size, Model, Referer string) (string, error) {
+func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size, Model, Referer, Device string) (string, error) {
 	id := uuid.New().String()
 	err := db.Create(Task{
 		UUID:    id,
@@ -40,6 +41,7 @@ func addTask(Time time.Time, API, Type, IP, Status, Target, Region, Size, Model,
 		Size:    Size,
 		Model:   Model,
 		Referer: Referer,
+		Device:  Device,
 	})
 	if err.Error != nil {
 		log.Println(err.Error)

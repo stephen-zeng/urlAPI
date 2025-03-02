@@ -14,7 +14,7 @@ import (
 	"urlAPI/internal/security"
 )
 
-func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtResponse, error) {
+func GenRequest(IP, From, Model, API, Target, Device string, Referer *url.URL) (TxtResponse, error) {
 	var target string
 	var expired = 60
 	Domain := Referer.Hostname()
@@ -102,6 +102,7 @@ func GenRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtRespo
 		data.WithTaskRegion(region.Region),
 		data.WithTaskModel(Model),
 		data.WithTaskReferer(Referer.String()),
+		data.WithTaskDevice(Device),
 	))
 	if err != nil {
 		return TxtResponse{}, err

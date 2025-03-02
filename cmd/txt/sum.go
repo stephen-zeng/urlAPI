@@ -13,7 +13,7 @@ import (
 	"urlAPI/internal/security"
 )
 
-func SumRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtResponse, error) {
+func SumRequest(IP, From, Model, API, Target, Device string, Referer *url.URL) (TxtResponse, error) {
 	expired := 60
 	hash := md5.Sum([]byte(Target))
 	md5 := hex.EncodeToString(hash[:])
@@ -84,6 +84,7 @@ func SumRequest(IP, From, Model, API, Target string, Referer *url.URL) (TxtRespo
 		data.WithTaskRegion(region.Region),
 		data.WithTaskModel(Model),
 		data.WithTaskReferer(Referer.String()),
+		data.WithTaskDevice(Device),
 	))
 	if err != nil {
 		return TxtResponse{}, err
