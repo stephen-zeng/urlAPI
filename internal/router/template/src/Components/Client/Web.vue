@@ -76,37 +76,6 @@ function del(list, index) {
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
-<!--          <p>网页总结开关</p>-->
-<!--          <mdui-radio-group :value="settings?settings[0][0]:'false'"-->
-<!--                            @change="settings[0][0]=$event.target.value"-->
-<!--                            style="margin-top: 0">-->
-<!--            <mdui-radio value="true">开启</mdui-radio>-->
-<!--            <mdui-radio value="false">关闭</mdui-radio>-->
-<!--          </mdui-radio-group>-->
-<!--          <p>网页总结使用的API</p>-->
-<!--          <mdui-radio-group :value="settings?settings[0][2]:'openai'"-->
-<!--                            @change="settings[0][2]=$event.target.value"-->
-<!--                            style="margin-top: 0">-->
-<!--            <mdui-radio value="openai">OpenAI</mdui-radio>-->
-<!--            <mdui-radio value="deepseek">DeepSeek</mdui-radio>-->
-<!--            <mdui-radio value="alibaba">Alibaba</mdui-radio>-->
-<!--            <mdui-radio value="otherapi">其他API</mdui-radio>-->
-<!--          </mdui-radio-group>-->
-<!--          <mdui-divider></mdui-divider>-->
-<!--          <p>不能使用“总结”功能的网站（黑名单）</p>-->
-<!--          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable-->
-<!--                           @input="input2 = $event.target.value" :value="input2">-->
-<!--            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!='') settings[2].push(input2);input2=''}"></mdui-button-icon>-->
-<!--          </mdui-text-field>-->
-<!--          <div class="list">-->
-<!--            <mdui-list>-->
-<!--              <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" nonclickable>-->
-<!--                {{ item }}-->
-<!--                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[2].length>1) settings[2].splice(index, 1)}"></mdui-button-icon>-->
-<!--              </mdui-list-item>-->
-<!--            </mdui-list>-->
-<!--          </div>-->
-<!--          <mdui-divider></mdui-divider>-->
           <p>网页缩略图开关</p>
           <mdui-radio-group :value="settings?settings[0][1]:'false'"
                             @change="settings[0][1]=$event.target.value"

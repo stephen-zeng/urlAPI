@@ -17,6 +17,7 @@ type Config struct {
 	TaskRegion    string
 	TaskIP        string
 	TaskModel     string
+	TaskDevice    string
 	TaskReferer   string
 	SettingName   []string
 	SettingEdit   [][]string
@@ -105,6 +106,11 @@ func WithTaskModel(model string) Option {
 func WithTaskReferer(referer string) Option {
 	return func(config *Config) {
 		config.TaskReferer = referer
+	}
+}
+func WithTaskDevice(device string) Option {
+	return func(config *Config) {
+		config.TaskDevice = device
 	}
 }
 func WithBy(by string) Option {

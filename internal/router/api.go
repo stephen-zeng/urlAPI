@@ -1,13 +1,16 @@
 package router
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/url"
+	"regexp"
 	"urlAPI/cmd/img"
 	"urlAPI/cmd/txt"
 	"urlAPI/cmd/web"
 	"urlAPI/internal/data"
+	"urlAPI/internal/file"
 	"urlAPI/internal/plugin"
 	"urlAPI/internal/security"
 )
@@ -20,6 +23,104 @@ func getScheme(c *gin.Context) string {
 		return scheme
 	}
 	return "http://"
+}
+
+func getDeviceType(ua string) string {
+	mobileRegexp := `(?i)(Mobile|Tablet|Android|iOS|iPhone|iPad|iPod)`
+	desktopRegexp := `(?i)(Desktop|Windows|Macintosh|Linux)`
+	botRegexp := `(?i)(Bot)`
+	matched, _ := regexp.MatchString(mobileRegexp, ua)
+	if matched {
+		return "Mobile"
+	}
+	matched, _ = regexp.MatchString(desktopRegexp, ua)
+	if matched {
+		return "Desktop"
+	}
+	matched, _ = regexp.MatchString(botRegexp, ua)
+	if matched {
+		return "Bot"
+	}
+}
+
+func downloadRequest() {
+	r.GET("/download", func(c *gin.Context) {
+		var err error
+		referer, err := url.Parse(c.Request.Referer())
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		}
+		domain := referer.Hostname()
+		Img := c.Query("img")
+		Md := c.Query("md")
+		device := getDeviceType(c.GetHeader("User-Agent"))
+		var id string
+		if Img != "" {
+			id = Img
+		} else {
+			id = Md
+		}
+		err = security.NewRequest(security.SecurityConfig(
+			security.WithIP(c.ClientIP()),
+			security.WithDomain(domain),
+			security.WithType("download"),
+			security.WithTarget(id)))
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		var dat []byte
+		var suffix string
+		if Img != "" {
+			suffix = ".png"
+			dat, err = file.Fetch(file.FileConfig(
+				file.WithType("img"),
+				file.WithUUID(Img)))
+			c.Header("Content-Type", "image/png")
+		} else if Md != "" {
+			suffix = ".md"
+			dat, err = file.Fetch(file.FileConfig(
+				file.WithType("md"),
+				file.WithUUID(Md)))
+			c.Header("Content-Type", "text/plain")
+		} else {
+			c.JSON(400, gin.H{
+				"error": "Unknow file type",
+			})
+		}
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		region, err := plugin.GetRegion(plugin.PluginConfig(plugin.WithIP(c.ClientIP())))
+		if err != nil {
+			log.Println("Region fetch failed")
+		}
+		_, err = data.NewTask(data.DataConfig(
+			data.WithTaskIP(c.ClientIP()),
+			data.WithTaskRegion(region.Region),
+			data.WithType("文件下载"),
+			data.WithTaskStatus("success"),
+			data.WithTaskTarget(id),
+			data.WithTaskReferer(referer.String()),
+			data.WithTaskDevice(device),
+		))
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="download%s"`, suffix))
+			c.Header("Accept-Length", fmt.Sprintf("%d", len(dat)))
+			c.Writer.Write(dat)
+		}
+	})
 }
 
 func txtRequest() {
@@ -45,9 +146,10 @@ func txtRequest() {
 		api := c.Query("api")
 		model := c.Query("model")
 		prompt := c.Query("prompt")
+		device := getDeviceType(c.GetHeader("User-Agent"))
 		response, err := txt.GenRequest(
 			c.ClientIP(), getScheme(c)+c.Request.Host,
-			model, api, prompt, referer)
+			model, api, prompt, device, referer)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -87,11 +189,12 @@ func imgRequest() {
 		model := c.Query("model")
 		prompt := c.Query("prompt")
 		size := c.Query("size")
+		device := getDeviceType(c.GetHeader("User-Agent"))
 		response, err := img.GenRequest(
 			c.ClientIP(),
 			model, api, prompt, size,
 			getScheme(c)+c.Request.Host,
-			referer)
+			device, referer)
 		if err != nil {
 			log.Println(err)
 			c.Redirect(302, fallbackURL)
@@ -126,6 +229,7 @@ func webRequest() {
 		}
 		format := c.Query("format")
 		img := c.Query("img")
+		device := getDeviceType(c.GetHeader("User-Agent"))
 		//sum := c.Query("sum")
 		var targetURL *url.URL
 		var target string
@@ -137,7 +241,7 @@ func webRequest() {
 				c.ClientIP(),                // IP
 				getScheme(c)+c.Request.Host, // https://api.example.com
 				targetURL.Hostname(),        // github.com ...
-				target, referer)
+				target, device, referer)
 		} else {
 			log.Println("Empty request")
 			c.Redirect(302, fallbackURL)
@@ -178,6 +282,7 @@ func randRequest() {
 		api := c.Query("api")
 		user := c.Query("user")
 		repo := c.Query("repo")
+		device := getDeviceType(c.GetHeader("User-Agent"))
 		err = security.NewRequest(security.SecurityConfig(
 			security.WithType("rand"),
 			security.WithAPI(api),
@@ -200,6 +305,7 @@ func randRequest() {
 			data.WithTaskRegion(region.Region),
 			data.WithTaskIP(c.ClientIP()),
 			data.WithTaskReferer(referer.String()),
+			data.WithTaskDevice(device),
 		))
 		response, err := plugin.Request(plugin.PluginConfig(
 			plugin.WithAPI(api),
@@ -245,4 +351,5 @@ func setAPI() {
 	imgRequest()
 	randRequest()
 	webRequest()
+	downloadRequest()
 }

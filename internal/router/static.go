@@ -11,7 +11,7 @@ import (
 //go:embed template/dist/*
 var webFS embed.FS
 
-func dashboard() {
+func setDash() {
 	rootFS, _ := fs.Sub(webFS, "template/dist")
 	assetsFS, _ := fs.Sub(webFS, "template/dist/assets")
 	r.StaticFS("/assets", http.FS(assetsFS))

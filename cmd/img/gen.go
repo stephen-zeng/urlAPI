@@ -13,7 +13,7 @@ import (
 	"urlAPI/internal/security"
 )
 
-func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (ImgResponse, error) {
+func GenRequest(IP, Model, API, Target, Size, From, Device string, Referer *url.URL) (ImgResponse, error) {
 	var expired = data.Expired
 	Domain := Referer.Hostname()
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"img"})))
@@ -95,6 +95,7 @@ func GenRequest(IP, Model, API, Target, Size, From string, Referer *url.URL) (Im
 		data.WithTaskRegion(region.Region),
 		data.WithTaskModel(Model),
 		data.WithTaskReferer(Referer.String()),
+		data.WithTaskDevice(Device),
 	))
 	if err != nil {
 		return ImgResponse{}, err

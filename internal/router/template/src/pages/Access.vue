@@ -11,6 +11,7 @@
   import Status from "@/Components/Access/Status.vue";
   import Referer from "@/Components/Access/Referer.vue";
   import Time from "@/Components/Access/Time.vue";
+  import Device from "@/Components/Access/Device.vue";
 
   const catagory = ref("");
   const by = ref("")
@@ -52,6 +53,7 @@
       <Model :tasks="task" @refresh="fetchTask"></Model>
       <Referer :tasks="task" @refresh="fetchTask"></Referer>
       <Time :tasks="task" @refresh="fetchTask"></Time>
+      <Device :tasks="task" @refresh="fetchTask"></Device>
     </div>
   </mdui-layout-main>
 </template>

@@ -16,8 +16,7 @@ func Start(Port string) {
 	r = gin.New()
 	r.Use(cors.New(config))
 	setAPI()
-	download()
-	sessionListener()
-	dashboard()
+	setSession()
+	setDash()
 	r.Run(":" + Port)
 }

@@ -40,7 +40,7 @@ func getYtbID(URL string) string {
 	return URL[32:]
 }
 
-func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, error) {
+func ImgRequest(IP, From, API, Target, Device string, Referer *url.URL) (WebResponse, error) {
 	var expired = data.Expired
 	Domain := Referer.Hostname()
 	API = webMap[API] // github.com --> github
@@ -106,6 +106,7 @@ func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, er
 		data.WithTaskTarget(Target),
 		data.WithTaskRegion(region.Region),
 		data.WithTaskReferer(Referer.String()),
+		data.WithTaskDevice(Device),
 	))
 	var ret WebResponse
 	var token string
@@ -128,7 +129,7 @@ func ImgRequest(IP, From, API, Target string, Referer *url.URL) (WebResponse, er
 	case "arxiv":
 		ret, err = arxiv(Target, From, id)
 	case "ithome":
-		ret, err = ithome(Target, From, id, IP, Referer)
+		ret, err = ithome(Target, From, id, IP, Device, Referer)
 	default:
 		err = errors.New("Unsupported websites")
 	}
