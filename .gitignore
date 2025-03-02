@@ -1,18 +1,9 @@
 draft/*
 .idea/*
 .vscode/*
-<<<<<<< HEAD
 *.db
 assets
 assets/*
 urlAPI
 bin
 bin/*
-=======
-assets/*
-assets
-urlAPI
-bin/*
-bin
-
->>>>>>> ua-detection
