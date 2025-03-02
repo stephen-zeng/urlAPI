@@ -41,6 +41,7 @@ func getDeviceType(ua string) string {
 	if matched {
 		return "Bot"
 	}
+	return ""
 }
 
 func downloadRequest() {
