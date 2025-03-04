@@ -4,7 +4,7 @@
   import Showcase from "@/Components/Access/Showcase.vue";
   import API from "@/Components/Access/API.vue";
   import Model from "@/Components/Access/Model.vue";
-  import {ref, provide, onMounted, inject} from 'vue';
+  import {ref, provide, onMounted, inject, watch} from 'vue';
   import Cookies from "js-cookie";
   import {snackbar} from "mdui";
   import { Post, Notification } from "@/fetch.js"
@@ -17,11 +17,16 @@
   const by = ref("")
   const url = inject("url");
   const task = ref([]);
+  const tabAddition = inject("tabAddition");
+  const emitter = inject("emitter");
 
   provide("catagory", catagory);
   provide("by", by);
 
-  async function fetchTask() {
+  async function fetchTask(filter = 1) {
+    if (filter === 1) {
+      tabAddition.value = " → " + (by.value==""?"N/A":by.value);
+    }
     const session = await Post(url + "session", {
       "Token": Cookies.get("token"),
       "Send": {
@@ -38,13 +43,23 @@
   }
 
   onMounted(async() => {
-    await fetchTask()
+    await fetchTask(0)
+  })
+
+  watch(emitter, async(newVal, oldVal) => {
+    tabAddition.value = "";
+    if (newVal == 1) {
+      by.value = "";
+      catagory.value = "";
+      await fetchTask(0);
+      emitter.value = 0; // reset the emitter
+    }
   })
 </script>
 
 <template>
   <mdui-layout-main style="display: block">
-    <Showcase :tasks="task" style="width: 100%" @refresh="fetchTask"></Showcase>
+    <Showcase :tasks="task" style="width: 100%" @refresh="fetchTask(0)"></Showcase>
     <div class="filter">
       <Region :tasks="task" @refresh="fetchTask"></Region>
       <Type :tasks="task" @refresh="fetchTask"></Type>

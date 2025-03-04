@@ -4,6 +4,7 @@
 
   const openStatus = inject('sidebarStatus');
   const tab = inject('tab');
+  const tabAddition = inject('tabAddition');
   const pages = inject('pages');
 
   function sidebarClose() {
@@ -11,6 +12,7 @@
   }
   function changeTab(newTab) {
     tab.value = newTab;
+    tabAddition.value = "";
     Cookies.set('tab', newTab, {expires: 7});
     sidebarClose();
   }

@@ -12,19 +12,24 @@ import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
 
   const sidebarStatus = ref(false);
   const pages = ref([
-      '访问情况',
+      '所有记录',
       '接口设置',
       '功能设置',
       '工作台',
   ])
   const tab = ref(0);
+  const tabAddition = ref("");
   const login = ref(false);
   const url = inject("url");
+  const emitter = ref(0);
+  // 1 for header & access correspond, reset by access
 
   provide('tab', tab);
+  provide('tabAddition', tabAddition);
   provide('sidebarStatus', sidebarStatus);
   provide('pages', pages);
   provide('login', login);
+  provide('emitter', emitter);
 
   onMounted(async() => {
     if (Cookies.get("tab")) {
@@ -63,7 +68,7 @@ import {ref, provide, inject, onUnmounted, onMounted} from 'vue';
 
 <template>
   <mdui-layout full-height>
-    <Header :title="login ? pages[tab] : '登录后台' "></Header>
+    <Header :title="login ? pages[tab] + tabAddition : '登录后台' "></Header>
     <Sidebar v-if="login"></Sidebar>
     <Access v-if="tab==0 && login"></Access>
     <Backend v-if="tab==1 && login"></Backend>
