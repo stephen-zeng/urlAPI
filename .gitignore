@@ -1,9 +1,7 @@
-draft/*
-.idea/*
-.vscode/*
+draft
+.idea
+.vscode
 *.db
 assets
-assets/*
 urlAPI
 bin
-bin/*
