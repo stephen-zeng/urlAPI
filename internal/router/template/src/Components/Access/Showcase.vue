@@ -4,7 +4,6 @@ import {ref, provide, inject, onMounted} from 'vue';
 
   const dialogStatus = ref(false);
   const target = ref(0)
-  const catalog = inject('catalog');
   const props = defineProps(["tasks"])
 
   provide('dialogStatus',dialogStatus);

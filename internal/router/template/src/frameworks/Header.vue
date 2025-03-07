@@ -2,22 +2,21 @@
   import {inject} from 'vue'
   import Theme from "@/Components/Theme.vue";
   import Cookies from "js-cookie";
-  import {snackbar} from "mdui";
   import {Notification, Post} from "@/fetch.js";
-  import {sha256} from "js-sha256";
+  import {useRoute} from "vue-router";
 
-  const props = defineProps(['title'])
+  const title = inject("title");
   const sidebarStatus = inject('sidebarStatus')
   const login = inject('login')
-  const tab = inject('tab')
   const url = inject('url')
   const emitter = inject('emitter')
+  const router = useRoute()
 
   function SidebarStatusChanged() {
     sidebarStatus.value = !sidebarStatus.value;
   }
   async function logout() {
-    const session = await Post(url + "session", {
+    const session = await Post(url, {
       "Token": Cookies.get("token"),
       "Send": {
         "operation": "logout",
@@ -38,9 +37,9 @@
   <mdui-top-app-bar>
     <mdui-button-icon icon="menu"
     @click="SidebarStatusChanged()"></mdui-button-icon>
-    <mdui-top-app-bar-title>{{ props.title }}</mdui-top-app-bar-title>
+    <mdui-top-app-bar-title>{{ title }}</mdui-top-app-bar-title>
     <div style="flex-grow: 1"></div>
-    <mdui-button-icon @click="(emitter=1)" v-if="tab==0 && login" icon="refresh"></mdui-button-icon>
+    <mdui-button-icon @click="(emitter=1)" v-if="login && router.path == '/task'" icon="refresh"></mdui-button-icon>
     <Theme></Theme>
     <mdui-button-icon @click="logout()" v-if="login"
                       icon="exit_to_app"></mdui-button-icon>

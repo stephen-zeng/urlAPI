@@ -4,6 +4,13 @@
   import Web from "@/Components/Client/Web.vue";
   import Security from "@/Components/Client/Security.vue";
   import Rand from "@/Components/Client/Rand.vue"
+  import {onMounted, inject} from "vue";
+
+  const title = inject("title");
+
+  onMounted(()=>{
+    title.value = "功能设置"
+  })
 </script>
 
 <template>

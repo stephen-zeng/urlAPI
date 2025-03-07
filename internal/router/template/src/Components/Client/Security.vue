@@ -12,7 +12,7 @@ const input2 = ref('')
 const ip = ref('')
 
 async function getSetting() {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchSetting",
@@ -28,7 +28,7 @@ async function getSetting() {
 }
 
 async function sendSetting() {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "editSetting",

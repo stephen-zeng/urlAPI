@@ -6,7 +6,6 @@
   import Model from "@/Components/Access/Model.vue";
   import {ref, provide, onMounted, inject, watch} from 'vue';
   import Cookies from "js-cookie";
-  import {snackbar} from "mdui";
   import { Post, Notification } from "@/fetch.js"
   import Status from "@/Components/Access/Status.vue";
   import Referer from "@/Components/Access/Referer.vue";
@@ -17,17 +16,18 @@
   const by = ref("")
   const url = inject("url");
   const task = ref([]);
-  const tabAddition = inject("tabAddition");
   const emitter = inject("emitter");
+  const title = inject("title");
 
   provide("catagory", catagory);
   provide("by", by);
 
   async function fetchTask(filter = 1) {
+    title.value = "任务查看";
     if (filter === 1) {
-      tabAddition.value = " → " + (by.value==""?"N/A":by.value);
+      title.value += " → " + (by.value == "" ? "N/A" : by.value);
     }
-    const session = await Post(url + "session", {
+    const session = await Post(url, {
       "Token": Cookies.get("token"),
       "Send": {
         "operation": "fetchTask",
@@ -43,11 +43,11 @@
   }
 
   onMounted(async() => {
-    await fetchTask(0)
+    await fetchTask(0);
   })
 
   watch(emitter, async(newVal, oldVal) => {
-    tabAddition.value = "";
+    title.value = "任务查看";
     if (newVal == 1) {
       by.value = "";
       catagory.value = "";

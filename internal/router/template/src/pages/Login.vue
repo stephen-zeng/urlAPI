@@ -1,6 +1,5 @@
 <script setup>
 import {inject, onMounted, ref} from 'vue';
-import {snackbar} from "mdui";
 import { sha256 } from "js-sha256";
 import { Post, Notification } from "@/fetch.js";
 import Cookies from 'js-cookie';
@@ -9,9 +8,10 @@ const pwd = ref("")
 const term = ref(false)
 const loginStatus = inject("login");
 const url = inject("url");
+const title = inject("title");
 
 async function login() {
-  const session = await Post(url + "session", {
+  const session = await Post(url, {
     "Token": sha256(pwd.value),
     "Send": {
       "operation": "login",
@@ -20,12 +20,16 @@ async function login() {
   })
   if (session.error) {
     Notification(session.error)
-  } else {
+  } else {``
     Cookies.set("token", session.session_token, {expires: 7});
     loginStatus.value = true;
     Notification("Login successful!");
   }
 }
+
+onMounted(() => {
+  title.value = "登录";
+})
 </script>
 
 <template>

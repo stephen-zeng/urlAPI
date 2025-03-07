@@ -11,7 +11,7 @@ const repoInfo = ref("")
 const repos = ref([])
 
 async function getRepos() {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchRepo",
@@ -24,7 +24,7 @@ async function getRepos() {
   }
 }
 async function editRepo(operation, id) {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": operation,
@@ -40,7 +40,7 @@ async function editRepo(operation, id) {
 }
 async function newRepo() {
   if (repoInfo == "") return
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "newRepo",
@@ -58,7 +58,7 @@ async function newRepo() {
 }
 
 async function getSetting() {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchSetting",
@@ -73,7 +73,7 @@ async function getSetting() {
   await getRepos()
 }
 async function sendSetting() {
-  const session = await Post(url+"session", {
+  const session = await Post(url, {
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "editSetting",

@@ -1,7 +1,13 @@
 <script setup>
 import Control from "@/Components/Workshop/Control.vue";
 import Result from "@/Components/Workshop/Result.vue";
-import { provide, ref } from "vue";
+import { provide, ref, onMounted, inject} from "vue";
+
+const title = inject("title");
+
+onMounted(()=>{
+  title.value = "工作台"
+})
 const url = ref("");
 const type = ref("");
 const show = ref(false);
