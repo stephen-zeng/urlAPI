@@ -21,7 +21,7 @@ func init() {
 
 func downloadImg(UUID, URL string) error {
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Get(URL)
 	if err != nil {

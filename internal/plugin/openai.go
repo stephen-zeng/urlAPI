@@ -41,7 +41,7 @@ func openaiTxt(prompt, contxt, model string) (PluginResponse, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -80,7 +80,7 @@ func openaiImg(prompt, model, size string) (PluginResponse, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

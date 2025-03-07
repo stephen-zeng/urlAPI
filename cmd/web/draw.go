@@ -157,7 +157,7 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 		return err
 	}
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

@@ -102,7 +102,7 @@ func scanRepo(API, Info string) ([]string, error) {
 		return nil, err
 	}
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Do(req)
 	if err != nil {

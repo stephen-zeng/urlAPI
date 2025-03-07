@@ -41,7 +41,7 @@ func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, 
 		return WebResponse{}, err
 	}
 	client := &http.Client{
-		Timeout: time.Second * 5,
+		Timeout: time.Second * 30,
 	}
 	resp, err := client.Do(req)
 	if err != nil {
