@@ -6,8 +6,8 @@ import 'mdui'
 import 'mdui/mdui.css'
 
 const app = createApp(App)
-const url = "http://localhost:2233/session"
-// const url = "/session"
+// const url = "http://localhost:2233/session"
+const url = "/session"
 const title = ref('');
 const login= ref(false);
 const emitter = ref(0);

@@ -6,12 +6,12 @@ import Workshop from "@/pages/Workshop.vue";
 import Login from "@/pages/Login.vue";
 
 const routes = [
-    {path:"/:pathMatch(.*)*",component:Task},
-    {path:"/task",component:Task},
-    {path:"/tool",component:Tool},
-    {path:"/backend",component:Backend},
-    {path:"/workshop",component:Workshop},
-    {path:"/login",component:Login},
+    {path:"/dash",component:Task},
+    {path:"/dash/task",component:Task},
+    {path:"/dash/tool",component:Tool},
+    {path:"/dash/backend",component:Backend},
+    {path:"/dash/workshop",component:Workshop},
+    {path:"/dash/login",component:Login},
 ]
 
 const router=  createRouter({

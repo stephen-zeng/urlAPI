@@ -1,10 +1,9 @@
 <script setup>
   import { inject } from 'vue';
   import {useRouter} from "vue-router";
+  import Cookies from "js-cookie";
 
   const openStatus = inject('sidebarStatus');
-  const tab = inject('tab');
-  const tabAddition = inject('tabAddition');
   const pages = inject('pages');
   const router = useRouter();
 
@@ -13,6 +12,7 @@
   }
   function changeTab(newTab) {
     router.push(newTab);
+    Cookies.set("tab", newTab);
     sidebarClose();
   }
 </script>
@@ -22,13 +22,13 @@
   :open="openStatus" close-on-esc close-on-overlay-click>
     <mdui-list>
       <mdui-list-item icon="task"
-      @click="changeTab('/task')">{{ pages[0] }}</mdui-list-item>
+      @click="changeTab('/dash/task')">{{ pages[0] }}</mdui-list-item>
       <mdui-list-item icon="miscellaneous_services"
-      @click="changeTab('/backend')">{{ pages[1] }}</mdui-list-item>
+      @click="changeTab('/dash/backend')">{{ pages[1] }}</mdui-list-item>
       <mdui-list-item icon="auto_fix_high"
-      @click="changeTab('/tool')">{{ pages[2] }}</mdui-list-item>
+      @click="changeTab('/dash/tool')">{{ pages[2] }}</mdui-list-item>
       <mdui-list-item icon="dashboard"
-      @click="changeTab('/workshop')">{{ pages[3] }}</mdui-list-item>
+      @click="changeTab('/dash/workshop')">{{ pages[3] }}</mdui-list-item>
     </mdui-list>
   </mdui-navigation-drawer>
 </template>

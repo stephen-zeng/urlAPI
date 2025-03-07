@@ -17,7 +17,11 @@ func setDash() {
 	r.StaticFS("/assets", http.FS(assetsFS))
 	tpl := template.Must(template.ParseFS(rootFS, "*.html"))
 	r.SetHTMLTemplate(tpl)
-	r.GET("/dash", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
+	r.NoRoute(func(c *gin.Context) {
+		if c.Request.URL.Path == "/dash" || c.Request.URL.Path[:6] == "/dash/" {
+			c.HTML(http.StatusOK, "index.html", nil)
+		} else {
+			c.Redirect(301, "https://www.bilibili.com/video/BV1GJ411x7h7/")
+		}
 	})
 }

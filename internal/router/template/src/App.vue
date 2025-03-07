@@ -2,11 +2,6 @@
 import {ref, provide, inject, onUnmounted, onMounted, watch} from 'vue';
   import Header from "@/frameworks/Header.vue";
   import Sidebar from "@/frameworks/Sidebar.vue";
-  import Task from "@/pages/Task.vue";
-  import Backend from "@/pages/Backend.vue";
-  import Tool from "@/pages/Tool.vue";
-  import Workshop from "@/pages/Workshop.vue";
-  import Login from "@/pages/Login.vue";
   import Cookies from "js-cookie";
   import {Notification, Post} from "@/fetch.js";
   import {useRouter} from "vue-router";
@@ -42,7 +37,7 @@ const sidebarStatus = ref(false);
       }
     }
     if (!login.value) {
-      router.push("/login");
+      router.push("/dash/login");
     }
   })
 
@@ -61,9 +56,13 @@ const sidebarStatus = ref(false);
 
   watch(login, (newValue, oldValue) => {
     if (!newValue) {
-      router.push("/login");
+      router.push("/dash/login");
     } else {
-      router.push('/task')
+      if (Cookies.get("tab")) {
+        router.push(Cookies.get("tab"));
+      } else {
+        router.push('/dash/task')
+      }
     }
   })
 
