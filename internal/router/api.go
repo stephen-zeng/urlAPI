@@ -235,7 +235,7 @@ func webRequest() {
 		var targetURL *url.URL
 		var target string
 		var response web.WebResponse
-		if img != "" {
+		if img[0] == 'h' {
 			target = img
 			targetURL, err = url.Parse(img)
 			response, err = web.ImgRequest(
@@ -244,7 +244,7 @@ func webRequest() {
 				targetURL.Hostname(),        // github.com ...
 				target, device, referer)
 		} else {
-			log.Println("Empty request")
+			log.Println("Improper request")
 			c.Redirect(302, fallbackURL)
 			return
 		}
