@@ -25,7 +25,7 @@ var webMap = map[string]string{
 
 func getBiliABV(URL string) string {
 	for i := 31; i < len(URL); i++ {
-		if URL[i] == '/' {
+		if URL[i] == '/' || URL[i] == '?' {
 			return URL[31:i]
 		}
 	}
