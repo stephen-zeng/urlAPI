@@ -9,8 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
-	"urlAPI/internal/server"
+	"urlAPI/internal/client"
 )
 
 type Repo struct {
@@ -102,7 +101,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

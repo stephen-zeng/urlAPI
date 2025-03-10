@@ -7,8 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
-	"urlAPI/internal/server"
+	"urlAPI/internal/client"
 )
 
 func deepseekTxt(prompt, contxt, model string) (PluginResponse, error) {
@@ -33,7 +32,7 @@ func deepseekTxt(prompt, contxt, model string) (PluginResponse, error) {
 	req, err := http.NewRequest("POST", "https://api.deepseek.com/chat/completions", bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return PluginResponse{}, err

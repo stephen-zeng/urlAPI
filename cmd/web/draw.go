@@ -10,10 +10,9 @@ import (
 	"image/png"
 	"log"
 	"net/http"
-	"time"
 	"urlAPI/cmd/img"
+	"urlAPI/internal/client"
 	"urlAPI/internal/file"
-	"urlAPI/internal/server"
 )
 
 var font *truetype.Font
@@ -154,7 +153,7 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 	if err != nil {
 		return err
 	}
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return err
 	}

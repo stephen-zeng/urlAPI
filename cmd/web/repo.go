@@ -8,9 +8,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
+	"urlAPI/internal/client"
 	"urlAPI/internal/file"
-	"urlAPI/internal/server"
 )
 
 func repo(URL string, From, UUID, Token string) (WebResponse, error) {
@@ -21,7 +20,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}

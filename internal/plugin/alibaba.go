@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"urlAPI/internal/server"
+	"urlAPI/internal/client"
 )
 
 type AlibabaImgInput struct {
@@ -46,7 +46,7 @@ func alibabaTxt(prompt, contxt, model string) (PluginResponse, error) {
 	req, err := http.NewRequest("POST", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions", bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return PluginResponse{}, err
@@ -90,7 +90,7 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("X-DashScope-Async", "enable")
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return PluginResponse{}, err
@@ -139,7 +139,7 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 func fetchImgTask(id, token string) []byte {
 	req, _ := http.NewRequest("GET", "https://dashscope.aliyuncs.com/api/v1/tasks/"+id, nil)
 	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return nil
 	}

@@ -9,10 +9,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 	"urlAPI/cmd/txt"
+	"urlAPI/internal/client"
 	"urlAPI/internal/file"
-	"urlAPI/internal/server"
 )
 
 func traverseITHome(n *html.Node, title, tim, content string) (string, string, string) {
@@ -38,7 +37,7 @@ func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, 
 	if err != nil {
 		return WebResponse{}, err
 	}
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}

@@ -8,9 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
+	"urlAPI/internal/client"
 	"urlAPI/internal/file"
-	"urlAPI/internal/server"
 )
 
 func traverseArxiv(n *html.Node, title, author, description string) (string, string, string) {
@@ -36,7 +35,7 @@ func arxiv(URL, From, UUID string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	resp, err := server.GlobalHTTPClient.Do(req)
+	resp, err := client.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}

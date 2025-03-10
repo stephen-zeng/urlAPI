@@ -2,9 +2,6 @@ package plugin
 
 import (
 	"errors"
-	"net"
-	"net/http"
-	"time"
 	"urlAPI/internal/data"
 )
 
@@ -135,12 +132,5 @@ func otherapi(dat Config) (PluginResponse, error) {
 		}
 	} else {
 		return PluginResponse{}, errors.New("No Valid Prompt")
-	}
-}
-
-func init() {
-	pluginHttpClient := &http.Client{
-		Transport: Global,
-		Timeout:   time.Second * 30,
 	}
 }
