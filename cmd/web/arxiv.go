@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"golang.org/x/net/html"
 	"image/png"
@@ -10,10 +9,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"urlAPI/internal/file"
+	"urlAPI/internal/server"
 )
-
-//go:embed arxiv_logo.png
-var arxivFS embed.FS
 
 func traverseArxiv(n *html.Node, title, author, description string) (string, string, string) {
 	if n.Type == html.ElementNode {
@@ -38,10 +36,7 @@ func arxiv(URL, From, UUID string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}
@@ -57,7 +52,7 @@ func arxiv(URL, From, UUID string) (WebResponse, error) {
 	}
 	id := URL[22:]
 	title, author, description := traverseArxiv(doc, "", "", "")
-	logoFile, err := arxivFS.Open("arxiv_logo.png")
+	logoFile, err := file.LogoFS.Open("arxiv_logo.png")
 	logoImg, err := png.Decode(logoFile)
 	err = DrawArticle(logoImg, id, title, author, description, UUID, "")
 	return WebResponse{

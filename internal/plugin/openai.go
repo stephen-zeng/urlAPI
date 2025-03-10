@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"urlAPI/internal/server"
 )
 
 type OpenaiImg struct {
@@ -43,7 +44,7 @@ func openaiTxt(prompt, contxt, model string) (PluginResponse, error) {
 	client := &http.Client{
 		Timeout: time.Second * 30,
 	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		log.Println(err)
 		return PluginResponse{}, err
@@ -79,10 +80,7 @@ func openaiImg(prompt, model, size string) (PluginResponse, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return PluginResponse{}, err
 	}

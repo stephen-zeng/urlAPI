@@ -1,7 +1,6 @@
 package web
 
 import (
-	"embed"
 	"encoding/json"
 	"errors"
 	"image/png"
@@ -10,10 +9,9 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"urlAPI/internal/file"
+	"urlAPI/internal/server"
 )
-
-//go:embed github_logo.png gitee_logo.png
-var bgFS embed.FS
 
 func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	req, err := http.NewRequest("GET", URL, nil)
@@ -23,10 +21,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}
@@ -57,7 +52,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	} else {
 		star = strconv.FormatFloat(starCount, 'f', -1, 64)
 	}
-	bgFile, err := bgFS.Open("github_logo.png")
+	bgFile, err := file.LogoFS.Open("github_logo.png")
 	bgImg, err := png.Decode(bgFile)
 	if err != nil {
 		log.Println("Unable to decode github background image")

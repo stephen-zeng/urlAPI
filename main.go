@@ -2,10 +2,26 @@ package main
 
 import (
 	"log"
+	"net"
+	"net/http"
 	"os"
+	"time"
 	"urlAPI/cmd/set"
-	"urlAPI/internal/router"
+	"urlAPI/internal/server"
 )
+
+var GlobalTransport = &http.Transport{
+	Proxy: http.ProxyFromEnvironment,
+	DialContext: (&net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 60 * time.Second,
+	}).DialContext,
+	MaxIdleConns:          100,
+	MaxIdleConnsPerHost:   20,
+	IdleConnTimeout:       90 * time.Second,
+	TLSHandshakeTimeout:   10 * time.Second,
+	ExpectContinueTimeout: 1 * time.Second,
+}
 
 func main() {
 	var err error
@@ -45,6 +61,6 @@ func main() {
 	}
 	if len(os.Args) == 1 || os.Args[1] == "port" {
 		log.Printf("The server will start on port %s\n", port)
-		router.Start(port)
+		server.Start(port)
 	}
 }

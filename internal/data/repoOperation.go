@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"urlAPI/internal/server"
 )
 
 type Repo struct {
@@ -101,10 +102,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

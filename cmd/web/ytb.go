@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"urlAPI/internal/server"
 )
 
 func ytb(ID, From, UUID, Token string) (WebResponse, error) {
@@ -15,10 +16,7 @@ func ytb(ID, From, UUID, Token string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient(req)
 	if err != nil {
 		return WebResponse{}, err
 	}

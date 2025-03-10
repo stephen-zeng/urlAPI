@@ -1,7 +1,6 @@
 package web
 
 import (
-	"embed"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/nfnt/resize"
@@ -14,10 +13,9 @@ import (
 	"time"
 	"urlAPI/cmd/img"
 	"urlAPI/internal/file"
+	"urlAPI/internal/server"
 )
 
-//go:embed fork_icon.png star_icon.png play_icon.png fav_icon.png coin_icon.png like_icon.png
-var icon embed.FS
 var font *truetype.Font
 var drawer *freetype.Context
 
@@ -97,8 +95,8 @@ func drawRoundedRect(img *image.RGBA, option string) {
 }
 
 func drawRepo(logo image.Image, Name, Author, Description, Star, Fork, UUID string) error {
-	starIO, _ := icon.Open("star_icon.png")
-	forkIO, _ := icon.Open("fork_icon.png")
+	starIO, _ := file.IconFS.Open("star_icon.png")
+	forkIO, _ := file.IconFS.Open("fork_icon.png")
 	starIcon, err := png.Decode(starIO)
 	forkIcon, err := png.Decode(forkIO)
 	if err != nil {
@@ -156,10 +154,7 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 	if err != nil {
 		return err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -206,10 +201,10 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 		drawer.DrawString(content, freetype.Pt(30, templatePic.Bounds().Dy()+index*50+100))
 	}
 
-	likeIO, _ := icon.Open("like_icon.png")
-	favIO, _ := icon.Open("fav_icon.png")
-	playIO, _ := icon.Open("play_icon.png")
-	coinIO, _ := icon.Open("coin_icon.png")
+	likeIO, _ := file.IconFS.Open("like_icon.png")
+	favIO, _ := file.IconFS.Open("fav_icon.png")
+	playIO, _ := file.IconFS.Open("play_icon.png")
+	coinIO, _ := file.IconFS.Open("coin_icon.png")
 	likeIcon, err := png.Decode(likeIO)
 	favIcon, err := png.Decode(favIO)
 	playIcon, err := png.Decode(playIO)

@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"embed"
 	"errors"
 	"golang.org/x/net/html"
 	"image/png"
@@ -12,10 +11,9 @@ import (
 	"net/url"
 	"time"
 	"urlAPI/cmd/txt"
+	"urlAPI/internal/file"
+	"urlAPI/internal/server"
 )
-
-//go:embed ithome_logo.png
-var ithomeFS embed.FS
 
 func traverseITHome(n *html.Node, title, tim, content string) (string, string, string) {
 	if n.Type == html.ElementNode {
@@ -40,10 +38,7 @@ func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, 
 	if err != nil {
 		return WebResponse{}, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}
@@ -63,7 +58,7 @@ func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, 
 		return WebResponse{}, err
 	}
 	description := sumRet.Response
-	logoFile, err := ithomeFS.Open("ithome_logo.png")
+	logoFile, err := file.LogoFS.Open("ithome_logo.png")
 	logoImg, err := png.Decode(logoFile)
 	err = DrawArticle(logoImg, "", title, "", description, UUID, tim)
 	return WebResponse{

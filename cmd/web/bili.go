@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"urlAPI/internal/server"
 )
 
 func biliGetStr(x float64) string {
@@ -32,10 +33,7 @@ func bili(ABV, From, UUID string) (WebResponse, error) {
 	if err != nil {
 		return WebResponse{}, err
 	}
-	client := &http.Client{
-		Timeout: time.Second * 30,
-	}
-	resp, err := client.Do(req)
+	resp, err := server.GlobalHTTPClient.Do(req)
 	if err != nil {
 		return WebResponse{}, err
 	}
