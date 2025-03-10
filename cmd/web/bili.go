@@ -42,21 +42,19 @@ func bili(ABV, From, UUID string) (WebResponse, error) {
 		log.Println("Error getting video info")
 		return WebResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
-	var info map[string]interface{}
+	var info BiliResp
 	err = json.Unmarshal(jsonResp, &info)
 	if err != nil {
 		return WebResponse{}, err
 	}
-	info = info["data"].(map[string]interface{})
-	picURL := info["pic"].(string)
-	name := info["title"].(string)
-	author := info["owner"].(map[string]interface{})["name"].(string)
-	description := info["desc"].(string)
-	info = info["stat"].(map[string]interface{})
-	view := biliGetStr(info["view"].(float64))
-	favorite := biliGetStr(info["favorite"].(float64))
-	like := biliGetStr(info["like"].(float64))
-	coin := biliGetStr(info["coin"].(float64))
+	picURL := info.Data.Pic
+	name := info.Data.Title
+	author := info.Data.Owner.Name
+	description := info.Data.Desc
+	view := biliGetStr(info.Data.Stat.View)
+	favorite := biliGetStr(info.Data.Stat.Favorite)
+	like := biliGetStr(info.Data.Stat.Like)
+	coin := biliGetStr(info.Data.Stat.Coin)
 	err = drawVideo(picURL, name, author, description, view, favorite, like, coin, UUID)
 	if err != nil {
 		log.Println("Error when drawing the img")

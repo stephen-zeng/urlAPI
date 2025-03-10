@@ -29,7 +29,7 @@ func convertInterfaceToString(ori interface{}) [][]string {
 func setSession() {
 	r.POST("/session", func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
-		dat := make(map[string]interface{})
+		var dat sessionResp
 		err := c.ShouldBindJSON(&dat)
 		token := c.Request.Header.Get("Authorization")
 		if err != nil { // auth err
@@ -45,32 +45,32 @@ func setSession() {
 			return
 		}
 		sessionConfig := session.Config{
-			Operation:    dat["operation"].(string),
+			Operation:    dat.Operation,
 			SessionToken: token,
 			SessionType:  typ,
 		}
-		switch dat["operation"].(string) {
+		switch dat.Operation {
 		case "login":
-			sessionConfig.SessionTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat.LoginTerm
 		case "logout":
-			sessionConfig.SessionTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat.LoginTerm
 		case "exit":
-			sessionConfig.SessionTerm = dat["login_term"].(bool)
+			sessionConfig.SessionTerm = dat.LoginTerm
 		case "fetchTask":
-			sessionConfig.TaskBy = dat["task_by"].(string)
-			sessionConfig.TaskCatagory = dat["task_catagory"].(string)
+			sessionConfig.TaskBy = dat.TaskBy
+			sessionConfig.TaskCatagory = dat.TaskCatagory
 		case "fetchSetting":
-			sessionConfig.SettingPart = dat["setting_part"].(string)
+			sessionConfig.SettingPart = dat.SettingPart
 		case "editSetting":
-			sessionConfig.SettingPart = dat["setting_part"].(string)
-			sessionConfig.SettingEdit = convertInterfaceToString(dat["setting_edit"])
+			sessionConfig.SettingPart = dat.SettingPart
+			sessionConfig.SettingEdit = dat.SettingEdit
 		case "newRepo":
-			sessionConfig.RepoAPI = dat["repo_api"].(string)
-			sessionConfig.RepoInfo = dat["repo_info"].(string)
+			sessionConfig.RepoAPI = dat.RepoAPI
+			sessionConfig.RepoInfo = dat.RepoInfo
 		case "refreshRepo":
-			sessionConfig.RepoUUID = dat["repo_uuid"].(string)
+			sessionConfig.RepoUUID = dat.RepoUUID
 		case "delRepo":
-			sessionConfig.RepoUUID = dat["repo_uuid"].(string)
+			sessionConfig.RepoUUID = dat.RepoUUID
 		}
 
 		response, err := session.New(sessionConfig)

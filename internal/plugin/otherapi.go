@@ -39,13 +39,13 @@ func otherapiTxt(prompt, contxt, model string) (PluginResponse, error) {
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
-	ret := make(map[string]interface{})
+	var ret txtResp
 	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
 		return PluginResponse{
-			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			Response:     ret.Choices[0].Message.Content,
 			InitPrompt:   prompt,
 			ActualPrompt: prompt,
 			Context:      contxt,

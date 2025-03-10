@@ -47,13 +47,13 @@ func openaiTxt(prompt, contxt, model string) (PluginResponse, error) {
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
-	ret := make(map[string]interface{})
+	var ret txtResp
 	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
 		return PluginResponse{
-			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			Response:     ret.Choices[0].Message.Content,
 			InitPrompt:   prompt,
 			ActualPrompt: prompt,
 			Context:      contxt,
@@ -85,14 +85,13 @@ func openaiImg(prompt, model, size string) (PluginResponse, error) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
-		response := make(map[string]interface{})
+		var response openaiImgResp
 		err = json.Unmarshal(jsonResponse, &response)
 		if err != nil {
 			return PluginResponse{}, err
 		}
-		url := response["data"].([]interface{})[0].(map[string]interface{})["url"].(string)
 		return PluginResponse{
-			URL:          url,
+			URL:          response.Data[0].URL,
 			ActualPrompt: prompt,
 			InitPrompt:   prompt,
 		}, nil

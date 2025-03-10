@@ -110,7 +110,7 @@ func scanRepo(API, Info string) ([]string, error) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return nil, errors.Join(err, errors.New(resp.Status))
 	}
-	var content []map[string]interface{}
+	var content []repoResp
 	var ret []string
 	var replace string
 	err = json.Unmarshal(jsonResponse, &content)
@@ -125,7 +125,7 @@ func scanRepo(API, Info string) ([]string, error) {
 		replace = list[0][1]
 	}
 	for _, item := range content {
-		url := item["download_url"].(string)
+		url := item.DownloadURL
 		if API == "github" {
 			url = strings.ReplaceAll(url, "https://raw.githubusercontent.com", replace)
 		}

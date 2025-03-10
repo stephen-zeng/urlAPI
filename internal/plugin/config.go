@@ -14,6 +14,39 @@ type Txt struct {
 	Messages []TxtMessage `json:"messages"`
 }
 
+type txtResp struct {
+	Choices []struct {
+		Message struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"message"`
+	} `json:"choices"`
+}
+
+type aliImgResp struct {
+	Output struct {
+		TaskStatus string `json:"task_status"`
+		TaskID     string `json:"task_id"`
+		Results    []struct {
+			OrigPrompt   string `json:"orig_prompt"`
+			ActualPrompt string `json:"actual_prompt"`
+			URL          string `json:"url"`
+		} `json:"results"`
+	} `json:"output"`
+}
+
+type openaiImgResp struct {
+	Data []struct {
+		URL string `json:"url"`
+	} `json:"data"`
+}
+
+type regionResp struct {
+	IPData struct {
+		Info1 string `json:"info1"`
+	} `json:"ipdata"`
+}
+
 // used in actual action
 func fetchConfig(from string) (string, string, error) {
 	config, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{from})))

@@ -53,13 +53,13 @@ func alibabaTxt(prompt, contxt, model string) (PluginResponse, error) {
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
-	ret := make(map[string]interface{})
+	var ret txtResp
 	err = json.Unmarshal(jsonResponse, &ret)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	} else {
 		return PluginResponse{
-			Response:     ret["choices"].([]interface{})[0].(map[string]interface{})["message"].(map[string]interface{})["content"].(string),
+			Response:     ret.Choices[0].Message.Content,
 			InitPrompt:   prompt,
 			ActualPrompt: prompt,
 			Context:      contxt,
@@ -100,11 +100,11 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 	if err != nil || resp.StatusCode != http.StatusOK {
 		return PluginResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
-	response := make(map[string]interface{})
+	var response aliImgResp
 	if err := json.Unmarshal(jsonResponse, &response); err != nil {
 		return PluginResponse{}, err
 	}
-	id := response["output"].(map[string]interface{})["task_id"].(string)
+	id := response.Output.TaskID
 	timer := time.NewTimer(time.Second * 30)
 	timeout := make(chan bool)
 	go func() {
@@ -112,7 +112,7 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 		log.Println("Times up")
 		timeout <- true
 	}()
-	for status := response["output"].(map[string]interface{})["task_status"].(string); status == "PENDING" || status == "RUNNING"; status = response["output"].(map[string]interface{})["task_status"].(string) {
+	for status := response.Output.TaskStatus; status == "PENDING" || status == "RUNNING"; status = response.Output.TaskStatus {
 		time.Sleep(1 * time.Second)
 		err := json.Unmarshal(fetchImgTask(id, token), &response)
 		if err != nil {
@@ -121,15 +121,15 @@ func alibabaImg(prompt, model, size string) (PluginResponse, error) {
 		}
 	}
 	timer.Stop()
-	if response["output"].(map[string]interface{})["task_status"] == "FAILED" {
+	if response.Output.TaskStatus == "FAILED" {
 		log.Println(response)
 		return PluginResponse{}, errors.New("Alibaba imgGen Failed")
-	} else if response["output"].(map[string]interface{})["task_status"] == "SUCCEEDED" {
-		ret := response["output"].(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})
+	} else if response.Output.TaskStatus == "SUCCEEDED" {
+		ret := response.Output.Results[0]
 		return PluginResponse{
-			URL:          ret["url"].(string),
-			InitPrompt:   ret["orig_prompt"].(string),
-			ActualPrompt: ret["actual_prompt"].(string),
+			URL:          ret.URL,
+			InitPrompt:   ret.OrigPrompt,
+			ActualPrompt: ret.ActualPrompt,
 		}, nil
 	}
 	<-timeout

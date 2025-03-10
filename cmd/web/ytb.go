@@ -25,20 +25,14 @@ func ytb(ID, From, UUID, Token string) (WebResponse, error) {
 		log.Println("Error getting video info")
 		return WebResponse{}, errors.Join(err, errors.New(resp.Status))
 	}
-	var info map[string]interface{}
+	var info ytbResp
 	err = json.Unmarshal(jsonResp, &info)
-	if err != nil {
-		return WebResponse{}, err
-	}
-	info = info["items"].([]interface{})[0].(map[string]interface{})
-	snippet := info["snippet"].(map[string]interface{})
-	statistics := info["statistics"].(map[string]interface{})
-	name := snippet["title"].(string)
-	author := snippet["channelTitle"].(string)
-	description := snippet["description"].(string)
-	picURL := snippet["thumbnails"].(map[string]interface{})["standard"].(map[string]interface{})["url"].(string)
-	view := statistics["viewCount"].(string)
-	like := statistics["likeCount"].(string)
+	name := info.Items[0].Snippet.Title
+	author := info.Items[0].Snippet.ChannelTitle
+	description := info.Items[0].Snippet.Description
+	picURL := info.Items[0].Snippet.Thumbnails.Standard.URL
+	view := info.Items[0].Statistisc.ViewCount
+	like := info.Items[0].Statistisc.LikeCount
 	favorite := "N/A"
 	coin := "N/A"
 	err = drawVideo(picURL, name, author, description, view, favorite, like, coin, UUID)

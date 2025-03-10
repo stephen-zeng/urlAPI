@@ -132,3 +132,7 @@ func DataConfig(opts ...Option) Config {
 	}
 	return config
 }
+
+type repoResp struct {
+	DownloadURL string `json:"download_url"`
+}
