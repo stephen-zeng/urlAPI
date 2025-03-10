@@ -94,8 +94,8 @@ func drawRoundedRect(img *image.RGBA, option string) {
 }
 
 func drawRepo(logo image.Image, Name, Author, Description, Star, Fork, UUID string) error {
-	starIO, _ := file.IconFS.Open("star_icon.png")
-	forkIO, _ := file.IconFS.Open("fork_icon.png")
+	starIO, _ := file.IconFS.Open("assets/icon/star_icon.png")
+	forkIO, _ := file.IconFS.Open("assets/icon/fork_icon.png")
 	starIcon, err := png.Decode(starIO)
 	forkIcon, err := png.Decode(forkIO)
 	if err != nil {
@@ -200,10 +200,10 @@ func drawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin, 
 		drawer.DrawString(content, freetype.Pt(30, templatePic.Bounds().Dy()+index*50+100))
 	}
 
-	likeIO, _ := file.IconFS.Open("like_icon.png")
-	favIO, _ := file.IconFS.Open("fav_icon.png")
-	playIO, _ := file.IconFS.Open("play_icon.png")
-	coinIO, _ := file.IconFS.Open("coin_icon.png")
+	likeIO, _ := file.IconFS.Open("assets/icon/like_icon.png")
+	favIO, _ := file.IconFS.Open("assets/icon/fav_icon.png")
+	playIO, _ := file.IconFS.Open("assets/icon/play_icon.png")
+	coinIO, _ := file.IconFS.Open("assets/icon/coin_icon.png")
 	likeIcon, err := png.Decode(likeIO)
 	favIcon, err := png.Decode(favIO)
 	playIcon, err := png.Decode(playIO)

@@ -57,7 +57,7 @@ func ithome(URL, From, UUID, IP, Device string, Referer *url.URL) (WebResponse, 
 		return WebResponse{}, err
 	}
 	description := sumRet.Response
-	logoFile, err := file.LogoFS.Open("ithome_logo.png")
+	logoFile, err := file.LogoFS.Open("assets/logo/ithome_logo.png")
 	logoImg, err := png.Decode(logoFile)
 	err = DrawArticle(logoImg, "", title, "", description, UUID, tim)
 	return WebResponse{

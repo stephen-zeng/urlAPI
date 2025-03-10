@@ -75,10 +75,10 @@ type ytbResp struct {
 			ChannelTitle string `json:"channelTitle"`
 			Description  string `json:"description"`
 		} `json:"snippet"`
-		Statistisc struct {
+		Statistics struct {
 			ViewCount string `json:"viewCount"`
 			LikeCount string `json:"likeCount"`
-		} `json:"statistisc"`
+		} `json:"statistics"`
 	} `json:"items"`
 }
 

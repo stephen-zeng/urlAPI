@@ -48,7 +48,7 @@ func repo(URL string, From, UUID, Token string) (WebResponse, error) {
 	description := repo.Description
 	forkCount := getRepoCount(repo.ForksCount)
 	starCount := getRepoCount(repo.StargazersCount)
-	bgFile, err := file.LogoFS.Open("github_logo.png")
+	bgFile, err := file.LogoFS.Open("assets/logo/github_logo.png")
 	bgImg, err := png.Decode(bgFile)
 	if err != nil {
 		log.Println("Unable to decode github background image")

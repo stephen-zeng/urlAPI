@@ -31,8 +31,8 @@ func ytb(ID, From, UUID, Token string) (WebResponse, error) {
 	author := info.Items[0].Snippet.ChannelTitle
 	description := info.Items[0].Snippet.Description
 	picURL := info.Items[0].Snippet.Thumbnails.Standard.URL
-	view := info.Items[0].Statistisc.ViewCount
-	like := info.Items[0].Statistisc.LikeCount
+	view := info.Items[0].Statistics.ViewCount
+	like := info.Items[0].Statistics.LikeCount
 	favorite := "N/A"
 	coin := "N/A"
 	err = drawVideo(picURL, name, author, description, view, favorite, like, coin, UUID)

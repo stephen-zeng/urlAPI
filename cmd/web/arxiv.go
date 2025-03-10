@@ -51,7 +51,7 @@ func arxiv(URL, From, UUID string) (WebResponse, error) {
 	}
 	id := URL[22:]
 	title, author, description := traverseArxiv(doc, "", "", "")
-	logoFile, err := file.LogoFS.Open("arxiv_logo.png")
+	logoFile, err := file.LogoFS.Open("assets/logo/arxiv_logo.png")
 	logoImg, err := png.Decode(logoFile)
 	err = DrawArticle(logoImg, id, title, author, description, UUID, "")
 	return WebResponse{
