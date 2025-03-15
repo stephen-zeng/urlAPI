@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 	"urlAPI/cmd/set"
+	"urlAPI/internal/data"
 	"urlAPI/internal/server"
 )
 
@@ -63,4 +64,5 @@ func main() {
 		log.Printf("The server will start on port %s\n", port)
 		server.Start(port)
 	}
+	defer data.Disconnect()
 }

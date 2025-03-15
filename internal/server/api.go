@@ -17,12 +17,12 @@ import (
 
 func getScheme(c *gin.Context) string {
 	if c.Request.TLS != nil {
-		return "https://"
+		return `https://`
 	}
 	if scheme := c.GetHeader("X-Forwarded-Proto"); scheme != "" {
-		return scheme
+		return scheme + `://`
 	}
-	return "http://"
+	return `http://`
 }
 
 func getDeviceType(ua string) string {
