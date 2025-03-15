@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	_ "github.com/mattn/go-sqlite3" // 下划线表示初始化这个包的内容以便使用
 	"log"
 	"time"
@@ -97,7 +98,7 @@ func FetchTask(data Config) ([]Task, error) {
 	} else if data.TaskRegion != "" {
 		ret, err = fetchTask("region", data.TaskRegion)
 	} else {
-		ret, err = fetchTask("none", data.TaskStatus)
+		err = errors.New("No valid filter")
 	}
 	if err != nil {
 		log.Println(err)

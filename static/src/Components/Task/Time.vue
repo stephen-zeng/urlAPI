@@ -31,7 +31,7 @@ function getValue(tasks) {
 }
 function setFilter(filter) {
   catagory.value = "time";
-  by.value = filter;
+  by.value = (filter === "" ? "N/A" : filter);
   emits("refresh")
 }
 </script>

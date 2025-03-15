@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"urlAPI/internal/data"
@@ -72,7 +73,23 @@ func New(dat Config) (SessionResponse, error) {
 	case "fetchTask":
 		ret.TaskData, err = data.FetchTask(data.DataConfig(
 			data.WithType(dat.TaskCatagory),
-			data.WithBy(dat.TaskBy)))
+			data.WithBy(dat.TaskBy),
+			data.WithTaskPage(dat.TaskPage)))
+		ret.TaskMaxPage = (len(ret.TaskData) / 500) + 1
+		sort.Slice(
+			ret.TaskData,
+			func(i, j int) bool {
+				return ret.TaskData[i].Time.After(ret.TaskData[j].Time)
+			},
+		)
+		switch {
+		case dat.TaskPage == -1:
+			break
+		case dat.TaskPage*500 > len(ret.TaskData):
+			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*500:]
+		case dat.TaskPage*500 <= len(ret.TaskData):
+			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*500:]
+		}
 	case "fetchRepo":
 		ret.RepoData, err = data.FetchRepo(data.DataConfig())
 	case "newRepo":

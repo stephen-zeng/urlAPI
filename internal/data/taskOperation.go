@@ -102,8 +102,8 @@ func fetchTask(by, data string) ([]Task, error) {
 	case "none":
 		err = db.Find(&ret)
 	default:
-		if data == "" {
-			err = db.Where(by+"=? OR "+by+" IS NULL", data).Find(&ret)
+		if data == "N/A" {
+			err = db.Where(by+"=? OR "+by+" IS NULL", "").Find(&ret)
 		} else {
 			err = db.Where(by+"=?", data).Find(&ret)
 		}

@@ -12,6 +12,7 @@ type SessionResponse struct {
 	SettingPart  string              `json:"setting_part"`
 	SettingData  [][]string          `json:"setting_data"`
 	TaskData     []data.Task         `json:"task_data"`
+	TaskMaxPage  int                 `json:"task_max_page"`
 	RepoData     []data.RepoResponse `json:"repo_data"`
 }
 
@@ -26,6 +27,7 @@ type Config struct {
 	SettingEdit  [][]string
 	TaskCatagory string
 	TaskBy       string
+	TaskPage     int
 	RepoAPI      string
 	RepoInfo     string
 	RepoUUID     string
@@ -80,6 +82,11 @@ func WithTaskCatagory(by string) Option {
 func WithTaskBy(task string) Option {
 	return func(c *Config) {
 		c.TaskBy = task
+	}
+}
+func WithTaskPage(page int) Option {
+	return func(c *Config) {
+		c.TaskPage = page
 	}
 }
 func WithRepoAPI(api string) Option {

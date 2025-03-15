@@ -23,7 +23,7 @@ function getValue(tasks) {
 }
 function setFilter(filter) {
   catagory.value = "device";
-  by.value = filter;
+  by.value = (filter === "" ? "N/A" : filter);
   emits("refresh")
 }
 </script>

@@ -1,9 +1,9 @@
 <script setup>
-  import Text from "@/Components/Client/Text.vue";
-  import Image from "@/Components/Client/Image.vue";
-  import Web from "@/Components/Client/Web.vue";
-  import Security from "@/Components/Client/Security.vue";
-  import Rand from "@/Components/Client/Rand.vue"
+  import Text from "@/Components/Tool/Text.vue";
+  import Image from "@/Components/Tool/Image.vue";
+  import Web from "@/Components/Tool/Web.vue";
+  import Security from "@/Components/Tool/Security.vue";
+  import Rand from "@/Components/Tool/Rand.vue"
   import {onMounted, inject} from "vue";
 
   const title = inject("title");

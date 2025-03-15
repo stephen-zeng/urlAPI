@@ -59,6 +59,7 @@ func setSession() {
 		case "fetchTask":
 			sessionConfig.TaskBy = dat.TaskBy
 			sessionConfig.TaskCatagory = dat.TaskCatagory
+			sessionConfig.TaskPage = dat.TaskPage
 		case "fetchSetting":
 			sessionConfig.SettingPart = dat.SettingPart
 		case "editSetting":

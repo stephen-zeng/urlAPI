@@ -5,6 +5,7 @@ type sessionResp struct {
 	LoginTerm    bool       `json:"login_term"`
 	TaskBy       string     `json:"task_by"`
 	TaskCatagory string     `json:"task_catagory"`
+	TaskPage     int        `json:"task_page"`
 	SettingPart  string     `json:"setting_part"`
 	SettingEdit  [][]string `json:"setting_edit"`
 	RepoAPI      string     `json:"repo_api"`

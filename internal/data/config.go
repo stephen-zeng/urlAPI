@@ -19,6 +19,7 @@ type Config struct {
 	TaskModel     string
 	TaskDevice    string
 	TaskReferer   string
+	TaskPage      int
 	SettingName   []string
 	SettingEdit   [][]string
 	SessionToken  string
@@ -51,6 +52,11 @@ func WithTaskTarget(target string) Option {
 func WithTaskIP(ip string) Option {
 	return func(config *Config) {
 		config.TaskIP = ip
+	}
+}
+func WithTaskPage(page int) Option {
+	return func(config *Config) {
+		config.TaskPage = page
 	}
 }
 func WithType(t string) Option {
