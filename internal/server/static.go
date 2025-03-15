@@ -1,19 +1,16 @@
 package server
 
 import (
-	"embed"
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"urlAPI/static"
 )
 
-//go:embed template/dist/*
-var webFS embed.FS
-
 func setDash() {
-	rootFS, _ := fs.Sub(webFS, "template/dist")
-	assetsFS, _ := fs.Sub(webFS, "template/dist/assets")
+	rootFS, _ := fs.Sub(static.StaticFS, "dist")
+	assetsFS, _ := fs.Sub(static.StaticFS, "dist/assets")
 	r.StaticFS("/assets", http.FS(assetsFS))
 	tpl := template.Must(template.ParseFS(rootFS, "*.html"))
 	r.SetHTMLTemplate(tpl)
