@@ -3,7 +3,7 @@ package data
 import "log"
 
 func InitSession(data Config) error {
-	err = db.AutoMigrate(&Session{})
+	err := db.AutoMigrate(&Session{})
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 func InitTask(data Config) error {
-	err = db.AutoMigrate(&Task{})
+	err := db.AutoMigrate(&Task{})
 	if err != nil {
 		return err
 	}

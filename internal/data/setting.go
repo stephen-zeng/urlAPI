@@ -1,34 +1,38 @@
 package data
 
 import (
-	"bufio"
 	"embed"
+	"encoding/json"
+	"errors"
+	"io"
 	"log"
-	"strings"
 )
 
-//go:embed setting.init
+//go:embed setting.json
 var Init embed.FS
 
+type SettingConfig struct {
+	Names []string   `json:"names"`
+	Edits [][]string `json:"edits"`
+}
+
 func InitSetting(data Config) (string, error) {
-	var names []string
-	var edits [][]string
 	if data.Type == "" && db.Migrator().HasTable(&Setting{}) {
 		return "", nil
 	}
 	db.AutoMigrate(&Setting{})
-	f, _ := Init.Open("setting.init")
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		if len(names) == 0 {
-			names = strings.Split(scanner.Text(), ";")
-			continue
-		}
-		tmp := strings.Split(scanner.Text(), ";")
-		edits = append(edits, tmp)
+	f, _ := Init.Open("setting.json")
+	d, err := io.ReadAll(f)
+	if err != nil {
+		return "", errors.Join(errors.New("Error while reading init setting"), err)
 	}
+	var initSettings SettingConfig
+	err = json.Unmarshal(d, &initSettings)
+	if err != nil {
+		return "", errors.Join(errors.New("Error while unmarshal init setting"), err)
+	}
+	err = editSetting(initSettings.Names, initSettings.Edits, data.Type == "update")
 	defer f.Close()
-	err := editSetting(names, edits, data.Type == "update")
 	if err != nil {
 		log.Println(err)
 		return "", err

@@ -11,10 +11,10 @@ import (
 var (
 	dbPath string = "assets/database.db"
 	db     *gorm.DB
-	err    error
 )
 
 func connect() error {
+	var err error
 	os.Mkdir("assets", 0777)
 	tmp, _ := sql.Open("sqlite3", dbPath)
 	tmp.Close()

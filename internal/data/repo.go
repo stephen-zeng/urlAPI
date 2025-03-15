@@ -12,7 +12,7 @@ type RepoResponse struct {
 }
 
 func InitRepo(data Config) error {
-	err = db.AutoMigrate(&Repo{})
+	err := db.AutoMigrate(&Repo{})
 	if err != nil {
 		return err
 	}

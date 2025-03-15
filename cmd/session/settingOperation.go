@@ -10,9 +10,9 @@ var PartMap = map[string][]string{
 	"alibaba":  []string{"alibaba"},
 	"otherapi": []string{"otherapi"},
 	"security": []string{"dash", "dashallowedip", "allowedref"},
-	"txt":      []string{"txt", "txtgenenabled", "txtsumenabled"},
+	"txt":      []string{"txt", "txtgenenabled"},
 	"img":      []string{"img"},
-	"web":      []string{"web", "webimgallowed", "websumblocked"},
+	"web":      []string{"web", "webimgallowed"},
 	"rand":     []string{"rand"},
 	"contxt":   []string{"context", "prompt"},
 }

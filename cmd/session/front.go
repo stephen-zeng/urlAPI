@@ -75,7 +75,7 @@ func New(dat Config) (SessionResponse, error) {
 			data.WithType(dat.TaskCatagory),
 			data.WithBy(dat.TaskBy),
 			data.WithTaskPage(dat.TaskPage)))
-		ret.TaskMaxPage = (len(ret.TaskData) / 500) + 1
+		ret.TaskMaxPage = (len(ret.TaskData) / 100) + 1
 		sort.Slice(
 			ret.TaskData,
 			func(i, j int) bool {
@@ -85,10 +85,10 @@ func New(dat Config) (SessionResponse, error) {
 		switch {
 		case dat.TaskPage == -1:
 			break
-		case dat.TaskPage*500 > len(ret.TaskData):
-			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*500:]
-		case dat.TaskPage*500 <= len(ret.TaskData):
-			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*500:]
+		case dat.TaskPage*100 > len(ret.TaskData):
+			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*100:]
+		case dat.TaskPage*100 <= len(ret.TaskData):
+			ret.TaskData = ret.TaskData[(dat.TaskPage-1)*100 : (dat.TaskPage*100 - 1)]
 		}
 	case "fetchRepo":
 		ret.RepoData, err = data.FetchRepo(data.DataConfig())
