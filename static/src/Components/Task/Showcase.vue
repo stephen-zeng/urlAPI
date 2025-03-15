@@ -8,7 +8,6 @@ const dialogStatus = ref(false);
 const target = ref(0)
 const task = ref([]);
 
-const url = inject("url");
 const emitter = inject("emitter");
 const catagory = inject("catagory");
 const by = inject("by");
@@ -26,7 +25,7 @@ async function fetchTask() {
   } else {
     title.value = "任务查看 → " + (by.value == "" ? "N/A" : by.value);
   }
-  const session = await Post(url, {
+  const session = await Post({
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchTask",

@@ -1,6 +1,7 @@
 import {snackbar} from "mdui";
+import {url} from "./main.js";
 
-export function Post(url, data) {
+export function Post(data) {
     return fetch(url, {
         method: "POST",
         body: JSON.stringify(data.Send),

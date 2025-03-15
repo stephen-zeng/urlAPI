@@ -11,7 +11,7 @@ const url = inject("url");
 const title = inject("title");
 
 async function login() {
-  const session = await Post(url, {
+  const session = await Post({
     "Token": sha256(pwd.value),
     "Send": {
       "operation": "login",

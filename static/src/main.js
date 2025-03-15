@@ -6,13 +6,14 @@ import 'mdui'
 import 'mdui/mdui.css'
 
 const app = createApp(App)
-const url = "http://localhost:2233/session"
-// const url = "/session"
 const title = ref('');
 const login= ref(false);
 const emitter = ref(0);
 const page = ref(1);
 const maxPage = ref(Infinity);
+
+// export const url = "http://localhost:2233/session"
+export const url = "/session"
 
 app.provide("url", url)
 app.provide("title", title)

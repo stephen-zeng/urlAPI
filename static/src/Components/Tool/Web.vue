@@ -9,7 +9,7 @@ const settings = ref()
 const input2 = ref('')
 
 async function getSetting() {
-  const session = await Post(url, {
+  const session = await Post({
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchSetting",
@@ -24,7 +24,7 @@ async function getSetting() {
 }
 
 async function sendSetting() {
-  const session = await Post(url, {
+  const session = await Post({
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "editSetting",

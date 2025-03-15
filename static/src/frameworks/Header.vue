@@ -18,7 +18,7 @@
     sidebarStatus.value = !sidebarStatus.value;
   }
   async function logout() {
-    const session = await Post(url, {
+    const session = await Post({
       "Token": Cookies.get("token"),
       "Send": {
         "operation": "logout",

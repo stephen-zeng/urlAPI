@@ -16,7 +16,6 @@ const task = ref([]);
 const title = inject("title");
 const catagory = inject("catagory");
 const by = inject("by");
-const url = inject("url");
 const emitter = inject("emitter");
 
 async function fetchTask() {
@@ -28,7 +27,7 @@ async function fetchTask() {
 }
 
 onMounted(async ()=>{
-  const session = await Post(url, {
+  const session = await Post({
     "Token": Cookies.get("token"),
     "Send": {
       "operation": "fetchTask",

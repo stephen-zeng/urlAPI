@@ -14,7 +14,6 @@ const sidebarStatus = ref(false);
       '工作台',
   ])
   const login = inject("login");
-  const url = inject("url");
   const router = useRouter();
   // 1 for header & access correspond, reset by access
 
@@ -23,7 +22,7 @@ const sidebarStatus = ref(false);
 
   onMounted(async() => {
     if (Cookies.get("token")) {
-      const session = await Post(url, {
+      const session = await Post({
         "Token": Cookies.get("token"),
         "Send": {
           "operation": "login",
@@ -43,7 +42,7 @@ const sidebarStatus = ref(false);
 
   onUnmounted(async() => {
     if (Cookies.get("token")) {
-      const session = await Post(url, {
+      const session = await Post({
         "Token": Cookies.get("token"),
         "Send": {
           "operation": "exit",
