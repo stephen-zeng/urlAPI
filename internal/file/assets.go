@@ -2,8 +2,8 @@ package file
 
 import "embed"
 
-//go:embed assets/logo/*
+//go:embed img/logo/*
 var LogoFS embed.FS
 
-//go:embed assets/icon/*
+//go:embed img/icon/*
 var IconFS embed.FS
