@@ -2,6 +2,6 @@ draft
 .idea
 .vscode
 *.db
-assets
+/assets
 urlAPI
 bin
