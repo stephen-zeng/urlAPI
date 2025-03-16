@@ -5,17 +5,17 @@ import (
 )
 
 var PartMap = map[string][]string{
-	"openai":     []string{"openai"},
-	"deepseek":   []string{"deepseek"},
-	"alibaba":    []string{"alibaba"},
-	"otherapi":   []string{"otherapi"},
-	"security":   []string{"dash", "dashallowedip", "allowedref"},
-	"txt":        []string{"txt", "txtgenenabled"},
-	"img":        []string{"img"},
-	"web":        []string{"web", "webimgallowed"},
-	"rand":       []string{"rand"},
-	"contxt":     []string{"context", "prompt"},
-	"taskExcept": []string{"taskexceptdomain"},
+	"openai":       []string{"openai"},
+	"deepseek":     []string{"deepseek"},
+	"alibaba":      []string{"alibaba"},
+	"otherapi":     []string{"otherapi"},
+	"security":     []string{"dash", "dashallowedip", "allowedref"},
+	"txt":          []string{"txt", "txtgenenabled"},
+	"img":          []string{"img"},
+	"web":          []string{"web", "webimgallowed"},
+	"rand":         []string{"rand"},
+	"contxt":       []string{"context", "prompt"},
+	"taskBehavior": []string{"taskexceptdomain"},
 }
 
 func fetchSetting(Part string) ([]string, [][]string, error) {

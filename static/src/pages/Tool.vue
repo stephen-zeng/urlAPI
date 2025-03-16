@@ -5,6 +5,7 @@
   import Security from "@/Components/Tool/Security.vue";
   import Rand from "@/Components/Tool/Rand.vue"
   import {onMounted, inject} from "vue";
+  import TaskBehavior from "@/Components/Tool/TaskBehavior.vue";
 
   const title = inject("title");
 
@@ -20,6 +21,7 @@
     <Image></Image>
     <Rand></Rand>
     <Web></Web>
+    <TaskBehavior></TaskBehavior>
   </mdui-layout-main>
 </template>
 
