@@ -67,6 +67,9 @@ func delTask(by, data string) error {
 // data中是by对应的值
 // 现在只有更改Status和Return的需要
 func editTask(by, data string, Status, Return, Size, API, Region string) error {
+	if data == "-1" {
+		return nil
+	}
 	err := db.Model(&Task{}).Where(by+"=?", data).Updates(Task{
 		Status: Status,
 		Return: Return,

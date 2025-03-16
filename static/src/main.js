@@ -12,8 +12,8 @@ const emitter = ref(0);
 const page = ref(1);
 const maxPage = ref(Infinity);
 
-// export const url = "http://localhost:2233/session"
-export const url = "/session"
+export const url = "http://localhost:2233/session"
+// export const url = "/session"
 
 app.provide("url", url)
 app.provide("title", title)

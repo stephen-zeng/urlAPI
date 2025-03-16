@@ -63,7 +63,7 @@ func downloadRequest() {
 		} else {
 			id = Md
 		}
-		err = security.NewRequest(security.SecurityConfig(
+		info, err := security.NewRequest(security.SecurityConfig(
 			security.WithIP(c.ClientIP()),
 			security.WithDomain(domain),
 			security.WithType("download"),
@@ -103,15 +103,17 @@ func downloadRequest() {
 		if err != nil {
 			log.Println("Region fetch failed")
 		}
-		_, err = data.NewTask(data.DataConfig(
-			data.WithTaskIP(c.ClientIP()),
-			data.WithTaskRegion(region.Region),
-			data.WithType("文件下载"),
-			data.WithTaskStatus("success"),
-			data.WithTaskTarget(id),
-			data.WithTaskReferer(referer.String()),
-			data.WithTaskDevice(device),
-		))
+		if info != "task.except" {
+			_, err = data.NewTask(data.DataConfig(
+				data.WithTaskIP(c.ClientIP()),
+				data.WithTaskRegion(region.Region),
+				data.WithType("文件下载"),
+				data.WithTaskStatus("success"),
+				data.WithTaskTarget(id),
+				data.WithTaskReferer(referer.String()),
+				data.WithTaskDevice(device),
+			))
+		}
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
@@ -284,7 +286,7 @@ func randRequest() {
 		user := c.Query("user")
 		repo := c.Query("repo")
 		device := getDeviceType(c.GetHeader("User-Agent"))
-		err = security.NewRequest(security.SecurityConfig(
+		info, err := security.NewRequest(security.SecurityConfig(
 			security.WithType("rand"),
 			security.WithAPI(api),
 			security.WithTarget(user+"/"+repo),
@@ -299,15 +301,24 @@ func randRequest() {
 		if err != nil {
 			log.Println("Region fetch failed")
 		}
-		id, err := data.NewTask(data.DataConfig(
-			data.WithAPI(api),
-			data.WithType("随机图片"),
-			data.WithTaskTarget(user+"/"+repo),
-			data.WithTaskRegion(region.Region),
-			data.WithTaskIP(c.ClientIP()),
-			data.WithTaskReferer(referer.String()),
-			data.WithTaskDevice(device),
-		))
+		var id string
+		if info == "task.except" {
+			id = "-1"
+		} else {
+			id, err = data.NewTask(data.DataConfig(
+				data.WithAPI(api),
+				data.WithType("随机图片"),
+				data.WithTaskTarget(user+"/"+repo),
+				data.WithTaskRegion(region.Region),
+				data.WithTaskIP(c.ClientIP()),
+				data.WithTaskReferer(referer.String()),
+				data.WithTaskDevice(device),
+			))
+			if err != nil {
+				log.Println(err)
+				c.Redirect(302, fallbackURL)
+			}
+		}
 		response, err := plugin.Request(plugin.PluginConfig(
 			plugin.WithAPI(api),
 			plugin.WithRepo(user+"/"+repo),

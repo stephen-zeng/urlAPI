@@ -42,7 +42,7 @@ func GenRequest(IP, From, Model, API, Target, Device string, Referer *url.URL) (
 			return TxtResponse{}, err
 		}
 	}
-	err = security.NewRequest(security.SecurityConfig(
+	info, err := security.NewRequest(security.SecurityConfig(
 		security.WithType("txt.gen"),
 		security.WithAPI(API),
 		security.WithTarget(Target),
@@ -94,16 +94,21 @@ func GenRequest(IP, From, Model, API, Target, Device string, Referer *url.URL) (
 	if err != nil {
 		log.Println("Region fetch failed")
 	}
-	id, err := data.NewTask(data.DataConfig(
-		data.WithType("文字生成"),
-		data.WithAPI(API),
-		data.WithTaskIP(IP),
-		data.WithTaskTarget(target),
-		data.WithTaskRegion(region.Region),
-		data.WithTaskModel(Model),
-		data.WithTaskReferer(Referer.String()),
-		data.WithTaskDevice(Device),
-	))
+	var id string
+	if info == "task.except" {
+		id = "-1"
+	} else {
+		id, err = data.NewTask(data.DataConfig(
+			data.WithType("文字生成"),
+			data.WithAPI(API),
+			data.WithTaskIP(IP),
+			data.WithTaskTarget(target),
+			data.WithTaskRegion(region.Region),
+			data.WithTaskModel(Model),
+			data.WithTaskReferer(Referer.String()),
+			data.WithTaskDevice(Device),
+		))
+	}
 	if err != nil {
 		return TxtResponse{}, err
 	}

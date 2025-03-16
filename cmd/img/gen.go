@@ -29,7 +29,7 @@ func GenRequest(IP, Model, API, Target, Size, From, Device string, Referer *url.
 			return ImgResponse{}, err
 		}
 	}
-	err = security.NewRequest(security.SecurityConfig(
+	info, err := security.NewRequest(security.SecurityConfig(
 		security.WithType("img.gen"),
 		security.WithDomain(Domain),
 		security.WithAPI(API),
@@ -86,17 +86,22 @@ func GenRequest(IP, Model, API, Target, Size, From, Device string, Referer *url.
 	if err != nil {
 		log.Println("Region fetch failed")
 	}
-	id, err := data.NewTask(data.DataConfig(
-		data.WithType("图片生成"),
-		data.WithAPI(API),
-		data.WithTaskIP(IP),
-		data.WithTaskTarget(Target),
-		data.WithTaskSize(Size),
-		data.WithTaskRegion(region.Region),
-		data.WithTaskModel(Model),
-		data.WithTaskReferer(Referer.String()),
-		data.WithTaskDevice(Device),
-	))
+	var id string
+	if info == "task.except" {
+		id = "-1"
+	} else {
+		id, err = data.NewTask(data.DataConfig(
+			data.WithType("图片生成"),
+			data.WithAPI(API),
+			data.WithTaskIP(IP),
+			data.WithTaskTarget(Target),
+			data.WithTaskSize(Size),
+			data.WithTaskRegion(region.Region),
+			data.WithTaskModel(Model),
+			data.WithTaskReferer(Referer.String()),
+			data.WithTaskDevice(Device),
+		))
+	}
 	if err != nil {
 		return ImgResponse{}, err
 	}

@@ -39,23 +39,42 @@ func frequencyCheck(IP, Type, Target string) error {
 	return nil
 }
 
-func sourceCheck(source string) error {
-	list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"allowedref"})))
-	if err != nil {
-		return err
-	}
-	for _, item := range list[0] {
-		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(item), `\*`, ".*") + "$"
+func domainMatchTest(domains []string, source string) (bool, error) {
+	for _, domain := range domains {
+		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(domain), `\*`, ".*") + "$"
 		match, err := regexp.MatchString(rgx, source)
 		if err != nil {
 			continue
 		}
 		if match {
-			return nil
+			return true, nil
 		}
 	}
+	return false, nil
+}
+
+func sourceCheck(source string) (string, error) {
+	var info string
+	list, err := data.FetchSetting(data.DataConfig(data.WithSettingName([]string{"taskexceptdomain", "allowedref"})))
+	if err != nil {
+		return "", err
+	}
+	match, err := domainMatchTest(list[0], source)
+	if err != nil {
+		return "", err
+	}
+	if match {
+		info = "task.except"
+	}
+	match, err = domainMatchTest(list[1], source)
+	if err != nil {
+		return "", err
+	}
+	if match {
+		return info, nil
+	}
 	log.Println("Source " + source + " is Not in whitelist.")
-	return errors.New("sourceCheck failed")
+	return "", errors.New("sourceCheck failed")
 }
 
 func txtCheck(Target, Type string) error {

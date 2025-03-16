@@ -44,7 +44,7 @@ func ImgRequest(IP, From, API, Target, Device string, Referer *url.URL) (WebResp
 	var expired = data.Expired
 	Domain := Referer.Hostname()
 	API = webMap[API] // github.com --> github
-	err := security.NewRequest(security.SecurityConfig(
+	info, err := security.NewRequest(security.SecurityConfig(
 		security.WithType("web.img"),
 		security.WithAPI(API),
 		security.WithDomain(Domain),
@@ -99,15 +99,20 @@ func ImgRequest(IP, From, API, Target, Device string, Referer *url.URL) (WebResp
 	if err != nil {
 		log.Println("Region fetch failed")
 	}
-	id, err := data.NewTask(data.DataConfig(
-		data.WithType("网站缩略图"),
-		data.WithAPI(API),
-		data.WithTaskIP(IP),
-		data.WithTaskTarget(Target),
-		data.WithTaskRegion(region.Region),
-		data.WithTaskReferer(Referer.String()),
-		data.WithTaskDevice(Device),
-	))
+	var id string
+	if info == "task.except" {
+		id = "-1"
+	} else {
+		id, err = data.NewTask(data.DataConfig(
+			data.WithType("网站缩略图"),
+			data.WithAPI(API),
+			data.WithTaskIP(IP),
+			data.WithTaskTarget(Target),
+			data.WithTaskRegion(region.Region),
+			data.WithTaskReferer(Referer.String()),
+			data.WithTaskDevice(Device),
+		))
+	}
 	var ret WebResponse
 	var token string
 	switch API {
