@@ -7,3 +7,4 @@ GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-st
 GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -o bin/urlAPI_v$1_windows_amd64.exe
 GOOS=windows GOARCH=arm64 CGO_ENABLED=1 CC=/opt/llvm-mingw/bin/aarch64-w64-mingw32-gcc go build -o bin/urlAPI_v$1_windows_arm64.exe
 
+
