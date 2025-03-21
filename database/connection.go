@@ -1,4 +1,4 @@
-package Database
+package database
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"urlAPI/Command"
+	"urlAPI/command"
 )
 
 var (
@@ -32,7 +32,7 @@ func connect() error {
 func Disconnect() {
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
-	log.Println("Disconnected from Database")
+	log.Println("Disconnected from database")
 }
 
 // 包括所有数据的初始化
@@ -40,7 +40,7 @@ func init() {
 	err := connect()
 	if err != nil {
 		log.Println(err)
-		Command.Exit()
+		command.Exit()
 	}
 
 }

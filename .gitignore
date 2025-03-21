@@ -2,6 +2,7 @@
 /assets
 /bin
 /note
+/json
 .idea
 .vscode
 *.db
