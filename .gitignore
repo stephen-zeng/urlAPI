@@ -1,9 +1,9 @@
-draft
+/draft
+/assets
+/bin
+/note
+/json
 .idea
 .vscode
 *.db
-/assets
-/note
-/json
 urlAPI
-bin
