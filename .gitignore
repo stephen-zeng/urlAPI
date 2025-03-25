@@ -3,5 +3,7 @@ draft
 .vscode
 *.db
 /assets
+/note
+/json
 urlAPI
 bin
