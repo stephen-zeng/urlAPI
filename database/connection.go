@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,22 +11,17 @@ import (
 	"urlAPI/command"
 )
 
-var (
-	dbPath string = "assets/database.db"
-	db     *gorm.DB
-)
-
-func connect() error {
+func connect() {
 	var err error
 	os.Mkdir("assets", 0777)
 	tmp, _ := sql.Open("sqlite3", dbPath)
 	tmp.Close()
 	db, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		return errors.Join(errors.New("database connection"), err)
+		log.Println(errors.Join(errors.New("database connection"), err))
+		command.Exit()
 	} else {
 		log.Println("Connected to database")
-		return nil
 	}
 }
 
@@ -35,12 +31,27 @@ func Disconnect() {
 	log.Println("Disconnected from database")
 }
 
-// 包括所有数据的初始化
-func init() {
-	err := connect()
+func initMap() {
+	var settings []Setting
+	err := db.Where(1).Find(&settings).Error
 	if err != nil {
-		log.Println(err)
+		log.Println(errors.Join(errors.New("dataMap init"), err))
 		command.Exit()
 	}
+	for _, setting := range settings {
+		var settingList []string
+		err = json.Unmarshal([]byte(setting.Value), &settingList)
+		if err != nil {
+			log.Println(errors.Join(errors.New("dataMap init"), err))
+			command.Exit()
+		}
+		SettingMap[setting.Name] = settingList
+	}
+	log.Println("Initialized dataMap")
+}
 
+// 包括所有数据的初始化
+func init() {
+	connect()
+	initMap()
 }

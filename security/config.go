@@ -1,13 +1,26 @@
 package security
 
-type General struct {
-	Referer string `json:"referer"` //Complete Referer
-	IP      string `json:"ip"`
-	Type    string `json:"type"`
-	Target  string `json:"target"`
-	Checked bool   `json:"checked"`
-	SkipDB  bool   `json:"skip_db"`
+import "time"
+
+type Interface interface {
+	FrequencyChecker()
+	RefererChecker()
+	ExceptionChecker()
+	APIChecker(general *General)
+	FunctionChecker(general *General)
 }
+
+type General struct {
+	Referer string    `json:"referer"` //Complete Referer
+	IP      string    `json:"ip"`
+	Type    string    `json:"type"`
+	Target  string    `json:"target"`
+	Time    time.Time `json:"time"`
+	Unsafe  bool      `json:"unsafe"`
+	SkipDB  bool      `json:"skip_db"`
+	Info    string    `json:"info"`
+}
+
 type TxtGen struct {
 	API    string `json:"api"`
 	Model  string `json:"model"`

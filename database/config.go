@@ -1,8 +1,17 @@
 package database
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
-type DBInterface interface { //丢进来一个struct，然后就可以用这些方法了
+var (
+	dbPath     string = "assets/database.db"
+	db         *gorm.DB
+	SettingMap map[string][]string
+)
+
+type Interface interface { //丢进来一个struct，然后就可以用这些方法了
 	Create() error
 	Update() error
 	Read() (*DBList, error)
@@ -23,6 +32,7 @@ type Session struct {
 }
 
 type Task struct {
+	// all
 	UUID    string    `json:"uuid" gorm:"primary_key"`
 	Time    time.Time `json:"time"`
 	IP      string    `json:"ip"`
@@ -30,12 +40,17 @@ type Task struct {
 	Status  string    `json:"status"`
 	Target  string    `json:"target"`
 	Return  string    `json:"return"`
-	Size    string    `json:"size"`
-	API     string    `json:"api"`
 	Region  string    `json:"region"`
-	Model   string    `json:"model"`
 	Referer string    `json:"referer"`
 	Device  string    `json:"device"`
+	//txt, img, web, rand
+	API string `json:"api"`
+
+	// txt, img
+	Model string `json:"model"`
+
+	// img
+	Size string `json:"size"`
 }
 
 type Setting struct {

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -26,6 +27,12 @@ func (setting *Setting) Update() error {
 	if err != nil {
 		return errors.Join(errors.New("Setting update"), err)
 	}
+	var tmp []string
+	err = json.Unmarshal([]byte(setting.Value), &tmp)
+	if err != nil {
+		return errors.Join(errors.New("Setting update"), err)
+	}
+	SettingMap[setting.Name] = tmp
 	return nil
 }
 
