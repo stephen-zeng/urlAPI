@@ -1,6 +1,21 @@
 package processor
 
-import "urlAPI/database"
+import (
+	"os"
+	"urlAPI/database"
+)
+
+var (
+	ImgPath string = "/assets/img"
+)
+
+func init() {
+	os.MkdirAll(ImgPath, 0777)
+}
+
+type Interface interface {
+	Process(data *database.Task) error
+}
 
 type Dashboard struct {
 	// backend -> frontend
@@ -25,12 +40,36 @@ type Dashboard struct {
 	SettingPart string `json:"setting_part"`
 }
 
-type API struct {
-	IP      string `json:"ip"`
-	Target  string `json:"target"`
+type Download struct {
+	Target      string `json:"target"`
+	ReturnError string `json:"return_error"`
+	Return      []byte `json:"return"`
+}
+
+type TxtGen struct {
+	API    string `json:"api"`
+	Model  string `json:"model"`
+	Target string `json:"target"`
+	Return string `json:"return"` // 这里是已经序列号好的json
+}
+
+type TxtSum struct {
+	TxtGen
+}
+
+type ImgGen struct {
+	TxtGen
+	Size string `json:"size"`
+}
+
+type WebImg struct {
 	API     string `json:"api"`
-	Referer string `json:"referer"`
-	Device  string `json:"device"`
-	Size    string `json:"size"`
-	Type    string `json:"type"`
+	Target  string `json:"target"`
+	Summary TxtSum `json:"summary"`
+}
+
+type Rand struct {
+	API    string `json:"api"`
+	Target string `json:"target"`
+	Return string `json:"return"`
 }

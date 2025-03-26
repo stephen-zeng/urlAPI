@@ -8,11 +8,17 @@ import (
 
 func (info *TxtGen) FunctionChecker(general *General) {
 	txtgenenabled := database.SettingMap["txtgenenabled"]
+	var prompt string
+	if _, ok := database.PromptMap[info.Target]; ok {
+		prompt = info.Target
+	} else {
+		prompt = "other"
+	}
 	switch {
 	case database.SettingMap["txt"][0] != "true":
 		general.Info = "Txt is not enabled"
 		break
-	case !util.ListChecker(&txtgenenabled, &(info.Target)):
+	case !util.ListChecker(&txtgenenabled, &(prompt)):
 		general.Info = fmt.Sprintf("Target %s is not enabled", info.Target)
 		break
 	default:

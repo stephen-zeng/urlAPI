@@ -4,7 +4,7 @@ import "time"
 
 type Interface interface {
 	FrequencyChecker()
-	RefererChecker()
+	InfoChecker()
 	ExceptionChecker()
 	APIChecker(general *General)
 	FunctionChecker(general *General)

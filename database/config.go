@@ -6,9 +6,14 @@ import (
 )
 
 var (
-	dbPath     string = "assets/database.db"
+	dbPath     = "assets/database.db"
 	db         *gorm.DB
 	SettingMap map[string][]string
+	PromptMap  = map[string]int{
+		"laugh":    0,
+		"poem":     1,
+		"sentence": 2,
+	}
 )
 
 type Interface interface { //丢进来一个struct，然后就可以用这些方法了

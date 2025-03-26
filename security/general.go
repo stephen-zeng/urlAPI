@@ -21,7 +21,11 @@ func (info *General) FrequencyChecker() {
 	}
 }
 
-func (info *General) RefererChecker() {
+func (info *General) InfoChecker() {
+	if info.Target == "" {
+		info.Info = "Empty Target"
+		info.Unsafe = true
+	}
 	allowedref := database.SettingMap["allowedref"]
 	if !util.RefererChecker(&allowedref, &(info.Referer)) || info.Referer == "" {
 		info.Info = "Referer not allowed"

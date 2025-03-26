@@ -3,6 +3,12 @@ package request
 import "urlAPI/processor"
 
 type Processor struct {
-	API       processor.API
 	Dashboard processor.Dashboard
+	Download  processor.Download
+	TxtSum    processor.TxtSum
+	TxtGen    processor.TxtGen
+	ImgGen    processor.ImgGen
+	WebImg    processor.WebImg
+	Rand      processor.Rand
+	Operation processor.Interface
 }
