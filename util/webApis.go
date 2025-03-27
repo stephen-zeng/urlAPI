@@ -95,7 +95,7 @@ func Ytb(ID, Token string) ([]byte, error) {
 	return ret, nil
 }
 
-func Arxiv(URL, From, UUID string) ([]byte, error) {
+func Arxiv(URL string) ([]byte, error) {
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
 		return nil, errors.Join(errors.New("Util Arxiv"), err)
@@ -157,9 +157,11 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 	return ret, nil
 }
 
-func Repo(URL string, From, UUID, Token string) ([]byte, error) {
+func Repo(URL string, Token string) ([]byte, error) {
+	URL = strings.ReplaceAll(URL, "https://github.com", "https://api.github.com/repos")
+	URL = strings.ReplaceAll(URL, "https://gitee.com", "https://gitee.com/api/v5/repos")
 	req, err := http.NewRequest("GET", URL, nil)
-	if Token != "" {
+	if Token != "" && strings.HasPrefix(URL, "https://api.github.com/repos") {
 		req.Header.Set("Authorization", "Bearer "+Token)
 	}
 	if err != nil {

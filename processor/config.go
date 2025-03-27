@@ -6,11 +6,34 @@ import (
 )
 
 var (
-	ImgPath string = "/assets/img"
+	ImgPath   = "/assets/img/"
+	WebImgMap = map[string]string{
+		"github.com":       "github",
+		"gitee.com":        "gitee",
+		"www.bilibili.com": "bilibili",
+		"www.youtube.com":  "youtube",
+		"arxiv.org":        "arxiv",
+		"www.ithome.com":   "ithome",
+	}
 )
 
 func init() {
 	os.MkdirAll(ImgPath, 0777)
+}
+
+func getEndpoint(api string) string {
+	switch api {
+	case "openai":
+		return database.SettingMap["openai"][5]
+	case "alibaba":
+		return "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+	case "otherapi":
+		return database.SettingMap["otherapi"][4]
+	case "deepseek":
+		return "https://api.deepseek.com/chat/completions"
+	default:
+		return ""
+	}
 }
 
 type Interface interface {
@@ -50,7 +73,9 @@ type TxtGen struct {
 	API    string `json:"api"`
 	Model  string `json:"model"`
 	Target string `json:"target"`
-	Return string `json:"return"` // 这里是已经序列号好的json
+	Type   string `json:"type"`
+	Return string `json:"return"` // 这里是已经序列号好的json或者URL地址
+	Host   string `json:"host"`
 }
 
 type TxtSum struct {
@@ -63,9 +88,10 @@ type ImgGen struct {
 }
 
 type WebImg struct {
-	API     string `json:"api"`
-	Target  string `json:"target"`
-	Summary TxtSum `json:"summary"`
+	API    string `json:"api"`
+	Target string `json:"target"`
+	Host   string `json:"host"`
+	Return string `json:"return"`
 }
 
 type Rand struct {

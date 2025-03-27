@@ -13,11 +13,6 @@ import (
 
 func (info *ImgGen) Process(data *database.Task) error {
 	info.Return = database.SettingMap["img"][3]
-	if info.Target == "" {
-		data.Status = "failed"
-		data.Return = "Imggen Process empty target"
-		return errors.New("Imggen Process empty target")
-	}
 	if info.API == "" {
 		info.API = database.SettingMap["img"][1]
 		data.API = info.API
@@ -67,5 +62,7 @@ func (info *ImgGen) Process(data *database.Task) error {
 	}
 	data.Return = prompt + "UUID: " + id
 	data.Status = "success"
+	info.Return = info.Host + "/download?img=" + id
+	defer file.Close()
 	return nil
 }

@@ -62,12 +62,16 @@ func (info *Rand) FunctionChecker(general *General) {
 
 func (info *WebImg) FunctionChecker(general *General) {
 	webimgallowed := database.SettingMap["webimgallowed"]
+
 	switch {
 	case database.SettingMap["web"][0] != "true":
 		general.Info = "WebImg is not enabled"
 		break
 	case !util.ListChecker(&webimgallowed, &(info.API)):
 		general.Info = fmt.Sprintf("API %s is not enabled", info.API)
+		break
+	case info.API == "ithome" && database.SettingMap["txt"][0] != "true":
+		general.Info = "For ITHome, TxtSum is not enabled"
 		break
 	default:
 		return
