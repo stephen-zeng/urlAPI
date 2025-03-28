@@ -70,7 +70,7 @@ func (info *WebImg) FunctionChecker(general *General) {
 	case !util.ListChecker(&webimgallowed, &(info.API)):
 		general.Info = fmt.Sprintf("API %s is not enabled", info.API)
 		break
-	case info.API == "ithome" && database.SettingMap["txt"][0] != "true":
+	case info.API == "www.ithome.com" && database.SettingMap["txt"][0] != "true":
 		general.Info = "For ITHome, TxtSum is not enabled"
 		break
 	default:

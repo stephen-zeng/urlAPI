@@ -24,8 +24,10 @@ func downloadHandler(c *gin.Context) {
 		})
 		return
 	}
-	donwloadProcessor(&downloadRequest)
-	downloadTaskSaver(&downloadRequest)
+	if err := downloadRequest.Processor.Download.Process(&downloadRequest.DB.Task); err != nil {
+		log.Println(err)
+	}
+	taskSaver(&downloadRequest)
 	downloadReturn(c, &downloadRequest)
 	return
 }
@@ -59,29 +61,9 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 }
 
 func downloadChecker(r *request.Request) {
-	r.Security.Operation = &r.Security.General
-	r.Security.Operation.FrequencyChecker()
-	r.Security.Operation.InfoChecker()
-	r.Security.Operation.ExceptionChecker()
-}
-
-func donwloadProcessor(r *request.Request) {
-	r.Processor.Operation = &r.Processor.Download
-	err := r.Processor.Operation.Process(&r.DB.Task)
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func downloadTaskSaver(r *request.Request) {
-	if r.Security.General.SkipDB {
-		return
-	}
-	r.DB.Operation = &r.DB.Task
-	err := r.DB.Operation.Create()
-	if err != nil {
-		log.Println(err)
-	}
+	r.Security.General.FrequencyChecker()
+	r.Security.General.InfoChecker()
+	r.Security.General.ExceptionChecker()
 }
 
 func downloadReturn(c *gin.Context, r *request.Request) {

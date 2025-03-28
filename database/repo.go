@@ -1,6 +1,7 @@
 package database
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
 )
@@ -26,6 +27,12 @@ func (repo *Repo) Update() error {
 	if err != nil {
 		return errors.Join(errors.New("Repo Update"), err)
 	}
+	var tmp []string
+	err = json.Unmarshal([]byte(repo.Content), &tmp)
+	if err != nil {
+		return errors.Join(errors.New("Repo update"), err)
+	}
+	RepoMap[repo.API+";"+repo.Info] = tmp
 	return nil
 }
 
@@ -38,7 +45,10 @@ func (repo *Repo) Read() (*DBList, error) {
 	case repo.API != "":
 		err = db.Where("api=? AND info=?", repo.API, repo.Info).Find(&repos).Error
 	default:
-		err = errors.New("No valid Filter")
+		err = db.Where(1).Find(&repos).Error
+	}
+	if len(repos) == 0 {
+		err = errors.New("No Repo Found")
 	}
 	if err != nil {
 		return nil, errors.Join(errors.New("Repo Read"), err)
@@ -53,5 +63,6 @@ func (repo *Repo) Delete() error {
 	if err != nil {
 		return errors.Join(errors.New("Repo Delete"), err)
 	}
+	delete(RepoMap, repo.API+";"+repo.Info)
 	return nil
 }

@@ -31,27 +31,61 @@ func Disconnect() {
 	log.Println("Disconnected from database")
 }
 
-func initMap() {
+func initSettingMap() {
 	var settings []Setting
 	err := db.Where(1).Find(&settings).Error
 	if err != nil {
-		log.Println(errors.Join(errors.New("dataMap init"), err))
+		log.Println(errors.Join(errors.New("SettingMap init"), err))
 		command.Exit()
 	}
 	for _, setting := range settings {
 		var settingList []string
 		err = json.Unmarshal([]byte(setting.Value), &settingList)
 		if err != nil {
-			log.Println(errors.Join(errors.New("dataMap init"), err))
+			log.Println(errors.Join(errors.New("SettingMap init"), err))
 			command.Exit()
 		}
 		SettingMap[setting.Name] = settingList
 	}
-	log.Println("Initialized dataMap")
+	log.Println("Initialized SettingMap")
+}
+
+func initRepoMap() {
+	var repos []Repo
+	err := db.Where(1).Find(&repos).Error
+	if err != nil {
+		log.Println(errors.Join(errors.New("RepoMap init"), err))
+		command.Exit()
+	}
+	for _, repo := range repos {
+		var repoList []string
+		err = json.Unmarshal([]byte(repo.Content), &repoList)
+		if err != nil {
+			log.Println(errors.Join(errors.New("RepoMap init"), err))
+			command.Exit()
+		}
+		RepoMap[repo.API+";"+repo.Info] = repoList
+	}
+	log.Println("Initialized RepoMap")
+}
+
+func initSessionMap() {
+	var sessions []Session
+	err := db.Where(1).Find(&sessions).Error
+	if err != nil {
+		log.Println(errors.Join(errors.New("SessionMap init"), err))
+		command.Exit()
+	}
+	for _, session := range sessions {
+		SessionMap[session.Token] = session
+	}
+	log.Println("Initialized SessionMap")
 }
 
 // 包括所有数据的初始化
 func init() {
 	connect()
-	initMap()
+	initSettingMap()
+	initRepoMap()
+	initSessionMap()
 }

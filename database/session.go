@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"time"
 )
 
 func sessionInit() error {
@@ -46,5 +45,6 @@ func (session *Session) Delete() error {
 	if err != nil {
 		return errors.Join(errors.New("Session delete"), err)
 	}
+	delete(SessionMap, session.Token)
 	return nil
 }

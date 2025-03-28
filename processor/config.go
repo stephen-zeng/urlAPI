@@ -40,13 +40,14 @@ type Interface interface {
 	Process(data *database.Task) error
 }
 
-type Dashboard struct {
+type Session struct {
 	// backend -> frontend
 	SessionToken string          `json:"session_token"`
 	SessionIP    string          `json:"session_ip"`
 	SettingName  []string        `json:"setting_name"`
 	SettingData  [][]string      `json:"setting_data"`
 	TaskData     []database.Task `json:"task_data"`
+	TaskMaxPage  int             `json:"task_max_page"`
 	RepoData     []database.Repo `json:"repo_data"`
 
 	// frontend -> backend
@@ -55,6 +56,7 @@ type Dashboard struct {
 	SettingEdit  [][]string `json:"setting_edit"`
 	TaskCatagory string     `json:"task_catagory"`
 	TaskBy       string     `json:"task_by"`
+	TaskPage     int        `json:"task_page"`
 	RepoAPI      string     `json:"repo_api"`
 	RepoInfo     string     `json:"repo_info"`
 	RepoUUID     string     `json:"repo_uuid"`
@@ -73,18 +75,17 @@ type TxtGen struct {
 	API    string `json:"api"`
 	Model  string `json:"model"`
 	Target string `json:"target"`
-	Type   string `json:"type"`
 	Return string `json:"return"` // 这里是已经序列号好的json或者URL地址
 	Host   string `json:"host"`
 }
 
-type TxtSum struct {
-	TxtGen
-}
-
 type ImgGen struct {
-	TxtGen
-	Size string `json:"size"`
+	API    string `json:"api"`
+	Model  string `json:"model"`
+	Target string `json:"target"`
+	Return string `json:"return"` // 这里是已经序列号好的json或者URL地址
+	Host   string `json:"host"`
+	Size   string `json:"size"`
 }
 
 type WebImg struct {

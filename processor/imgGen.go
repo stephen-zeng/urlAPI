@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"os"
 	"urlAPI/database"
@@ -27,12 +26,11 @@ func (info *ImgGen) Process(data *database.Task) error {
 	}
 	token := database.SettingMap[info.API][0]
 	var img []byte
-	var prompt string
+	prompt := info.Target
 	var err error
 	switch info.API {
 	case "alibaba":
 		img, prompt, err = util.AlibabaImg(token, info.Target, info.Model, info.Size)
-		prompt = fmt.Sprintf(`原始Prompt："%s"，实际Prompt："%s"。`, info.Target, prompt)
 	case "openai":
 		prompt = fmt.Sprintf(`Prompt："%s"。`, info.Target)
 		img, err = util.OpenaiImg(database.SettingMap["openai"][5],
@@ -47,8 +45,7 @@ func (info *ImgGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.New("Imggen Process " + err.Error())
 	}
-	id := uuid.New().String()
-	file, err := os.Create(ImgPath + id + ".png")
+	file, err := os.Create(ImgPath + data.UUID + ".png")
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
@@ -60,9 +57,9 @@ func (info *ImgGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.New("Imggen Process " + err.Error())
 	}
-	data.Return = prompt + "UUID: " + id
+	data.Return = fmt.Sprintf(`{"original_prompt"：%s, "actual_prompt"：%s, "url": %s}`, info.Target, prompt, info.Host+"/download?img="+data.UUID)
 	data.Status = "success"
-	info.Return = info.Host + "/download?img=" + id
+	info.Return = info.Host + "/download?img=" + data.UUID
 	defer file.Close()
 	return nil
 }

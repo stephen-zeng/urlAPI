@@ -60,3 +60,28 @@ func Downloader(url string) ([]byte, error) {
 		return ret, nil
 	}
 }
+
+func GetRepo(url string) ([]string, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, errors.Join(errors.New("Util GetRepo"), err)
+	}
+	resp, err := GlobalHTTPClient.Do(req)
+	if err != nil {
+		return nil, errors.Join(errors.New("Util GetRepo"), err)
+	}
+	defer resp.Body.Close()
+	jsonResponse, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.Join(errors.New("Util GetRepo"), err)
+	}
+	var response []RepoContentResp
+	if err = json.Unmarshal(jsonResponse, &response); err != nil {
+		return nil, errors.Join(errors.New("Util GetRepo"), err)
+	}
+	var ret []string
+	for _, repo := range response {
+		ret = append(ret, repo.DownloadURL)
+	}
+	return ret, nil
+}

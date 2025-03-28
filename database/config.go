@@ -14,6 +14,8 @@ var (
 		"poem":     1,
 		"sentence": 2,
 	}
+	RepoMap    map[string][]string
+	SessionMap map[string]Session
 )
 
 type Interface interface { //丢进来一个struct，然后就可以用这些方法了

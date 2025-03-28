@@ -59,7 +59,6 @@ type RegionResp struct {
 var TypeMap = map[string]string{
 	"download": "文件下载",
 	"txt.gen":  "文字生成",
-	"txt.sum":  "文字总结",
 	"img.gen":  "图片生成",
 	"rand":     "随机图片",
 	"web.img":  "网页缩略图",
@@ -164,4 +163,8 @@ type RepoResp struct {
 	Description     string  `json:"description"`
 	ForksCount      float64 `json:"forks_count"`
 	StargazersCount float64 `json:"stargazers_count"`
+}
+
+type RepoContentResp struct {
+	DownloadURL string `json:"download_url"`
 }

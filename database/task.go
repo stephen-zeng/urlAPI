@@ -2,9 +2,9 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"reflect"
-	"time"
 )
 
 func taskInit() error {
@@ -35,32 +35,31 @@ func (task *Task) Update() error {
 func (task *Task) Read() (*DBList, error) {
 	var tasks []Task
 	var err error
-	var field string
-	var value interface{}
-	val := reflect.ValueOf(task)
-	if val.Kind() == reflect.Struct {
-		for i := 0; i < val.NumField(); i++ {
-			valField := val.Type().Field(i).Tag.Get("json")
-			valValue := val.Field(i)
-			if !valValue.IsNil() {
-				field = valField
-				value = valValue.Interface()
-				break
-			}
-		}
-	}
-	switch field {
-	case "":
-		err = db.Where(1).Find(&tasks).Error
-	case "time":
-		start := value.(time.Time)
+	var query string
+	if !task.Time.IsZero() {
+		start := task.Time
 		end := start.AddDate(0, 1, 0)
 		err = db.Where("time >= ? AND time <= ?", start, end).Find(&tasks).Error
-	default:
-		if value.(string) == "none" {
-			err = db.Where("?=? OR ? IS NULL", field, "", field).Find(&tasks).Error
+	} else {
+		val := reflect.ValueOf(task)
+		if val.Kind() == reflect.Struct {
+			for i := 0; i < val.NumField(); i++ {
+				field := val.Type().Field(i).Tag.Get("json")
+				value := val.Field(i)
+				if value.IsNil() {
+					continue
+				}
+				if value.Interface().(string) == "N/A" {
+					query += fmt.Sprintf("(%s = %s OR %s IS NULL) AND ", field, "", field)
+				} else {
+					query += fmt.Sprintf("(%s = %s) AND ", field, value.Interface().(string))
+				}
+			}
+		}
+		if query == "" {
+			err = db.Where(1).Find(&tasks).Error
 		} else {
-			err = db.Where("?=?", field, value.(string)).Find(&tasks).Error
+			err = db.Where(query[:len(query)-5]).Find(&tasks).Error
 		}
 	}
 	if err != nil {

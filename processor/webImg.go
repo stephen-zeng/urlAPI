@@ -3,7 +3,7 @@ package processor
 import (
 	"bytes"
 	"errors"
-	"github.com/google/uuid"
+	"fmt"
 	"io"
 	"net/url"
 	"os"
@@ -46,33 +46,32 @@ func (info *WebImg) Process(data *database.Task) error {
 	info.API = WebImgMap[urlParse.Host]
 	data.API = info.API
 	switch info.API {
-	case "bilibili":
+	case "www.bilibili.com":
 		img, err = util.Bili(getBiliABV(info.Target))
-	case "ytb":
+	case "www.youtube.com":
 		if len(database.SettingMap["web"]) < 7 {
 			err = errors.Join(errors.New("Processor WebImg Not valid ytb token"))
 			break
 		}
 		token := database.SettingMap["web"][6]
 		img, err = util.Ytb(getYtbID(info.Target), token)
-	case "arxiv":
+	case "arxiv.org":
 		img, err = util.Arxiv(info.Target)
-	case "ITHome":
+	case "www.ithome.com":
 		api := database.SettingMap["txt"][1]
 		token := database.SettingMap[api][0]
 		model := database.SettingMap[api][2]
 		context := database.SettingMap["context"][1]
 		endpoint := getEndpoint(api)
 		img, err = util.ITHome(info.Target, endpoint, token, model, context)
-	case "Repo":
+	case "github.com", "gitee.com":
 		token := ""
 		if len(database.SettingMap["token"]) > 5 {
 			token = database.SettingMap["token"][5]
 		}
 		img, err = util.Repo(info.Target, token)
 	}
-	id := uuid.New().String()
-	file, err := os.Create(ImgPath + id + ".png")
+	file, err := os.Create(ImgPath + data.UUID + ".png")
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
@@ -86,7 +85,7 @@ func (info *WebImg) Process(data *database.Task) error {
 		return errors.Join(errors.New("Processor WebImg"), err)
 	}
 	data.Status = "success"
-	data.Return = id
-	info.Return = info.Host + "/download?img=" + id + ".png"
+	data.Return = fmt.Sprintf(`{"url": %s}`, info.Host+"/download?img="+data.UUID)
+	info.Return = info.Host + "/download?img=" + data.UUID
 	return nil
 }

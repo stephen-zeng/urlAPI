@@ -13,7 +13,7 @@ type Interface interface {
 type General struct {
 	Referer string    `json:"referer"` //Complete Referer
 	IP      string    `json:"ip"`
-	Type    string    `json:"type"`
+	Type    string    `json:"type"` // 任务类型
 	Target  string    `json:"target"`
 	Time    time.Time `json:"time"`
 	Unsafe  bool      `json:"unsafe"`

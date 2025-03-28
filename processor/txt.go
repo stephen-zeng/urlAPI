@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"os"
 	"urlAPI/database"
@@ -37,20 +36,13 @@ func (info *TxtGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor Txt"), err)
 	}
-	if info.Type == "json" {
-		data.Status = "success"
-		data.Return = response
-		info.Return = data.Return
-		return nil
-	}
 	img, err := util.DrawTxt(response)
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor Txt"), err)
 	}
-	id := uuid.New().String()
-	file, err := os.Create(ImgPath + id + ".png")
+	file, err := os.Create(ImgPath + data.UUID + ".png")
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
@@ -62,9 +54,9 @@ func (info *TxtGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor Txt"), err)
 	}
-	data.Return = fmt.Sprintf(`Prompt: %s, UUID: %s`, info.Target, id)
+	data.Return = fmt.Sprintf(`{"prompt": %s, "response": %s, "url": %s`, info.Target, response, info.Host+"/download?img="+data.UUID)
 	data.Status = "success"
-	info.Return = info.Host + "/download?img=" + id
+	info.Return = info.Host + "/download?img=" + data.UUID
 	defer file.Close()
 	return nil
 }
