@@ -51,6 +51,9 @@
           <mdui-text-field variant="outlined" label="API Key" type="password" toggle-password
                            :value="settings?settings[0][0]:''"
                            @change="settings[0][0] = $event.target.value"></mdui-text-field>
+          <mdui-text-field variant="outlined" label="API地址"
+                           :value="settings?settings[0][5]:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions'"
+                           @change="settings[0][5] = $event.target.value"></mdui-text-field>
           <p>默认文字生成模型</p>
           <mdui-radio-group :value="settings?settings[0][1]:'qwen-plus'"
                             @change="settings[0][1]=$event.target.value"

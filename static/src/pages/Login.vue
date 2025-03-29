@@ -13,7 +13,7 @@ async function login() {
   const session = await Post({
     "Token": sha256(pwd.value),
     "Send": {
-      "operation": "loigin",
+      "operation": "login",
       "login_term": term.value,
     }
   })

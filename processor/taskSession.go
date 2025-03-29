@@ -8,7 +8,7 @@ import (
 
 func fetchTask(info *Session, data *database.Session) error {
 	var taskGetter database.Task
-	v := reflect.ValueOf(taskGetter).Elem()
+	v := reflect.ValueOf(&taskGetter).Elem()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		tag := field.Tag.Get("json")

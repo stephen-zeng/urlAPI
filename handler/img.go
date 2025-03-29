@@ -2,9 +2,11 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
-	"net/url"
+	"os"
+	"strconv"
 	"time"
 	"urlAPI/database"
 	"urlAPI/processor"
@@ -18,17 +20,47 @@ func imgHandler(c *gin.Context) {
 	imgBuilder(c, &imgRequest)
 	imgChecker(&imgRequest)
 	if imgRequest.Security.General.Unsafe {
+		log.Println(imgRequest.Security.General.Info)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": imgRequest.Security.General.Info,
 		})
 		return
 	}
-	if err := imgRequest.Processor.Download.Process(&imgRequest.DB.Task); err != nil {
+	if imgOldTask(&imgRequest) {
+		returner(c, imgRequest.DB.Task.Return, imgRequest.Processor.ImgGen.Return)
+		return
+	}
+	if err := imgRequest.Processor.ImgGen.Process(&imgRequest.DB.Task); err != nil {
 		log.Println(err)
 	}
 	taskSaver(&imgRequest)
 	returner(c, imgRequest.DB.Task.Return, imgRequest.Processor.ImgGen.Return)
 	return
+}
+
+func imgOldTask(r *request.Request) bool {
+	var hasOldTask bool
+	expireTime, _ := strconv.Atoi(database.SettingMap["img"][2])
+	taskFinder := database.Task{
+		Target: r.DB.Task.Target,
+		Type:   r.DB.Task.Type,
+		Status: "success",
+	}
+	taskDBList, err := taskFinder.Read()
+	if err != nil {
+		log.Printf("Handler imgHandler %s", err.Error())
+		return false
+	}
+	for _, task := range taskDBList.TaskList {
+		if time.Now().Sub(task.Time) <= time.Duration(expireTime)*time.Minute {
+			hasOldTask = true
+			r.Processor.ImgGen.Return = r.Processor.ImgGen.Host + "/download?img=" + task.UUID
+			r.DB.Task.Return = task.Return
+		} else {
+			os.Remove(processor.ImgPath + task.UUID + ".png")
+		}
+	}
+	return hasOldTask
 }
 
 func imgChecker(r *request.Request) {
@@ -41,8 +73,7 @@ func imgChecker(r *request.Request) {
 
 func imgBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
-	urlParse, _ := url.Parse(referer)
-	host := getScheme(c) + urlParse.Host
+	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
@@ -63,6 +94,7 @@ func imgBuilder(c *gin.Context, r *request.Request) {
 		Model: model,
 	}
 	r.DB.Task = database.Task{
+		UUID:    uuid.New().String(),
 		Time:    time.Now(),
 		IP:      ip,
 		Type:    util.TypeMap["img.gen"],

@@ -23,5 +23,6 @@ func (info *Rand) Process(data *database.Task) error {
 	index := rand.Intn(length)
 	info.Return = content[index]
 	data.Return = info.Return
+	data.Status = "success"
 	return nil
 }

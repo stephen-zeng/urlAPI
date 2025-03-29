@@ -2,9 +2,12 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"time"
 	"urlAPI/database"
 	"urlAPI/processor"
@@ -27,12 +30,17 @@ func webHandler(c *gin.Context) {
 	webBuilder(c, &webRequest)
 	webChecker(&webRequest)
 	if webRequest.Security.General.Unsafe {
+		log.Println(webRequest.Security.General.Info)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": webRequest.Security.General.Info,
 		})
 		return
 	}
-	if err := webRequest.Processor.Download.Process(&webRequest.DB.Task); err != nil {
+	if webOldTask(&webRequest) {
+		returner(c, webRequest.DB.Task.Return, webRequest.Processor.WebImg.Return)
+		return
+	}
+	if err := webRequest.Processor.WebImg.Process(&webRequest.DB.Task); err != nil {
 		log.Println(err)
 	}
 	taskSaver(&webRequest)
@@ -40,21 +48,44 @@ func webHandler(c *gin.Context) {
 	return
 }
 
+func webOldTask(r *request.Request) bool {
+	var hasOldTask bool
+	expireTime, _ := strconv.Atoi(database.SettingMap["web"][3])
+	taskFinder := database.Task{
+		Target: r.DB.Task.Target,
+		Type:   r.DB.Task.Type,
+		Status: "success",
+	}
+	taskDBList, err := taskFinder.Read()
+	if err != nil {
+		log.Printf("Handler webHandler %s", err.Error())
+		return false
+	}
+	for _, task := range taskDBList.TaskList {
+		if time.Now().Sub(task.Time) <= time.Duration(expireTime)*time.Minute {
+			hasOldTask = true
+			r.Processor.WebImg.Return = r.Processor.WebImg.Host + "/download?img=" + task.UUID
+			r.DB.Task.Return = task.Return
+		} else {
+			os.Remove(processor.ImgPath + task.UUID + ".png")
+		}
+	}
+	return hasOldTask
+}
+
 func webChecker(r *request.Request) {
 	r.Security.General.FrequencyChecker()
 	r.Security.General.InfoChecker()
 	r.Security.General.ExceptionChecker()
 	r.Security.WebImg.FunctionChecker(&r.Security.General)
-	r.Security.WebImg.APIChecker(&r.Security.General)
 }
 
 func webBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
-	urlParse, _ := url.Parse(referer)
-	host := getScheme(c) + urlParse.Host
+	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
 	target := c.Query("img")
-	urlParse, _ = url.Parse(target)
+	urlParse, _ := url.Parse(target)
 	api := urlParse.Host
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
@@ -69,6 +100,7 @@ func webBuilder(c *gin.Context, r *request.Request) {
 		API: api,
 	}
 	r.DB.Task = database.Task{
+		UUID:    uuid.New().String(),
 		Time:    time.Now(),
 		IP:      ip,
 		Type:    util.TypeMap["web.img"],

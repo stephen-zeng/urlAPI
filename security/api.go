@@ -6,7 +6,6 @@ var (
 	txt  = []string{"openai", "alibaba", "deepseek", "otherapi"}
 	img  = []string{"openai", "alibaba"}
 	rand = []string{"github", "gitee"}
-	web  = []string{"arxiv", "bilibili", "ithome", "github", "gitee", "youtube"}
 )
 
 //func (*General) APIChecker() {}
@@ -27,13 +26,6 @@ func (info *TxtSum) APIChecker(general *General) {
 
 func (info *ImgGen) APIChecker(general *General) {
 	if !(util.ListChecker(&img, &(info.API))) {
-		general.Info = "Invalid API"
-		general.Unsafe = true
-	}
-}
-
-func (info *WebImg) APIChecker(general *General) {
-	if !(util.ListChecker(&web, &(info.API))) {
 		general.Info = "Invalid API"
 		general.Unsafe = true
 	}

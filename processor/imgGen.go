@@ -32,7 +32,7 @@ func (info *ImgGen) Process(data *database.Task) error {
 	case "alibaba":
 		img, prompt, err = util.AlibabaImg(token, info.Target, info.Model, info.Size)
 	case "openai":
-		prompt = fmt.Sprintf(`Prompt："%s"。`, info.Target)
+		prompt = info.Target
 		img, err = util.OpenaiImg(database.SettingMap["openai"][5],
 			token, info.Target, info.Model, info.Size)
 	default:
@@ -57,7 +57,7 @@ func (info *ImgGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.New("Imggen Process " + err.Error())
 	}
-	data.Return = fmt.Sprintf(`{"original_prompt"：%s, "actual_prompt"：%s, "url": %s}`, info.Target, prompt, info.Host+"/download?img="+data.UUID)
+	data.Return = fmt.Sprintf(`{"original_prompt": "%s", "actual_prompt": "%s", "url": "%s"}`, info.Target, prompt, info.Host+"/download?img="+data.UUID)
 	data.Status = "success"
 	info.Return = info.Host + "/download?img=" + data.UUID
 	defer file.Close()

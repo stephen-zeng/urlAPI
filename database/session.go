@@ -4,19 +4,12 @@ import (
 	"errors"
 )
 
-func sessionInit() error {
-	err := db.AutoMigrate(&Session{})
-	if err != nil {
-		return errors.Join(errors.New("Session Init"), err)
-	}
-	return nil
-}
-
 func (session *Session) Create() error {
 	err := db.Create(&session).Error
 	if err != nil {
 		errors.Join(errors.New("Session create"), err)
 	}
+	SessionMap[session.Token] = *session
 	return nil
 
 }
@@ -26,18 +19,23 @@ func (session *Session) Update() error {
 	if err != nil {
 		errors.Join(errors.New("Session update"), err)
 	}
+	SessionMap[session.Token] = *session
 	return nil
 }
 
 func (session *Session) Read() (*DBList, error) {
 	var sessions []Session
-	err := db.Find(&sessions).Error
-	if err != nil {
-		return nil, errors.Join(errors.New("Session read"), err)
+	err := db.Where("token=?", session.Token).Find(&sessions).Error
+	if len(sessions) == 0 {
+		err = errors.New("No sessions found")
 	}
-	return &DBList{
+	ret := DBList{
 		SessionList: sessions,
-	}, nil
+	}
+	if err != nil {
+		return &ret, errors.Join(errors.New("Session read"), err)
+	}
+	return &ret, nil
 }
 
 func (session *Session) Delete() error {

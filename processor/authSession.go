@@ -27,7 +27,7 @@ func login(info *Session, data *database.Session) error {
 	session, ok = database.SessionMap[data.Token]
 	switch {
 	case !ok:
-		return errors.New("Invalid token")
+		return errors.New("Authentication failed")
 	case time.Now().After(session.Expire):
 		return errors.New("Expired token")
 	case ok && time.Now().Before(session.Expire):

@@ -6,15 +6,7 @@ import (
 )
 
 var (
-	ImgPath   = "/assets/img/"
-	WebImgMap = map[string]string{
-		"github.com":       "github",
-		"gitee.com":        "gitee",
-		"www.bilibili.com": "bilibili",
-		"www.youtube.com":  "youtube",
-		"arxiv.org":        "arxiv",
-		"www.ithome.com":   "ithome",
-	}
+	ImgPath = "assets/img/"
 )
 
 func init() {
@@ -26,11 +18,11 @@ func getEndpoint(api string) string {
 	case "openai":
 		return database.SettingMap["openai"][5]
 	case "alibaba":
-		return "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+		return database.SettingMap["alibaba"][5]
 	case "otherapi":
-		return database.SettingMap["otherapi"][4]
+		return database.SettingMap["otherapi"][3]
 	case "deepseek":
-		return "https://api.deepseek.com/chat/completions"
+		return database.SettingMap["deepseek"][3]
 	default:
 		return ""
 	}

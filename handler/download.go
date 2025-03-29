@@ -19,6 +19,7 @@ func downloadHandler(c *gin.Context) {
 	downloadRequestBuilder(c, &downloadRequest)
 	downloadChecker(&downloadRequest)
 	if downloadRequest.Security.General.Unsafe {
+		log.Println(downloadRequest.Security.General.Info)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": downloadRequest.Security.General.Info,
 		})

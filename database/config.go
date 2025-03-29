@@ -8,14 +8,14 @@ import (
 var (
 	dbPath     = "assets/database.db"
 	db         *gorm.DB
-	SettingMap map[string][]string
+	SettingMap = make(map[string][]string)
 	PromptMap  = map[string]int{
 		"laugh":    0,
 		"poem":     1,
 		"sentence": 2,
 	}
-	RepoMap    map[string][]string
-	SessionMap map[string]Session
+	RepoMap    = make(map[string][]string)
+	SessionMap = make(map[string]Session)
 )
 
 type Interface interface { //丢进来一个struct，然后就可以用这些方法了
@@ -26,21 +26,21 @@ type Interface interface { //丢进来一个struct，然后就可以用这些方
 }
 
 type Repo struct {
-	UUID    string `json:"uuid" gorm:"primary_key"`
+	UUID    string `json:"uuid" gorm:"primaryKey"`
 	API     string `json:"api"`
 	Info    string `json:"info"`
 	Content string `json:"content"`
 }
 
 type Session struct {
-	Token  string    `json:"token" gorm:"primary_key"`
+	Token  string    `json:"token" gorm:"primaryKey"`
 	Expire time.Time `json:"expire"`
 	Term   bool      `json:"term"`
 }
 
 type Task struct {
 	// all
-	UUID    string    `json:"uuid" gorm:"primary_key"`
+	UUID    string    `json:"uuid" gorm:"primaryKey"`
 	Time    time.Time `json:"time"`
 	IP      string    `json:"ip"`
 	Type    string    `json:"type"`
@@ -61,7 +61,7 @@ type Task struct {
 }
 
 type Setting struct {
-	Name  string `json:"name" gorm:"primary_key"`
+	Name  string `json:"name" gorm:"primaryKey"`
 	Value string `json:"value"`
 }
 

@@ -158,45 +158,52 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 }
 
 func Repo(URL string, Token string) ([]byte, error) {
-	URL = strings.ReplaceAll(URL, "https://github.com", "https://api.github.com/repos")
-	URL = strings.ReplaceAll(URL, "https://gitee.com", "https://gitee.com/api/v5/repos")
+	var logoURL string
+	switch {
+	case strings.HasPrefix(URL, "https://github.com"):
+		URL = strings.ReplaceAll(URL, "https://github.com", "https://api.github.com/repos")
+		logoURL = "logo/github_logo.png"
+	case strings.HasPrefix(URL, "https://gitee.com"):
+		URL = strings.ReplaceAll(URL, "https://gitee.com", "https://gitee.com/api/v5/repos")
+		logoURL = "logo/gitee_logo.png"
+	}
 	req, err := http.NewRequest("GET", URL, nil)
 	if Token != "" && strings.HasPrefix(URL, "https://api.github.com/repos") {
 		req.Header.Set("Authorization", "Bearer "+Token)
 	}
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Github"), err)
+		return nil, errors.Join(errors.New("Util Repo"), err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println("Error getting github repo info")
-		return nil, errors.Join(errors.New("Util Github"), err, errors.New(resp.Status))
+		log.Println(errors.Join(errors.New("Util Repo"), err, errors.New(resp.Status)))
+		return nil, errors.Join(errors.New("Util Repo"), err, errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Github"), err)
+		return nil, errors.Join(errors.New("Util Repo"), err)
 	}
 	var repo RepoResp
 	err = json.Unmarshal(jsonResp, &repo)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Github"), err)
+		return nil, errors.Join(errors.New("Util Repo"), err)
 	}
 	author := repo.Owner.Login
 	name := repo.Name
 	description := repo.Description
 	forkCount := getRepoCount(repo.ForksCount)
 	starCount := getRepoCount(repo.StargazersCount)
-	bgFile, err := file.Logos.Open("assets/logo/github_logo.png")
+	bgFile, err := file.Logos.Open(logoURL)
 	bgImg, err := png.Decode(bgFile)
 	if err != nil {
 		log.Println("Unable to decode github background image")
-		return nil, errors.Join(errors.New("Util Github"), err)
+		return nil, errors.Join(errors.New("Util Repo"), err)
 	}
 	ret, err := DrawRepo(bgImg, name, author, description, starCount, forkCount)
 	if err != nil {
 		log.Println("Error when drawing the img")
-		return nil, errors.Join(errors.New("Util Github"), err)
+		return nil, errors.Join(errors.New("Util Repo"), err)
 	}
 	return ret, nil
 }

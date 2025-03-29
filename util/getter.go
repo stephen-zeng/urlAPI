@@ -36,11 +36,11 @@ func GetRegion(ip string) string {
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
+	if err != nil || resp.StatusCode != http.StatusOK {
 		return "Unknown"
 	}
 	var response RegionResp
-	err = json.Unmarshal(jsonResp, &resp)
+	err = json.Unmarshal(jsonResp, &response)
 	if err != nil {
 		return "Unknown"
 	}

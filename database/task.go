@@ -2,21 +2,10 @@ package database
 
 import (
 	"errors"
-	"fmt"
-	"github.com/google/uuid"
 	"reflect"
 )
 
-func taskInit() error {
-	err := db.AutoMigrate(&Task{})
-	if err != nil {
-		return errors.Join(errors.New("Task Init"), err)
-	}
-	return nil
-}
-
 func (task *Task) Create() error {
-	task.UUID = uuid.New().String()
 	err := db.Create(task).Error
 	if err != nil {
 		return errors.Join(errors.New("Task Create"), err)
@@ -35,39 +24,36 @@ func (task *Task) Update() error {
 func (task *Task) Read() (*DBList, error) {
 	var tasks []Task
 	var err error
-	var query string
+	query := db.Model(&Task{})
 	if !task.Time.IsZero() {
 		start := task.Time
 		end := start.AddDate(0, 1, 0)
-		err = db.Where("time >= ? AND time <= ?", start, end).Find(&tasks).Error
+		query.Where("time >= ? AND time <= ?", start, end)
 	} else {
-		val := reflect.ValueOf(task)
+		val := reflect.ValueOf(*task)
 		if val.Kind() == reflect.Struct {
 			for i := 0; i < val.NumField(); i++ {
 				field := val.Type().Field(i).Tag.Get("json")
 				value := val.Field(i)
-				if value.IsNil() {
+				if value.IsZero() {
 					continue
 				}
 				if value.Interface().(string) == "N/A" {
-					query += fmt.Sprintf("(%s = %s OR %s IS NULL) AND ", field, "", field)
+					query.Where(field+"=? OR "+field+" IS NULL", "")
 				} else {
-					query += fmt.Sprintf("(%s = %s) AND ", field, value.Interface().(string))
+					query.Where(field+"=?", value.Interface().(string))
 				}
 			}
 		}
-		if query == "" {
-			err = db.Where(1).Find(&tasks).Error
-		} else {
-			err = db.Where(query[:len(query)-5]).Find(&tasks).Error
-		}
+	}
+	err = query.Find(&tasks).Error
+	ret := DBList{
+		TaskList: tasks,
 	}
 	if err != nil {
-		return nil, errors.Join(errors.New("Task Read"), err)
+		return &ret, errors.Join(errors.New("Task Read"), err)
 	}
-	return &DBList{
-		TaskList: tasks,
-	}, nil
+	return &ret, nil
 }
 
 func (task *Task) Delete() error {

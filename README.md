@@ -75,7 +75,7 @@
 # 启动设置
 启动参数（可选）
 + clear - 清空任务
-+ restore - 清空登录凭证，初始化设置
++ logout - 清空登录凭证
 + repwd - 重置后台登录密码
 + port .... - 将端口设置为....，默认端口是2233
 + clear_ip_restriction - 清除后台登录IP限制

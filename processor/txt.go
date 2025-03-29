@@ -21,6 +21,7 @@ func (info *TxtGen) Process(data *database.Task) error {
 	}
 	if info.Model == "" {
 		info.Model = database.SettingMap[info.API][1]
+		data.Model = info.Model
 	}
 	token := database.SettingMap[info.API][0]
 	context := database.SettingMap["context"][0]
@@ -54,7 +55,7 @@ func (info *TxtGen) Process(data *database.Task) error {
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor Txt"), err)
 	}
-	data.Return = fmt.Sprintf(`{"prompt": %s, "response": %s, "url": %s`, info.Target, response, info.Host+"/download?img="+data.UUID)
+	data.Return = fmt.Sprintf(`{"prompt": "%s", "response": "%s", "url": "%s"}`, info.Target, response, info.Host+"/download?img="+data.UUID)
 	data.Status = "success"
 	info.Return = info.Host + "/download?img=" + data.UUID
 	defer file.Close()

@@ -17,7 +17,7 @@ func getBiliABV(URL string) string {
 			return URL[31:i]
 		}
 	}
-	return ""
+	return URL[31:]
 }
 
 func getYtbID(URL string) string {
@@ -32,18 +32,13 @@ func getYtbID(URL string) string {
 func (info *WebImg) Process(data *database.Task) error {
 	var img []byte
 	info.Return = database.SettingMap["web"][4]
-	urlParse, err := url.Parse(info.Return)
+	urlParse, err := url.Parse(info.Target)
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor WebImg"), err)
 	}
-	if _, ok := WebImgMap[urlParse.Host]; !ok {
-		data.Status = "failed"
-		data.Return = "Invalid URL"
-		return errors.New("Processor WebImg Invalid URL")
-	}
-	info.API = WebImgMap[urlParse.Host]
+	info.API = urlParse.Host
 	data.API = info.API
 	switch info.API {
 	case "www.bilibili.com":
@@ -61,15 +56,19 @@ func (info *WebImg) Process(data *database.Task) error {
 		endpoint := getEndpoint(api)
 		img, err = util.ITHome(info.Target, endpoint, token, model, context)
 	case "github.com", "gitee.com":
-		token := database.SettingMap["token"][5]
+		token := database.SettingMap["web"][5]
 		img, err = util.Repo(info.Target, token)
+	default:
+		data.Status = "failed"
+		data.Return = "Invalid URL"
+		return errors.Join(errors.New("Processor WebImg"), errors.New("Invalid URL"))
 	}
-	file, err := os.Create(ImgPath + data.UUID + ".png")
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
 		return errors.Join(errors.New("Processor WebImg"), err)
 	}
+	file, _ := os.Create(ImgPath + data.UUID + ".png")
 	defer file.Close()
 	_, err = io.Copy(file, bytes.NewReader(img))
 	if err != nil {
@@ -78,7 +77,7 @@ func (info *WebImg) Process(data *database.Task) error {
 		return errors.Join(errors.New("Processor WebImg"), err)
 	}
 	data.Status = "success"
-	data.Return = fmt.Sprintf(`{"url": %s}`, info.Host+"/download?img="+data.UUID)
+	data.Return = fmt.Sprintf(`{"url": "%s"}`, info.Host+"/download?img="+data.UUID)
 	info.Return = info.Host + "/download?img=" + data.UUID
 	return nil
 }

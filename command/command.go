@@ -8,7 +8,7 @@ import (
 
 func Arg(args []string) {
 	for index, arg := range args {
-		if index == 1 {
+		if index == 0 {
 			continue
 		}
 		switch arg {
@@ -19,28 +19,29 @@ func Arg(args []string) {
 			log.Println("Password has been reset to 123456, please change it ASAP.")
 		case "clear":
 			database.ClearTask()
-			log.Println("Cleared")
-		case "restore":
+			log.Println("Task Cleared")
+		case "logout":
 			database.ClearSession()
-			database.ClearSetting()
-			log.Println("Restored")
+			log.Println("Session Restored")
 		case "clear_ip_restriction":
+			clearIPRestrict()
 			log.Println("Cleared IP restriction")
 		}
 	}
 }
 
 func repwd() {
-	dbSettingList := database.SettingMap["pwd"]
-	dbSettingList[0] = "8d9f6a89e5e1daab9225e92650a8caf918e38161a4ce23fea07de1bc8fc378a9"
+	dbSettingList := database.SettingMap["dash"]
+	dbSettingList[0] = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
 	jsonList, _ := json.Marshal(dbSettingList)
 	dbWriter := database.Setting{
-		Name:  "pwd",
+		Name:  "dash",
 		Value: string(jsonList),
 	}
 	if err := dbWriter.Update(); err != nil {
 		log.Fatal(err)
 	}
+	database.ClearSession()
 }
 
 func clearIPRestrict() {

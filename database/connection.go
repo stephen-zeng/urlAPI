@@ -10,6 +10,25 @@ import (
 	"os"
 )
 
+// 包括所有数据的初始化
+func init() {
+	connect()
+	migration()
+	initSettingMap()
+	initRepoMap()
+	initSessionMap()
+	if err := settingInit(); err != nil {
+		log.Fatal(errors.Join(errors.New("SettingInit"), err))
+	}
+}
+
+func migration() {
+	db.AutoMigrate(&Setting{})
+	db.AutoMigrate(&Task{})
+	db.AutoMigrate(&Session{})
+	db.AutoMigrate(&Repo{})
+}
+
 func connect() {
 	var err error
 	os.Mkdir("assets", 0777)
@@ -31,7 +50,7 @@ func Disconnect() {
 
 func initSettingMap() {
 	var settings []Setting
-	err := db.Where(1).Find(&settings).Error
+	err := db.Find(&settings).Error
 	if err != nil {
 		log.Fatal(errors.Join(errors.New("SettingMap init"), err))
 	}
@@ -48,7 +67,7 @@ func initSettingMap() {
 
 func initRepoMap() {
 	var repos []Repo
-	err := db.Where(1).Find(&repos).Error
+	err := db.Find(&repos).Error
 	if err != nil {
 		log.Fatal(errors.Join(errors.New("RepoMap init"), err))
 	}
@@ -65,7 +84,7 @@ func initRepoMap() {
 
 func initSessionMap() {
 	var sessions []Session
-	err := db.Where(1).Find(&sessions).Error
+	err := db.Find(&sessions).Error
 	if err != nil {
 		log.Fatal(errors.Join(errors.New("SessionMap init"), err))
 	}
@@ -73,26 +92,6 @@ func initSessionMap() {
 		SessionMap[session.Token] = session
 	}
 	log.Println("Initialized SessionMap")
-}
-
-// 包括所有数据的初始化
-func init() {
-	connect()
-	initSettingMap()
-	initRepoMap()
-	initSessionMap()
-	if err := settingInit(); err != nil {
-		log.Fatal(errors.Join(errors.New("SettingInit"), err))
-	}
-	if err := taskInit(); err != nil {
-		log.Fatal(errors.Join(errors.New("TaskInit"), err))
-	}
-	if err := sessionInit(); err != nil {
-		log.Fatal(errors.Join(errors.New("SessionInit"), err))
-	}
-	if err := repoInit(); err != nil {
-		log.Fatal(errors.Join(errors.New("RepoInit"), err))
-	}
 }
 
 func ClearTask() {
@@ -115,14 +114,5 @@ func ClearSession() {
 			log.Fatal(errors.Join(errors.New("ClearSession"), err))
 		}
 	}
-}
-func ClearSetting() {
-	if db.Migrator().HasTable(&Setting{}) {
-		if err := db.Migrator().DropTable(&Setting{}); err != nil {
-			log.Fatal(errors.Join(errors.New("ClearSetting"), err))
-		}
-		if err := db.AutoMigrate(&Setting{}); err != nil {
-			log.Fatal(errors.Join(errors.New("ClearSetting"), err))
-		}
-	}
+	SessionMap = make(map[string]Session)
 }

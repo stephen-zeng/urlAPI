@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -20,20 +20,21 @@ func txtHandler(c *gin.Context) {
 	txtRequestBuilder(c, &txtRequest)
 	txtChecker(&txtRequest)
 	if txtRequest.Security.General.Unsafe {
+		log.Println(txtRequest.Security.General.Info)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": txtRequest.Security.General.Info,
 		})
 		return
 	}
 	if txtOldTask(&txtRequest) {
-		c.Redirect(http.StatusFound, txtRequest.Processor.TxtGen.Return)
+		returner(c, txtRequest.DB.Task.Return, txtRequest.Processor.TxtGen.Return)
 		return
 	}
-	if err := txtRequest.Processor.Rand.Process(&txtRequest.DB.Task); err != nil {
+	if err := txtRequest.Processor.TxtGen.Process(&txtRequest.DB.Task); err != nil {
 		log.Println(err)
 	}
 	taskSaver(&txtRequest)
-	returner(c, txtRequest.DB.Task.Return, txtRequest.Processor.Rand.Return)
+	returner(c, txtRequest.DB.Task.Return, txtRequest.Processor.TxtGen.Return)
 	return
 }
 
@@ -42,6 +43,7 @@ func txtOldTask(r *request.Request) bool {
 	expireTime, _ := strconv.Atoi(database.SettingMap["txt"][3])
 	taskFinder := database.Task{
 		Type:   r.DB.Task.Type,
+		Target: r.DB.Task.Target,
 		Status: "success",
 	}
 	taskDBList, err := taskFinder.Read()
@@ -50,10 +52,12 @@ func txtOldTask(r *request.Request) bool {
 		return false
 	}
 	for _, task := range taskDBList.TaskList {
-		os.Remove(processor.ImgPath + task.UUID + ".png")
 		if time.Now().Sub(task.Time) <= time.Duration(expireTime)*time.Minute {
 			hasOldTask = true
-			r.Processor.TxtGen.Return = r.Processor.TxtGen.Host + "download?img=" + task.UUID
+			r.Processor.TxtGen.Return = r.Processor.TxtGen.Host + "/download?img=" + task.UUID
+			r.DB.Task.Return = task.Return
+		} else {
+			os.Remove(processor.ImgPath + task.UUID + ".png")
 		}
 	}
 	return hasOldTask
@@ -69,8 +73,7 @@ func txtChecker(r *request.Request) {
 
 func txtRequestBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
-	urlParse, _ := url.Parse(referer)
-	host := getScheme(c) + urlParse.Host
+	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
 	target := c.Query("prompt")
 	model := c.Query("model")
@@ -89,6 +92,7 @@ func txtRequestBuilder(c *gin.Context, r *request.Request) {
 		API:   api,
 	}
 	r.DB.Task = database.Task{
+		UUID:    uuid.New().String(),
 		Time:    time.Now(),
 		IP:      ip,
 		Type:    util.TypeMap["txt.gen"],

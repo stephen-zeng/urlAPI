@@ -3,6 +3,7 @@ package processor
 import (
 	"encoding/json"
 	"errors"
+	"github.com/google/uuid"
 	"urlAPI/database"
 	"urlAPI/util"
 )
@@ -30,6 +31,7 @@ func newRepo(info *Session, data *database.Session) error {
 		return err
 	}
 	repoDB := database.Repo{
+		UUID:    uuid.New().String(),
 		API:     info.RepoAPI,
 		Info:    info.RepoInfo,
 		Content: string(jsonString),
@@ -87,10 +89,7 @@ func delRepo(info *Session, data *database.Session) error {
 
 func fetchRepo(info *Session, data *database.Session) error {
 	repoFinder := database.Repo{}
-	repoDBList, err := repoFinder.Read()
-	if err != nil {
-		return err
-	}
+	repoDBList, _ := repoFinder.Read()
 	info.RepoData = repoDBList.RepoList
 	return nil
 }

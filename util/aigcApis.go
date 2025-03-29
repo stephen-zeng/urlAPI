@@ -19,12 +19,12 @@ func Txt(endpoint, token, model, context, prompt string) (string, error) {
 		Content: prompt,
 	}
 	developerMessage := TxtMessage{
-		Role:    "developer",
+		Role:    "system",
 		Content: context,
 	}
 	txtPayload := TxtPayload{
 		Model:    model,
-		Messages: []TxtMessage{userMessage, developerMessage},
+		Messages: []TxtMessage{developerMessage, userMessage},
 	}
 	jsonPayload, err := json.Marshal(txtPayload)
 	if err != nil {

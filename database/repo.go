@@ -3,18 +3,9 @@ package database
 import (
 	"encoding/json"
 	"errors"
-	"github.com/google/uuid"
 )
 
-func repoInit() error {
-	err := db.AutoMigrate(&Repo{})
-	if err != nil {
-		return errors.Join(errors.New("Repo Init"), err)
-	}
-	return nil
-}
 func (repo *Repo) Create() error {
-	repo.UUID = uuid.New().String()
 	err := db.Create(repo).Error
 	if err != nil {
 		return errors.Join(errors.New("Repo Create"), err)
@@ -45,17 +36,18 @@ func (repo *Repo) Read() (*DBList, error) {
 	case repo.API != "":
 		err = db.Where("api=? AND info=?", repo.API, repo.Info).Find(&repos).Error
 	default:
-		err = db.Where(1).Find(&repos).Error
+		err = db.Find(&repos).Error
 	}
 	if len(repos) == 0 {
 		err = errors.New("No Repo Found")
 	}
-	if err != nil {
-		return nil, errors.Join(errors.New("Repo Read"), err)
-	}
-	return &DBList{
+	ret := DBList{
 		RepoList: repos,
-	}, nil
+	}
+	if err != nil {
+		return &ret, errors.Join(errors.New("Repo Read"), err)
+	}
+	return &ret, nil
 }
 
 func (repo *Repo) Delete() error {

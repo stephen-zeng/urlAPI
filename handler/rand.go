@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"time"
@@ -17,6 +18,7 @@ func randHandler(c *gin.Context) {
 	randRequestBuilder(c, &randRequest)
 	randChecker(&randRequest)
 	if randRequest.Security.General.Unsafe {
+		log.Println(randRequest.Security.General.Info)
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": randRequest.Security.General.Info,
 		})
@@ -56,6 +58,7 @@ func randRequestBuilder(c *gin.Context, r *request.Request) {
 		Target: target,
 	}
 	r.DB.Task = database.Task{
+		UUID:    uuid.New().String(),
 		Time:    time.Now(),
 		IP:      ip,
 		Type:    util.TypeMap["rand"],

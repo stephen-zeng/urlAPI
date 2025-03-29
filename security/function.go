@@ -64,7 +64,7 @@ func (info *WebImg) FunctionChecker(general *General) {
 	webimgallowed := database.SettingMap["webimgallowed"]
 
 	switch {
-	case database.SettingMap["web"][0] != "true":
+	case database.SettingMap["web"][1] != "true":
 		general.Info = "WebImg is not enabled"
 		break
 	case !util.ListChecker(&webimgallowed, &(info.API)):
