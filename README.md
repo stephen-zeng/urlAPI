@@ -17,14 +17,15 @@
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
 | prompt（必填） | laugh, poem, sentence, 其他提示词 | laught为笑话，poem是诗句（创作），sentence是鸡汤 |
-| format（选填） | json, txt | 默认直接输出图片，json为输出JSON格式, txt为输出文字（需要使用iframe） |
+| format（选填） | json, txt | 默认直接跳转图片，json为输出JSON格式 |
 | api（选填） | alibaba/openai/deepseek/otherapi | 在后台可以设置默认API |
+| model（选填） | * | 在后台可以设置默认模型 |
 
 + 图片上使用的字体是得意黑:)
 + v1.2及以上的版本支持图片输出以及参数值`txt`，v1.1及以下版本默认直接输出文字。
 
 ## 图片生成
-格式：https://api.example.com/txt? + 参数1=值1&参数2=值2&参数3=值3，参数如下
+格式：https://api.example.com/img? + 参数1=值1&参数2=值2&参数3=值3，参数如下
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
 | prompt（必填） | / | 提示词 |
@@ -39,7 +40,7 @@
 | api（必填） | github, gitee | 使用的仓库 |
 | user（必填） | / | 仓库主人的用户名 |
 | repo（必填） | / | 仓库名称 |
-| format（选填） | json | 默认直接跳转，json为输出JSON格式 |
+| format（选填） | json | 默认直接跳转，json为输出JSON |
 
 **请注意，仓库内不要出现文件夹，否则会添加失败**
 
@@ -74,11 +75,10 @@
 # 启动设置
 启动参数（可选）
 + clear - 清空任务
-+ restore - 清空登录凭证，初始化设置
++ logout - 清空登录凭证
 + repwd - 重置后台登录密码
 + port .... - 将端口设置为....，默认端口是2233
 + clear_ip_restriction - 清除后台登录IP限制
-+ update - 更新数据库（版本更新时必须运行一次）
 反向代理的时候注意将发送域名设置为`$http_host`
 
 注意，初始密码为`123456`，请注意及时修改

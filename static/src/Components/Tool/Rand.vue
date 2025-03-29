@@ -110,6 +110,13 @@ function del(list, index) {
             <mdui-radio value="true">开启</mdui-radio>
             <mdui-radio value="false">关闭</mdui-radio>
           </mdui-radio-group>
+          <p>默认API</p>
+          <mdui-radio-group :value="settings?settings[0][3]:'github'"
+                            @change="settings[0][3]=$event.target.value"
+                            style="margin-top: 0">
+            <mdui-radio value="github">Github</mdui-radio>
+            <mdui-radio value="gitee">Gitee</mdui-radio>
+          </mdui-radio-group>
           <p>添加可用仓库</p>
           <mdui-radio-group :value="repoAPI"
                             @change="repoAPI=$event.target.value"

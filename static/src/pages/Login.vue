@@ -7,7 +7,6 @@ import Cookies from 'js-cookie';
 const pwd = ref("")
 const term = ref(false)
 const loginStatus = inject("login");
-const url = inject("url");
 const title = inject("title");
 
 async function login() {

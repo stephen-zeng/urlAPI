@@ -85,23 +85,23 @@ function del(list, index) {
           </mdui-radio-group>
           <p>允许生成缩略图的网站</p>
           <div class="mdui-checkbox-group">
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'github', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'github', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'github.com', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'github.com', 'edit')">
               Github（需要网络支持）</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'gitee', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'gitee', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'gitee.com', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'gitee.com', 'edit')">
               Gitee</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'youtube', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'youtube', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'www.youtube.com', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'www.youtube.com', 'edit')">
               Youtube（需要网络支持）</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'bilibili', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'bilibili', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'www.bilibili.com', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'www.bilibili.com', 'edit')">
               B站</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'arxiv', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'arxiv', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'arxiv.org', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'arxiv.org', 'edit')">
               Arxiv</mdui-checkbox>
-            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'ithome', 'find')"
-                           @change="find(settings?settings[1]:[], $event.target.checked, 'ithome', 'edit')">
+            <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'www.ithome.com', 'find')"
+                           @change="find(settings?settings[1]:[], $event.target.checked, 'www.ithome.com', 'edit')">
               IT之家</mdui-checkbox>
           </div>
           <p>过期时间</p>
