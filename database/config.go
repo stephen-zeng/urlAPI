@@ -65,6 +65,11 @@ type Setting struct {
 	Value string `json:"value"`
 }
 
+type SettingInit struct {
+	Names []string   `json:"names"`
+	Edits [][]string `json:"edits"`
+}
+
 type DBList struct {
 	RepoList    []Repo
 	TaskList    []Task

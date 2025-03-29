@@ -51,7 +51,7 @@ func webChecker(r *request.Request) {
 func webBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
 	urlParse, _ := url.Parse(referer)
-	host := urlParse.Host
+	host := getScheme(c) + urlParse.Host
 	ip := c.ClientIP()
 	target := c.Query("img")
 	urlParse, _ = url.Parse(target)

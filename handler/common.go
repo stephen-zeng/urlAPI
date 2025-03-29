@@ -23,3 +23,13 @@ func returner(c *gin.Context, jsonString, url string) {
 		c.Redirect(http.StatusFound, url)
 	}
 }
+
+func getScheme(c *gin.Context) string {
+	if c.Request.TLS != nil {
+		return `https://`
+	}
+	if scheme := c.GetHeader("X-Forwarded-Proto"); scheme != "" {
+		return scheme + `://`
+	}
+	return `http://`
+}

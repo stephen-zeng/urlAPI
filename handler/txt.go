@@ -70,7 +70,7 @@ func txtChecker(r *request.Request) {
 func txtRequestBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
 	urlParse, _ := url.Parse(referer)
-	host := urlParse.Host
+	host := getScheme(c) + urlParse.Host
 	ip := c.ClientIP()
 	target := c.Query("prompt")
 	model := c.Query("model")

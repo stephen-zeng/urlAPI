@@ -49,10 +49,6 @@ func (info *WebImg) Process(data *database.Task) error {
 	case "www.bilibili.com":
 		img, err = util.Bili(getBiliABV(info.Target))
 	case "www.youtube.com":
-		if len(database.SettingMap["web"]) < 7 {
-			err = errors.Join(errors.New("Processor WebImg Not valid ytb token"))
-			break
-		}
 		token := database.SettingMap["web"][6]
 		img, err = util.Ytb(getYtbID(info.Target), token)
 	case "arxiv.org":
@@ -65,10 +61,7 @@ func (info *WebImg) Process(data *database.Task) error {
 		endpoint := getEndpoint(api)
 		img, err = util.ITHome(info.Target, endpoint, token, model, context)
 	case "github.com", "gitee.com":
-		token := ""
-		if len(database.SettingMap["token"]) > 5 {
-			token = database.SettingMap["token"][5]
-		}
+		token := database.SettingMap["token"][5]
 		img, err = util.Repo(info.Target, token)
 	}
 	file, err := os.Create(ImgPath + data.UUID + ".png")
