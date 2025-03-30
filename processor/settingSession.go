@@ -2,6 +2,7 @@ package processor
 
 import (
 	"encoding/json"
+	"github.com/pkg/errors"
 	"urlAPI/database"
 )
 
@@ -26,10 +27,12 @@ func fetchSetting(info *Session, data *database.Session) error {
 		settingGetter := database.Setting{Name: name}
 		settingDBList, err := settingGetter.Read()
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 		var setting []string
-		err = json.Unmarshal([]byte(settingDBList.SettingList[0].Value), &setting)
+		if err = json.Unmarshal([]byte(settingDBList.SettingList[0].Value), &setting); err != nil {
+			return errors.WithStack(err)
+		}
 		info.SettingData = append(info.SettingData, setting)
 	}
 	return nil
@@ -40,15 +43,14 @@ func editSetting(info *Session, data *database.Session) error {
 	for index, name := range editList {
 		jsonList, err := json.Marshal(info.SettingEdit[index])
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 		settingEditor := database.Setting{
 			Name:  name,
 			Value: string(jsonList),
 		}
-		err = settingEditor.Update()
-		if err != nil {
-			return err
+		if err = settingEditor.Update(); err != nil {
+			return errors.WithStack(err)
 		}
 	}
 	return nil

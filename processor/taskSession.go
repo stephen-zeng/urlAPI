@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"github.com/pkg/errors"
 	"reflect"
 	"sort"
 	"urlAPI/database"
@@ -18,7 +19,7 @@ func fetchTask(info *Session, data *database.Session) error {
 	}
 	taskDBList, err := taskGetter.Read()
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 	taskList := taskDBList.TaskList
 	info.TaskMaxPage = (len(taskList) / 100) + 1

@@ -18,9 +18,8 @@ import (
 func imgHandler(c *gin.Context) {
 	var imgRequest request.Request
 	imgBuilder(c, &imgRequest)
-	imgChecker(&imgRequest)
-	if imgRequest.Security.General.Unsafe {
-		log.Println(imgRequest.Security.General.Info)
+	if err := imgChecker(&imgRequest); err != nil {
+		log.Printf("%s from %s\n", err, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": imgRequest.Security.General.Info,
 		})
@@ -30,9 +29,7 @@ func imgHandler(c *gin.Context) {
 		returner(c, imgRequest.DB.Task.Return, imgRequest.Processor.ImgGen.Return)
 		return
 	}
-	if err := imgRequest.Processor.ImgGen.Process(&imgRequest.DB.Task); err != nil {
-		log.Println(err)
-	}
+	util.ErrorPrinter(imgRequest.Processor.ImgGen.Process(&imgRequest.DB.Task))
 	taskSaver(&imgRequest)
 	returner(c, imgRequest.DB.Task.Return, imgRequest.Processor.ImgGen.Return)
 	return
@@ -63,12 +60,14 @@ func imgOldTask(r *request.Request) bool {
 	return hasOldTask
 }
 
-func imgChecker(r *request.Request) {
-	r.Security.General.ExceptionChecker()
-	r.Security.General.InfoChecker()
-	r.Security.General.FrequencyChecker()
-	r.Security.ImgGen.APIChecker(&r.Security.General)
-	r.Security.ImgGen.FunctionChecker(&r.Security.General)
+func imgChecker(r *request.Request) error {
+	var err error
+	err = r.Security.General.ExceptionChecker()
+	err = r.Security.General.InfoChecker()
+	err = r.Security.General.FrequencyChecker()
+	err = r.Security.ImgGen.APIChecker(&r.Security.General)
+	err = r.Security.ImgGen.FunctionChecker(&r.Security.General)
+	return err
 }
 
 func imgBuilder(c *gin.Context, r *request.Request) {

@@ -28,9 +28,8 @@ var webAPIMap = map[string]string{
 func webHandler(c *gin.Context) {
 	var webRequest request.Request
 	webBuilder(c, &webRequest)
-	webChecker(&webRequest)
-	if webRequest.Security.General.Unsafe {
-		log.Println(webRequest.Security.General.Info)
+	if err := webChecker(&webRequest); err != nil {
+		log.Printf("%s from %s\n", err, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": webRequest.Security.General.Info,
 		})
@@ -40,9 +39,7 @@ func webHandler(c *gin.Context) {
 		returner(c, webRequest.DB.Task.Return, webRequest.Processor.WebImg.Return)
 		return
 	}
-	if err := webRequest.Processor.WebImg.Process(&webRequest.DB.Task); err != nil {
-		log.Println(err)
-	}
+	util.ErrorPrinter(webRequest.Processor.WebImg.Process(&webRequest.DB.Task))
 	taskSaver(&webRequest)
 	returner(c, webRequest.DB.Task.Return, webRequest.Processor.WebImg.Return)
 	return
@@ -73,11 +70,13 @@ func webOldTask(r *request.Request) bool {
 	return hasOldTask
 }
 
-func webChecker(r *request.Request) {
-	r.Security.General.FrequencyChecker()
-	r.Security.General.InfoChecker()
-	r.Security.General.ExceptionChecker()
-	r.Security.WebImg.FunctionChecker(&r.Security.General)
+func webChecker(r *request.Request) error {
+	var err error
+	err = r.Security.General.FrequencyChecker()
+	err = r.Security.General.InfoChecker()
+	err = r.Security.General.ExceptionChecker()
+	err = r.Security.WebImg.FunctionChecker(&r.Security.General)
+	return err
 }
 
 func webBuilder(c *gin.Context, r *request.Request) {

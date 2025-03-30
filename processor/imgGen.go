@@ -2,8 +2,8 @@ package processor
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"os"
 	"urlAPI/database"
@@ -38,24 +38,24 @@ func (info *ImgGen) Process(data *database.Task) error {
 	default:
 		data.Status = "failed"
 		data.Return = "Imggen Process invalid API"
-		return errors.New("Imggen Process invalid API")
+		return errors.WithStack(errors.New("Imggen Process invalid API"))
 	}
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.New("Imggen Process " + err.Error())
+		return errors.WithStack(err)
 	}
 	file, err := os.Create(ImgPath + data.UUID + ".png")
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.New("Imggen Process " + err.Error())
+		return errors.WithStack(err)
 	}
 	_, err = io.Copy(file, bytes.NewReader(img))
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.New("Imggen Process " + err.Error())
+		return errors.WithStack(err)
 	}
 	data.Return = fmt.Sprintf(`{"original_prompt": "%s", "actual_prompt": "%s", "url": "%s"}`, info.Target, prompt, info.Host+"/download?img="+data.UUID)
 	data.Status = "success"

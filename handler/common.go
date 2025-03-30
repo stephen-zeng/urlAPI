@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"urlAPI/request"
+	"urlAPI/util"
 )
 
 type JsonStruct struct {
@@ -20,9 +20,7 @@ func taskSaver(r *request.Request) {
 	if r.Security.General.SkipDB {
 		return
 	}
-	if err := r.DB.Task.Create(); err != nil {
-		log.Println(err)
-	}
+	util.ErrorPrinter(r.DB.Task.Create())
 }
 
 func returner(c *gin.Context, jsonString, url string) {

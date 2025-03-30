@@ -2,7 +2,7 @@ package util
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 	"regexp"
@@ -50,12 +50,12 @@ func GetRegion(ip string) string {
 func Downloader(url string) ([]byte, error) {
 	resp, err := GlobalHTTPClient.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.Join(errors.New("Util Downloader"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	ret, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Downloader"), err)
+		return nil, errors.WithStack(err)
 	} else {
 		return ret, nil
 	}
@@ -64,20 +64,20 @@ func Downloader(url string) ([]byte, error) {
 func GetRepo(url string) ([]string, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	var response []RepoContentResp
 	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	var ret []string
 	for _, repo := range response {

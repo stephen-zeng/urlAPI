@@ -3,11 +3,11 @@ package security
 import "time"
 
 type Interface interface {
-	FrequencyChecker()
-	InfoChecker()
-	ExceptionChecker()
-	APIChecker(general *General)
-	FunctionChecker(general *General)
+	FrequencyChecker() error
+	InfoChecker() error
+	ExceptionChecker() error
+	APIChecker(general *General) error
+	FunctionChecker(general *General) error
 }
 
 type General struct {

@@ -1,48 +1,34 @@
 package database
 
 import (
-	"errors"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 func (session *Session) Create() error {
-	err := db.Create(&session).Error
-	if err != nil {
-		errors.Join(errors.New("Session create"), err)
-	}
 	SessionMap[session.Token] = *session
-	return nil
+	return errors.WithStack(db.Create(&session).Error)
 
 }
 
 func (session *Session) Update() error {
-	err := db.Save(session).Error
-	if err != nil {
-		errors.Join(errors.New("Session update"), err)
-	}
 	SessionMap[session.Token] = *session
-	return nil
+	return errors.WithStack(db.Save(session).Error)
 }
 
 func (session *Session) Read() (*DBList, error) {
 	var sessions []Session
 	err := db.Where("token=?", session.Token).Find(&sessions).Error
 	if len(sessions) == 0 {
-		err = errors.New("No sessions found")
+		err = gorm.ErrRecordNotFound
 	}
 	ret := DBList{
 		SessionList: sessions,
 	}
-	if err != nil {
-		return &ret, errors.Join(errors.New("Session read"), err)
-	}
-	return &ret, nil
+	return &ret, errors.WithStack(err)
 }
 
 func (session *Session) Delete() error {
-	err := db.Delete(session).Error
-	if err != nil {
-		return errors.Join(errors.New("Session delete"), err)
-	}
 	delete(SessionMap, session.Token)
-	return nil
+	return errors.WithStack(db.Delete(session).Error)
 }

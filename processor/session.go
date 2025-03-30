@@ -1,15 +1,14 @@
 package processor
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	"urlAPI/database"
 )
 
 func (info *Session) Process(data *database.Session) error {
 	var err error
-	err = login(info, data)
-	if err != nil {
-		return err
+	if err = login(info, data); err != nil {
+		return errors.WithStack(err)
 	}
 	switch info.Operation {
 	case "logout":
@@ -32,7 +31,7 @@ func (info *Session) Process(data *database.Session) error {
 		err = editSetting(info, data)
 	}
 	if err != nil {
-		return errors.Join(errors.New("Process Session"), err)
+		return errors.WithStack(err)
 	}
 	return nil
 }

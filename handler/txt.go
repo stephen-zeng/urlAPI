@@ -18,9 +18,9 @@ import (
 func txtHandler(c *gin.Context) {
 	var txtRequest request.Request
 	txtRequestBuilder(c, &txtRequest)
-	txtChecker(&txtRequest)
-	if txtRequest.Security.General.Unsafe {
-		log.Println(txtRequest.Security.General.Info)
+
+	if err := txtChecker(&txtRequest); err != nil {
+		log.Printf("%s from %s\n", err, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": txtRequest.Security.General.Info,
 		})
@@ -30,9 +30,7 @@ func txtHandler(c *gin.Context) {
 		returner(c, txtRequest.DB.Task.Return, txtRequest.Processor.TxtGen.Return)
 		return
 	}
-	if err := txtRequest.Processor.TxtGen.Process(&txtRequest.DB.Task); err != nil {
-		log.Println(err)
-	}
+	util.ErrorPrinter(txtRequest.Processor.TxtGen.Process(&txtRequest.DB.Task))
 	taskSaver(&txtRequest)
 	returner(c, txtRequest.DB.Task.Return, txtRequest.Processor.TxtGen.Return)
 	return
@@ -63,12 +61,14 @@ func txtOldTask(r *request.Request) bool {
 	return hasOldTask
 }
 
-func txtChecker(r *request.Request) {
-	r.Security.General.FrequencyChecker()
-	r.Security.General.ExceptionChecker()
-	r.Security.General.InfoChecker()
-	r.Security.TxtGen.APIChecker(&r.Security.General)
-	r.Security.TxtGen.FunctionChecker(&r.Security.General)
+func txtChecker(r *request.Request) error {
+	var err error
+	err = r.Security.General.FrequencyChecker()
+	err = r.Security.General.ExceptionChecker()
+	err = r.Security.General.InfoChecker()
+	err = r.Security.TxtGen.APIChecker(&r.Security.General)
+	err = r.Security.TxtGen.FunctionChecker(&r.Security.General)
+	return err
 }
 
 func txtRequestBuilder(c *gin.Context, r *request.Request) {
