@@ -28,8 +28,9 @@ var webAPIMap = map[string]string{
 func webHandler(c *gin.Context) {
 	var webRequest request.Request
 	webBuilder(c, &webRequest)
-	if err := webChecker(&webRequest); err != nil {
-		log.Printf("%s from %s\n", err, c.ClientIP())
+	webChecker(&webRequest)
+	if webRequest.Security.General.Unsafe {
+		log.Printf("%s from %s\n", webRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": webRequest.Security.General.Info,
 		})
@@ -70,13 +71,11 @@ func webOldTask(r *request.Request) bool {
 	return hasOldTask
 }
 
-func webChecker(r *request.Request) error {
-	var err error
-	err = r.Security.General.FrequencyChecker()
-	err = r.Security.General.InfoChecker()
-	err = r.Security.General.ExceptionChecker()
-	err = r.Security.WebImg.FunctionChecker(&r.Security.General)
-	return err
+func webChecker(r *request.Request) {
+	r.Security.General.FrequencyChecker()
+	r.Security.General.InfoChecker()
+	r.Security.General.ExceptionChecker()
+	r.Security.WebImg.FunctionChecker(&r.Security.General)
 }
 
 func webBuilder(c *gin.Context, r *request.Request) {

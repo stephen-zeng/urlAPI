@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"time"
@@ -18,8 +17,9 @@ import (
 func downloadHandler(c *gin.Context) {
 	var downloadRequest request.Request
 	downloadRequestBuilder(c, &downloadRequest)
-	if err := downloadChecker(&downloadRequest); err != nil {
-		log.Printf("%s from %s\n", err, c.ClientIP())
+	downloadChecker(&downloadRequest)
+	if downloadRequest.Security.General.Unsafe {
+		log.Printf("%s from %s\n", downloadRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": downloadRequest.Security.General.Info,
 		})
@@ -59,12 +59,10 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 	}
 }
 
-func downloadChecker(r *request.Request) error {
-	var err error
-	err = r.Security.General.FrequencyChecker()
-	err = r.Security.General.InfoChecker()
-	err = r.Security.General.ExceptionChecker()
-	return errors.WithStack(err)
+func downloadChecker(r *request.Request) {
+	r.Security.General.FrequencyChecker()
+	r.Security.General.InfoChecker()
+	r.Security.General.ExceptionChecker()
 }
 
 func downloadReturn(c *gin.Context, r *request.Request) {

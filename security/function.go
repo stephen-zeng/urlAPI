@@ -2,12 +2,11 @@ package security
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"urlAPI/database"
 	"urlAPI/util"
 )
 
-func (info *TxtGen) FunctionChecker(general *General) error {
+func (info *TxtGen) FunctionChecker(general *General) {
 	txtgenenabled := database.SettingMap["txtgenenabled"]
 	var prompt string
 	if _, ok := database.PromptMap[info.Target]; ok {
@@ -23,49 +22,45 @@ func (info *TxtGen) FunctionChecker(general *General) error {
 		general.Info = fmt.Sprintf("Target %s is not enabled", info.Target)
 		break
 	default:
-		return nil
+		return
 	}
 	general.Unsafe = true
-	return errors.WithStack(errors.New(general.Info))
 }
 
-func (info *TxtSum) FunctionChecker(general *General) error {
+func (info *TxtSum) FunctionChecker(general *General) {
 	switch {
 	case database.SettingMap["txt"][0] != "true":
 		general.Info = "Txt is not enabled"
 		break
 	default:
-		return nil
+		return
 	}
 	general.Unsafe = true
-	return errors.WithStack(errors.New(general.Info))
 }
 
-func (info *ImgGen) FunctionChecker(general *General) error {
+func (info *ImgGen) FunctionChecker(general *General) {
 	switch {
 	case database.SettingMap["img"][0] != "true":
 		general.Info = "Img is not enabled"
 		break
 	default:
-		return nil
+		return
 	}
 	general.Unsafe = true
-	return errors.WithStack(errors.New(general.Info))
 }
 
-func (info *Rand) FunctionChecker(general *General) error {
+func (info *Rand) FunctionChecker(general *General) {
 	switch {
 	case database.SettingMap["rand"][0] != "true":
 		general.Info = "Random is not enabled"
 		break
 	default:
-		return nil
+		return
 	}
 	general.Unsafe = true
-	return errors.WithStack(errors.New(general.Info))
 }
 
-func (info *WebImg) FunctionChecker(general *General) error {
+func (info *WebImg) FunctionChecker(general *General) {
 	webimgallowed := database.SettingMap["webimgallowed"]
 
 	switch {
@@ -79,8 +74,7 @@ func (info *WebImg) FunctionChecker(general *General) error {
 		general.Info = "For ITHome, TxtSum is not enabled"
 		break
 	default:
-		return nil
+		return
 	}
 	general.Unsafe = true
-	return errors.WithStack(errors.New(general.Info))
 }

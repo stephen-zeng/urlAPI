@@ -16,8 +16,9 @@ import (
 func randHandler(c *gin.Context) {
 	var randRequest request.Request
 	randRequestBuilder(c, &randRequest)
-	if err := randChecker(&randRequest); err != nil {
-		log.Printf("%s from %s\n", err, c.ClientIP())
+	randChecker(&randRequest)
+	if randRequest.Security.General.Unsafe {
+		log.Printf("%s from %s\n", randRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": randRequest.Security.General.Info,
 		})
@@ -28,14 +29,12 @@ func randHandler(c *gin.Context) {
 	returner(c, randRequest.DB.Task.Return, randRequest.Processor.Rand.Return)
 }
 
-func randChecker(r *request.Request) error {
-	var err error
-	err = r.Security.General.FrequencyChecker()
-	err = r.Security.General.InfoChecker()
-	err = r.Security.General.ExceptionChecker()
-	err = r.Security.Rand.FunctionChecker(&r.Security.General)
-	err = r.Security.Rand.APIChecker(&r.Security.General)
-	return err
+func randChecker(r *request.Request) {
+	r.Security.General.FrequencyChecker()
+	r.Security.General.InfoChecker()
+	r.Security.General.ExceptionChecker()
+	r.Security.Rand.FunctionChecker(&r.Security.General)
+	r.Security.Rand.APIChecker(&r.Security.General)
 }
 
 func randRequestBuilder(c *gin.Context, r *request.Request) {

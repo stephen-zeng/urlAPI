@@ -18,9 +18,9 @@ import (
 func txtHandler(c *gin.Context) {
 	var txtRequest request.Request
 	txtRequestBuilder(c, &txtRequest)
-
-	if err := txtChecker(&txtRequest); err != nil {
-		log.Printf("%s from %s\n", err, c.ClientIP())
+	txtChecker(&txtRequest)
+	if txtRequest.Security.General.Unsafe {
+		log.Printf("%s from %s\n", txtRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": txtRequest.Security.General.Info,
 		})
@@ -61,14 +61,12 @@ func txtOldTask(r *request.Request) bool {
 	return hasOldTask
 }
 
-func txtChecker(r *request.Request) error {
-	var err error
-	err = r.Security.General.FrequencyChecker()
-	err = r.Security.General.ExceptionChecker()
-	err = r.Security.General.InfoChecker()
-	err = r.Security.TxtGen.APIChecker(&r.Security.General)
-	err = r.Security.TxtGen.FunctionChecker(&r.Security.General)
-	return err
+func txtChecker(r *request.Request) {
+	r.Security.General.FrequencyChecker()
+	r.Security.General.ExceptionChecker()
+	r.Security.General.InfoChecker()
+	r.Security.TxtGen.APIChecker(&r.Security.General)
+	r.Security.TxtGen.FunctionChecker(&r.Security.General)
 }
 
 func txtRequestBuilder(c *gin.Context, r *request.Request) {
