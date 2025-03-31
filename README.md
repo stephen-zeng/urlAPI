@@ -43,11 +43,11 @@
 
 **请注意，仓库内不要出现文件夹，否则会添加失败**
 
-## 网页总结
+## 网页缩略图
 格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下
 | 参数名 | 参数值 | 说明 |
 | ---- | ---- | ---- |
-| img（选填） | URL | 网页缩略图 |
+| img（必填） | URL | 网页缩略图 |
 | format（选填） | json | 默认返回图片，json为返回JSON |
 
 ## 参考文档
@@ -80,7 +80,8 @@
 注意，初始密码为`123456`，请注意及时修改
 
 # Demo
-+ demo地址: http://urlapi.asdfhjkl.cn
++ demo地址: https://urlapi.goforit.eu.org
++ dashboard的demo地址: https://urlapi.goforit.eu.org/dash
 + dash密码是123456
 + 运用了该项目的文章demo：https://www.qwqwq.com.cn/test/urlapi/
 + P.S. 项目release的时候本人的OpenAI余额用完了，然后充钱渠道暂时不可用，所以OpenAI的接口均为理论可行，实际未测试状态。使用demo的时候请注意不要留下任何敏感信息。
@@ -88,6 +89,3 @@
 # 一些可能生成错误的原因
 + 同一个页面同时请求太多次，导致上游API发出`429 Too Many Requests`，请求过于频繁，包括上面的文章demo页面。解决办法：刷新重新发起请求请求
 + 服务器与上游API的连接问题，比如国内服务器不经过特殊手段无法连接OpenAI的服务器。
-
-# 其他
-+ 前端Vue的项目文件在`internal/router/template`目录下
