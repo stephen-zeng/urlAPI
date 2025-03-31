@@ -15,10 +15,19 @@ import (
 	"urlAPI/file"
 )
 
-func DrawTxt(content string) ([]byte, error) {
-	Content := DrawTxtArrange(content)
+func getDrawer() *freetype.Context {
+	drawer := freetype.NewContext()
+	drawer.SetDPI(144)
+	drawer.SetFont(font)
+	drawer.SetSrc(image.Black)
+	return drawer
+}
+
+func DrawTxt(oriContent string) ([]byte, error) {
+	Content := DrawTxtArrange(oriContent)
 
 	templateImg := image.NewRGBA(image.Rect(0, 0, (25 + 40*utf8.RuneCountInString(Content[0])), (60*len(Content) + 13)))
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -67,6 +76,7 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), logo, logo.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -132,6 +142,7 @@ func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin s
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), templatePic, templatePic.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -190,6 +201,7 @@ func DrawArticle(logo image.Image, ID, Title, Author, Description, Time string) 
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), logo, logo.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 

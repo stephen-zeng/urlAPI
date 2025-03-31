@@ -3,7 +3,6 @@ package util
 import (
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
-	"image"
 	"log"
 	"net"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 var (
 	GlobalHTTPClient *http.Client
 	font             *truetype.Font
-	drawer           *freetype.Context
 )
 
 func init() {
@@ -44,10 +42,6 @@ func init() {
 	if err != nil {
 		log.Println("Parse font error")
 	}
-	drawer = freetype.NewContext()
-	drawer.SetDPI(144)
-	drawer.SetFont(font)
-	drawer.SetSrc(image.Black)
 }
 
 type RegionResp struct {
