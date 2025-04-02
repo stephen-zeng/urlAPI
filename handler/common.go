@@ -32,10 +32,8 @@ func afterTask(r *request.Request) {
 	taskTmp := processor.TaskQueue[r.Processor.Filter]
 	taskTmp.Running = false
 	if r.DB.Task.Status == "success" {
-		taskTmp.Time = time.Now()
+		taskTmp.DB = r.DB.Task
 		taskTmp.Return = r.Processor.Return
-		taskTmp.DBReturn = r.DB.Task.Return
-		taskTmp.UUID = r.DB.Task.UUID
 	}
 	processor.TaskQueue[r.Processor.Filter] = taskTmp
 	if !r.Security.General.SkipDB {
@@ -61,13 +59,16 @@ func beforeTask(r *request.Request) {
 			time.Sleep(1 * time.Second)
 		}
 		time.Sleep(1 * time.Millisecond)
-		if !task.Running && time.Now().Sub(task.Time) <= time.Duration(expiredTime)*time.Minute {
+		if !task.Running && time.Now().Sub(task.DB.Time) <= time.Duration(expiredTime)*time.Minute {
 			r.Processor.Return = task.Return
-			r.DB.Task.Return = task.DBReturn
-			r.DB.Task.Status = "success"
+			id := r.DB.Task.UUID
+			r.DB.Task = task.DB
+			r.DB.Task.UUID = id
+			r.DB.Task.Time = time.Now()
+			r.Processor.Return = task.Return
 			return
 		} else {
-			os.Remove(processor.ImgPath + task.UUID + ".png")
+			os.Remove(processor.ImgPath + task.DB.UUID + ".png")
 		}
 	}
 	// 没有已知任务，准备开新任务

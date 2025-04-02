@@ -2,7 +2,6 @@ package processor
 
 import (
 	"os"
-	"time"
 	"urlAPI/database"
 )
 
@@ -93,11 +92,9 @@ type Rand struct {
 }
 
 type TaskQueueItem struct {
-	DBReturn string    `json:"db_return"`
-	Return   string    `json:"return"`
-	Time     time.Time `json:"time"`
-	Running  bool      `json:"running"`
-	UUID     string    `json:"uuid"`
+	DB      database.Task `json:"db"`
+	Return  string        `json:"return"`
+	Running bool          `json:"running"`
 }
 
 type TaskQueueFilter struct {
