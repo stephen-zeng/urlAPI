@@ -9,4 +9,6 @@ type Processor struct {
 	ImgGen   processor.ImgGen
 	WebImg   processor.WebImg
 	Rand     processor.Rand
+	Filter   processor.TaskQueueFilter
+	Return   string
 }

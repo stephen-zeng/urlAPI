@@ -2,14 +2,6 @@ package security
 
 import "time"
 
-type Interface interface {
-	FrequencyChecker() error
-	InfoChecker() error
-	ExceptionChecker() error
-	APIChecker(general *General) error
-	FunctionChecker(general *General) error
-}
-
 type General struct {
 	Referer string    `json:"referer"` //Complete Referer
 	IP      string    `json:"ip"`

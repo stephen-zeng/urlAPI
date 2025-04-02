@@ -2,11 +2,14 @@ package processor
 
 import (
 	"os"
+	"time"
 	"urlAPI/database"
 )
 
 var (
-	ImgPath = "assets/img/"
+	ImgPath     = "assets/img/"
+	TaskQueue   = make(map[TaskQueueFilter]TaskQueueItem)
+	TaskCounter = make(map[string]int)
 )
 
 func init() {
@@ -26,10 +29,6 @@ func getEndpoint(api string) string {
 	default:
 		return ""
 	}
-}
-
-type Interface interface {
-	Process(data *database.Task) error
 }
 
 type Session struct {
@@ -91,4 +90,19 @@ type Rand struct {
 	API    string `json:"api"`
 	Target string `json:"target"`
 	Return string `json:"return"`
+}
+
+type TaskQueueItem struct {
+	DBReturn string    `json:"db_return"`
+	Return   string    `json:"return"`
+	Time     time.Time `json:"time"`
+	Running  bool      `json:"running"`
+	UUID     string    `json:"uuid"`
+}
+
+type TaskQueueFilter struct {
+	Type   string `json:"type"`
+	Size   string `json:"size"`
+	Target string `json:"target"`
+	API    string `json:"api"`
 }

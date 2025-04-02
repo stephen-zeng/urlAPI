@@ -8,6 +8,12 @@ import (
 
 var IPFrequency = make(map[string]General)
 
+func (info *General) GeneralChecker() {
+	info.FrequencyChecker()
+	info.ExceptionChecker()
+	info.InfoChecker()
+}
+
 func (info *General) FrequencyChecker() {
 	value, exists := IPFrequency[info.IP]
 	if !exists {

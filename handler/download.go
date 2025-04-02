@@ -26,7 +26,7 @@ func downloadHandler(c *gin.Context) {
 		return
 	}
 	util.ErrorPrinter(downloadRequest.Processor.Download.Process(&downloadRequest.DB.Task))
-	taskSaver(&downloadRequest)
+	afterTask(&downloadRequest)
 	downloadReturn(c, &downloadRequest)
 	return
 }
@@ -60,9 +60,7 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 }
 
 func downloadChecker(r *request.Request) {
-	r.Security.General.FrequencyChecker()
-	r.Security.General.InfoChecker()
-	r.Security.General.ExceptionChecker()
+	r.Security.General.GeneralChecker()
 }
 
 func downloadReturn(c *gin.Context, r *request.Request) {
