@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 )
 
@@ -84,4 +85,12 @@ func GetRepo(url string) ([]string, error) {
 		ret = append(ret, repo.DownloadURL)
 	}
 	return ret, nil
+}
+
+func GetDomain(URL string) string {
+	domainParse, err := url.Parse(URL)
+	if err != nil {
+		return ""
+	}
+	return domainParse.Hostname()
 }

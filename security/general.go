@@ -33,7 +33,8 @@ func (info *General) InfoChecker() {
 		info.Unsafe = true
 	}
 	allowedref := database.SettingMap["allowedref"]
-	if !util.RefererChecker(&allowedref, &(info.Referer)) || info.Referer == "" {
+	domain := util.GetDomain(info.Referer)
+	if !util.WildcardChecker(&allowedref, &domain) || info.Referer == "" {
 		info.Info = fmt.Sprintf("Referer %s not allowed", info.Referer)
 		info.Unsafe = true
 	}
@@ -42,7 +43,8 @@ func (info *General) InfoChecker() {
 
 func (info *General) ExceptionChecker() {
 	taskexceptdomain := database.SettingMap["taskexceptdomain"]
-	if util.RefererChecker(&taskexceptdomain, &(info.Referer)) {
+	domain := util.GetDomain(info.Referer)
+	if util.WildcardChecker(&taskexceptdomain, &domain) {
 		info.SkipDB = true
 		return
 	}

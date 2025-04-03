@@ -1,5 +1,5 @@
 {
-  "names": ["openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "img", "web", "webimgallowed", "rand", "context", "prompt", "taskexceptdomain"],
+  "names": ["openai", "deepseek", "alibaba", "otherapi", "dash", "dashallowedip", "allowedref", "txt", "txtgenenabled", "img", "web", "webimgallowed", "rand", "context", "prompt", "taskexceptdomain", "txtacceptprompt", "imgacceptprompt"],
   "edits": [
     ["", "gpt-4o", "gpt-4o-mini", "dall-e-3", "1024x1024", "https://api.openai.com/v1/chat/completions"],
     ["", "deepseek-chat", "deepseek-chat", "https://api.deepseek.com/chat/completions"],
@@ -16,6 +16,8 @@
     ["false", "https://raw.githubusercontent.com", "https://raw.githubusercontent.com/stephen-zeng/urlAPI/master/fallback.png", "github"],
     ["你是一个助手，需要根据提示词写出对应的语句。语句中不要有空格，不要有换行。不要打招呼，直接给出答案。", "你是一个助手，需要根据提示词进行总结。总结中不要有空格，不要有换行。不要打招呼，直接给出答案。"],
     ["讲一个笑话，中文，不要换行，需要句中有标点符号", "做几句诗歌，中文，不要换行，需要句中有标点符号", "写几句心灵鸡汤，中文，不要换行，需要句中有标点符号"],
-    ["localhost"]
+    ["localhost"],
+    ["*"],
+    ["*"]
   ]
 }

@@ -14,9 +14,8 @@ type General struct {
 }
 
 type TxtGen struct {
-	API    string `json:"api"`
-	Model  string `json:"model"`
-	Target string `json:"target"`
+	API   string `json:"api"`
+	Model string `json:"model"`
 }
 
 type TxtSum struct {

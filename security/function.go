@@ -8,9 +8,10 @@ import (
 
 func (info *TxtGen) FunctionChecker(general *General) {
 	txtgenenabled := database.SettingMap["txtgenenabled"]
+	txtacceptprompt := database.SettingMap["txtacceptprompt"]
 	var prompt string
-	if _, ok := database.PromptMap[info.Target]; ok {
-		prompt = info.Target
+	if _, ok := database.PromptMap[general.Target]; ok {
+		prompt = general.Target
 	} else {
 		prompt = "other"
 	}
@@ -18,8 +19,8 @@ func (info *TxtGen) FunctionChecker(general *General) {
 	case database.SettingMap["txt"][0] != "true":
 		general.Info = "Txt is not enabled"
 		break
-	case !util.ListChecker(&txtgenenabled, &(prompt)):
-		general.Info = fmt.Sprintf("Target %s is not enabled", info.Target)
+	case !util.ListChecker(&txtgenenabled, &(prompt)) || general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &(general.Target)):
+		general.Info = fmt.Sprintf("Target %s is not enabled for TxtGen", general.Target)
 		break
 	default:
 		return
@@ -39,10 +40,13 @@ func (info *TxtSum) FunctionChecker(general *General) {
 }
 
 func (info *ImgGen) FunctionChecker(general *General) {
+	imgacceptprompt := database.SettingMap["imgacceptprompt"]
 	switch {
 	case database.SettingMap["img"][0] != "true":
 		general.Info = "Img is not enabled"
 		break
+	case general.Target == "" || !util.WildcardChecker(&imgacceptprompt, &(general.Target)):
+		general.Info = fmt.Sprintf("Prompt %s is not allowed for ImgGen", general.Target)
 	default:
 		return
 	}
