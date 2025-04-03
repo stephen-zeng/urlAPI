@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"sort"
 	"urlAPI/database"
+	"urlAPI/util"
 )
 
 func fetchTask(info *Session, data *database.Session) error {
@@ -13,9 +14,12 @@ func fetchTask(info *Session, data *database.Session) error {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		tag := field.Tag.Get("json")
-		if tag == info.TaskCatagory {
+		if tag == info.TaskCatagory && tag != "time" {
 			v.Field(i).Set(reflect.ValueOf(info.TaskBy))
 		}
+	}
+	if info.TaskCatagory == "time" {
+		taskGetter.Time = util.GetDate(info.TaskBy)
 	}
 	taskDBList, err := taskGetter.Read()
 	if err != nil {
