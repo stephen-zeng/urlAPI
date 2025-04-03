@@ -2,11 +2,12 @@ package security
 
 import (
 	"fmt"
+	"time"
 	"urlAPI/database"
 	"urlAPI/util"
 )
 
-var IPFrequency = make(map[string]General)
+var IPFrequency = make(map[FrequencyFilter]FrequencyData)
 
 func (info *General) GeneralChecker() {
 	info.FrequencyChecker()
@@ -15,15 +16,30 @@ func (info *General) GeneralChecker() {
 }
 
 func (info *General) FrequencyChecker() {
-	value, exists := IPFrequency[info.IP]
+	filter := FrequencyFilter{
+		Type: info.Type,
+		IP:   info.IP,
+	}
+	value, exists := IPFrequency[filter]
 	if !exists {
-		IPFrequency[info.IP] = *info
+		value = FrequencyData{}
+		value.Counter = 1
+		value.Time = time.Now()
+		IPFrequency[filter] = value
 		return
 	}
-	if info.Time.Sub(value.Time).Seconds() <= 0.25 && value.Type == info.Type {
+	switch {
+	case info.Time.Sub(value.Time).Seconds() <= 0.25 && value.Counter >= 10:
 		info.Unsafe = true
 		info.Info = fmt.Sprintf("%s accessed too frequently", info.IP)
+		return
+	case info.Time.Sub(value.Time).Seconds() > 0.25:
+		value.Counter = 1
+		value.Time = time.Now()
+	case value.Counter < 10:
+		value.Counter++
 	}
+	IPFrequency[filter] = value
 	return
 }
 

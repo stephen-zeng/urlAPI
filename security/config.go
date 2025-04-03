@@ -36,3 +36,13 @@ type Rand struct {
 type WebImg struct {
 	API string `json:"api"`
 }
+
+type FrequencyFilter struct {
+	Type string `json:"type"`
+	IP   string `json:"ip"`
+}
+
+type FrequencyData struct {
+	Counter int       `json:"counter"`
+	Time    time.Time `json:"time"`
+}
