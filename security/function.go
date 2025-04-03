@@ -20,7 +20,7 @@ func (info *TxtGen) FunctionChecker(general *General) {
 		general.Info = "Txt is not enabled"
 		break
 	case !util.ListChecker(&txtgenenabled, &(prompt)) || general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &(general.Target)):
-		general.Info = fmt.Sprintf("Target %s is not enabled for TxtGen", general.Target)
+		general.Info = fmt.Sprintf("Target %s is not enabled for Txt	Gen", general.Target)
 		break
 	default:
 		return

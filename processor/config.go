@@ -12,6 +12,7 @@ var (
 )
 
 func init() {
+	os.RemoveAll(ImgPath)
 	os.MkdirAll(ImgPath, 0777)
 }
 
