@@ -19,8 +19,10 @@ func (info *TxtGen) FunctionChecker(general *General) {
 	case database.SettingMap["txt"][0] != "true":
 		general.Info = "Txt is not enabled"
 		break
-	case !util.ListChecker(&txtgenenabled, &(prompt)) || general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &(general.Target)):
+	case !util.ListChecker(&txtgenenabled, &(prompt)):
 		general.Info = fmt.Sprintf("Target %s is not enabled for Txt	Gen", general.Target)
+	case (general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &(general.Target))) && prompt == "other":
+		general.Info = fmt.Sprintf("Prompt %s is not enabled for Txt	Gen", general.Target)
 		break
 	default:
 		return
