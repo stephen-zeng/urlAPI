@@ -29,6 +29,12 @@ func (info *Session) Process(data *database.Session) error {
 		err = fetchSetting(info, data)
 	case "editSetting":
 		err = editSetting(info, data)
+	case "fetchPrompt":
+		err = fetchPrompt(info, data)
+	case "editPrompt":
+		err = editPrompt(info, data)
+	case "newPrompt":
+		err = newPrompt(info, data)
 	}
 	if err != nil {
 		return errors.WithStack(err)

@@ -18,11 +18,12 @@ var PartMap = map[string][]string{
 	"rand":         []string{"rand"},
 	"contxt":       []string{"context", "prompt"},
 	"taskBehavior": []string{"taskexceptdomain"},
+	"txtPropmt":    []string{"txtacceptprompt"},
+	"imgPrompt":    []string{"imgacceptprompt"},
 }
 
 func fetchSetting(info *Session, data *database.Session) error {
 	fetchList := PartMap[info.SettingPart]
-	info.SettingName = fetchList
 	for _, name := range fetchList {
 		settingGetter := database.Setting{Name: name}
 		settingDBList, err := settingGetter.Read()
@@ -41,7 +42,7 @@ func fetchSetting(info *Session, data *database.Session) error {
 func editSetting(info *Session, data *database.Session) error {
 	editList := PartMap[info.SettingPart]
 	for index, name := range editList {
-		jsonList, err := json.Marshal(info.SettingEdit[index])
+		jsonList, err := json.Marshal(info.SettingData[index])
 		if err != nil {
 			return errors.WithStack(err)
 		}

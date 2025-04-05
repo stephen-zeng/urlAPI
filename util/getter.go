@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"github.com/mozillazg/go-pinyin"
 	"github.com/pkg/errors"
 	"io"
 	"net/http"
@@ -104,4 +105,41 @@ func GetDate(ori string) time.Time {
 	year, _ := strconv.Atoi(parts[0])
 	month, _ := strconv.Atoi(parts[1])
 	return time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+}
+
+func GetKeyList(oriList *[]string) [][]string {
+	ret := make([][]string, 26)
+	args := pinyin.NewArgs()
+	for _, str := range *oriList {
+		switch {
+		case str[0] >= 'a' && str[0] <= 'z':
+			ret[str[0]-'a'] = append(ret[str[0]-'a'], str)
+		case str[0] >= 'A' && str[0] <= 'Z':
+			ret[str[0]] = append(ret[str[0]-'A'], str)
+		default:
+			py := pinyin.Pinyin(str, args)
+			if len(py) == 0 {
+				continue
+			}
+			index := py[0][0][0] - 'a'
+			ret[index] = append(ret[index], str)
+		}
+	}
+	return ret
+}
+
+func GetKeyIndex(str string) int {
+	args := pinyin.NewArgs()
+	switch {
+	case str[0] >= 'a' && str[0] <= 'z':
+		return int(str[0] - 'a')
+	case str[0] >= 'A' && str[0] <= 'Z':
+		return int(str[0] - 'A')
+	default:
+		py := pinyin.Pinyin(str, args)
+		if len(py) == 0 {
+			return 0
+		}
+		return int(py[0][0][0] - 'a')
+	}
 }

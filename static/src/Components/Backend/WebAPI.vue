@@ -27,7 +27,7 @@ async function sendSetting() {
     "Send": {
       "operation": "editSetting",
       "setting_part": "web",
-      "setting_edit": settings.value,
+      "setting_data": settings.value,
     }
   })
   if (session.error) {

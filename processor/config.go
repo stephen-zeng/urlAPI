@@ -35,25 +35,26 @@ type Session struct {
 	// backend -> frontend
 	SessionToken string          `json:"session_token"`
 	SessionIP    string          `json:"session_ip"`
-	SettingName  []string        `json:"setting_name"`
-	SettingData  [][]string      `json:"setting_data"`
 	TaskData     []database.Task `json:"task_data"`
 	TaskMaxPage  int             `json:"task_max_page"`
 	RepoData     []database.Repo `json:"repo_data"`
 
 	// frontend -> backend
-	Operation    string     `json:"operation"`
-	LoginTerm    bool       `json:"login_term"`
-	SettingEdit  [][]string `json:"setting_edit"`
-	TaskCatagory string     `json:"task_catagory"`
-	TaskBy       string     `json:"task_by"`
-	TaskPage     int        `json:"task_page"`
-	RepoAPI      string     `json:"repo_api"`
-	RepoInfo     string     `json:"repo_info"`
-	RepoUUID     string     `json:"repo_uuid"`
+	Operation    string `json:"operation"`
+	LoginTerm    bool   `json:"login_term"`
+	TaskCatagory string `json:"task_catagory"`
+	TaskBy       string `json:"task_by"`
+	TaskPage     int    `json:"task_page"`
+	RepoAPI      string `json:"repo_api"`
+	RepoInfo     string `json:"repo_info"`
+	RepoUUID     string `json:"repo_uuid"`
+	PromptFor    string `json:"prompt_for"`
+	PromptIndex  int    `json:"prompt_index"`
 
 	//both
-	SettingPart string `json:"setting_part"`
+	SettingPart string     `json:"setting_part"`
+	PromptData  []string   `json:"prompt_data"`
+	SettingData [][]string `json:"setting_data"`
 }
 
 type Download struct {

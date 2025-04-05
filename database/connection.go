@@ -20,6 +20,9 @@ func init() {
 	if err := settingInit(); err != nil {
 		log.Fatal(errors.Wrap(err, "settingInit"))
 	}
+	if err := promptInit(); err != nil {
+		log.Fatal(errors.Wrap(err, "promptInit"))
+	}
 }
 
 func migration() {
@@ -27,6 +30,7 @@ func migration() {
 	db.AutoMigrate(&Task{})
 	db.AutoMigrate(&Session{})
 	db.AutoMigrate(&Repo{})
+	db.AutoMigrate(&Prompt{})
 }
 
 func connect() {

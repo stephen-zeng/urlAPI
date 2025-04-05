@@ -23,7 +23,9 @@ func settingInit() error {
 		}
 		jsonList, _ := json.Marshal(dbSettingList)
 		dbSettingWriter.Value = string(jsonList)
-		_ = dbSettingWriter.Update()
+		if err := dbSettingWriter.Update(); err != nil {
+			return errors.WithStack(err)
+		}
 	}
 	return nil
 }

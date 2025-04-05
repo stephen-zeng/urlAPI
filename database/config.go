@@ -58,6 +58,12 @@ type Setting struct {
 	Value string `json:"value"`
 }
 
+type Prompt struct {
+	For     string `json:"for"`
+	Letter  int    `json:"letter"`  // ascii - 'a'
+	Prompts string `json:"prompts"` // []string的json序列
+}
+
 type SettingInit struct {
 	Names []string   `json:"names"`
 	Edits [][]string `json:"edits"`
@@ -68,4 +74,5 @@ type DBList struct {
 	TaskList    []Task
 	SessionList []Session
 	SettingList []Setting
+	PromptList  []Prompt
 }

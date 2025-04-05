@@ -26,3 +26,13 @@ func ErrorPrinter(err error) {
 		}
 	}
 }
+
+func ListRemover(list *[]string, rm string) {
+	var nw []string
+	for _, item := range *list {
+		if rm != item {
+			nw = append(nw, item)
+		}
+	}
+	*list = nw
+}
