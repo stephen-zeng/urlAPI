@@ -49,13 +49,14 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 		Time:    time.Now(),
 	}
 	r.DB.Task = database.Task{
-		UUID:   uuid.New().String(),
-		Time:   time.Now(),
-		IP:     ip,
-		Target: target,
-		Type:   typ,
-		Device: device,
-		Region: region,
+		UUID:    uuid.New().String(),
+		Time:    time.Now(),
+		IP:      ip,
+		Target:  target,
+		Type:    typ,
+		Device:  device,
+		Region:  region,
+		Referer: referer,
 	}
 }
 
