@@ -94,7 +94,7 @@ function find(list, status, value, operation) {
               随机鸡汤</mdui-checkbox>
             <mdui-checkbox :checked="find(settings?settings[1]:[], false, 'other', 'find')"
                            @change="find(settings?settings[1]:[], $event.target.checked, 'other', 'edit')">
-              自定义提示词</mdui-checkbox>
+              其他提示词</mdui-checkbox>
           </div>
           <p>随机生成使用的API</p>
           <mdui-radio-group :value="settings?settings[0][1]:'openai'"
@@ -106,18 +106,6 @@ function find(list, status, value, operation) {
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
           <mdui-divider></mdui-divider>
-<!--          <p>文字总结的启用情况</p>-->
-<!--          <div class="mdui-checkbox-group">-->
-<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'pdf', 'find')"-->
-<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'pdf', 'edit')">-->
-<!--              PDF</mdui-checkbox>-->
-<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'word', 'find')"-->
-<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'word', 'edit')">-->
-<!--              Word</mdui-checkbox>-->
-<!--            <mdui-checkbox :checked="find(settings?settings[2]:[], false, 'md', 'find')"-->
-<!--                           @change="find(settings?settings[2]:[], $event.target.checked, 'md', 'edit')">-->
-<!--              MarkDown</mdui-checkbox>-->
-<!--          </div>-->
           <p>文字总结使用的API</p>
           <mdui-radio-group :value="settings?settings[0][2]:'openai'"
                             @change="settings[0][2]=$event.target.value"
@@ -127,6 +115,20 @@ function find(list, status, value, operation) {
             <mdui-radio value="alibaba">Alibaba</mdui-radio>
             <mdui-radio value="otherapi">其他API</mdui-radio>
           </mdui-radio-group>
+          <mdui-divider></mdui-divider>
+          <p>允许的Prompt</p>
+          <mdui-text-field variant="outlined" label="适配通配符" clearable
+                           @input="input1 = $event.target.value" :value="input1">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!='') settings[2].push(input1);input1=''}"></mdui-button-icon>
+          </mdui-text-field>
+          <div class="list">
+            <mdui-list>
+              <mdui-list-item v-for="(item, index) in settings?settings[2]:[]" nonclickable>
+                {{ item }}
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[2].length>1) settings[2].splice(index, 1)}"></mdui-button-icon>
+              </mdui-list-item>
+            </mdui-list>
+          </div>
           <mdui-divider></mdui-divider>
           <p>过期时间</p>
           <mdui-text-field variant="outlined" label="分钟"

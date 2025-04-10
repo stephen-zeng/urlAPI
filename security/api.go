@@ -1,6 +1,8 @@
 package security
 
-import "urlAPI/util"
+import (
+	"urlAPI/util"
+)
 
 var (
 	txt  = []string{"openai", "alibaba", "deepseek", "otherapi"}
@@ -37,5 +39,3 @@ func (info *Rand) APIChecker(general *General) {
 		general.Unsafe = true
 	}
 }
-
-func (info *General) APIChecker(general *General) {}

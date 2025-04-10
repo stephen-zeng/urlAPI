@@ -6,10 +6,13 @@ import (
 )
 
 var (
-	ImgPath = "assets/img/"
+	ImgPath     = "assets/img/"
+	TaskQueue   = make(map[TaskQueueFilter]TaskQueueItem)
+	TaskCounter = make(map[string]int)
 )
 
 func init() {
+	os.RemoveAll(ImgPath)
 	os.MkdirAll(ImgPath, 0777)
 }
 
@@ -26,10 +29,6 @@ func getEndpoint(api string) string {
 	default:
 		return ""
 	}
-}
-
-type Interface interface {
-	Process(data *database.Task) error
 }
 
 type Session struct {
@@ -91,4 +90,17 @@ type Rand struct {
 	API    string `json:"api"`
 	Target string `json:"target"`
 	Return string `json:"return"`
+}
+
+type TaskQueueItem struct {
+	DB      database.Task `json:"db"`
+	Return  string        `json:"return"`
+	Running bool          `json:"running"`
+}
+
+type TaskQueueFilter struct {
+	Type   string `json:"type"`
+	Size   string `json:"size"`
+	Target string `json:"target"`
+	API    string `json:"api"`
 }

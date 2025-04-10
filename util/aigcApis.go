@@ -3,7 +3,7 @@ package util
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"io"
 	"log"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 
 func Txt(endpoint, token, model, context, prompt string) (string, error) {
 	if endpoint == "" || token == "" || model == "" || context == "" || prompt == "" {
-		return "", errors.Join(errors.New("Util TxtAPI insufficient info"))
+		return "", errors.WithStack(errors.New("Util TxtAPI insufficient info"))
 	}
 	userMessage := TxtMessage{
 		Role:    "user",
@@ -28,21 +28,21 @@ func Txt(endpoint, token, model, context, prompt string) (string, error) {
 	}
 	jsonPayload, err := json.Marshal(txtPayload)
 	if err != nil {
-		return "", errors.Join(errors.New("Util TxtAPI"), err)
+		return "", errors.WithStack(err)
 	}
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return "", errors.Join(errors.New("Util TxtAPI"), err)
+		return "", errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	var txtResp TxtResp
 	jsonResponse, err := io.ReadAll(resp.Body)
 	err = json.Unmarshal(jsonResponse, &txtResp)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.Join(errors.New("Util TxtAPI"), err, errors.New(resp.Status))
+		return "", errors.WithMessage(err, resp.Status)
 	} else {
 		return txtResp.Choices[0].Message.Content, nil
 	}
@@ -68,14 +68,14 @@ func AlibabaImg(token, prompt, model, size string) ([]byte, string, error) {
 	req.Header.Set("X-DashScope-Async", "enable")
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return nil, "", errors.Join(errors.New("Util AlibabaImgAPI"), err)
+		return nil, "", errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	var response AlibabaImgResp
 	jsonResponse, _ := io.ReadAll(resp.Body)
 	err = json.Unmarshal(jsonResponse, &response)
 	if err != nil {
-		return nil, "", errors.Join(errors.New("Util AlibabaImgAPI"), err)
+		return nil, "", errors.WithStack(err)
 	}
 	id := response.Output.TaskID
 
@@ -89,25 +89,19 @@ func AlibabaImg(token, prompt, model, size string) ([]byte, string, error) {
 
 	for status := response.Output.TaskStatus; status == "PENDING" || status == "RUNNING"; status = response.Output.TaskStatus {
 		time.Sleep(1 * time.Second)
-		err = json.Unmarshal(alibabaFetchImgTask(id, token), &response)
-		if err != nil {
+		if err = json.Unmarshal(alibabaFetchImgTask(id, token), &response); err != nil {
 			timer.Stop()
-			return nil, "", errors.Join(errors.New("Util AlibabaImgAPI"), err)
+			return nil, "", errors.WithStack(err)
 		}
 	}
 	timer.Stop()
 
 	if response.Output.TaskStatus != "SUCCEEDED" {
-		log.Println(response)
-		return nil, "", errors.Join(errors.New("Util AlibabaImgAPI"), err)
+		return nil, "", errors.WithStack(err)
 	}
 	actualPrompt := response.Output.Results[0].ActualPrompt
 	ret, err := Downloader(response.Output.Results[0].URL)
-	if err != nil {
-		return nil, "", errors.Join(errors.New("Util AlibabaImgAPI"), err)
-	} else {
-		return ret, actualPrompt, nil
-	}
+	return ret, actualPrompt, nil
 }
 
 func alibabaFetchImgTask(id, token string) []byte {
@@ -135,21 +129,17 @@ func OpenaiImg(endpoint, token, prompt, model, size string) ([]byte, error) {
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util OpenaiImgAPI"), err)
+		return nil, errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.Join(errors.New("Util OpenaiImgAPI"), err)
+		return nil, errors.WithStack(err)
 	}
 	var response OpenaiImgResp
-	err = json.Unmarshal(jsonResponse, &response)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util OpenaiImgAPI"), err)
+	if err = json.Unmarshal(jsonResponse, &response); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	ret, err := Downloader(response.Data[0].URL)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util OpenaiImgAPI"), err)
-	}
-	return ret, nil
+	return ret, errors.WithStack(err)
 }

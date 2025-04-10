@@ -3,11 +3,10 @@ package util
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"image/png"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,22 +27,21 @@ func Bili(ABV string) ([]byte, error) {
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println("Error getting video info")
-		return nil, errors.Join(errors.New("Util Bili"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	var info BiliResp
 	err = json.Unmarshal(jsonResp, &info)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	picURL := info.Data.Pic
 	name := info.Data.Title
@@ -55,8 +53,7 @@ func Bili(ABV string) ([]byte, error) {
 	coin := biliGetStr(info.Data.Stat.Coin)
 	ret, err := DrawVideo(picURL, name, author, description, view, favorite, like, coin)
 	if err != nil {
-		log.Println("Error when drawing the img")
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	return ret, nil
 }
@@ -65,17 +62,16 @@ func Ytb(ID, Token string) ([]byte, error) {
 	url := "https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=" + ID + "&key=" + Token
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Ytb"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.Join(errors.New("Util Bili"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println("Error getting video info")
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	var info YtbResp
 	err = json.Unmarshal(jsonResp, &info)
@@ -89,8 +85,7 @@ func Ytb(ID, Token string) ([]byte, error) {
 	coin := "N/A"
 	ret, err := DrawVideo(picURL, name, author, description, view, favorite, like, coin)
 	if err != nil {
-		log.Println("Error when drawing the img")
-		return nil, errors.Join(errors.New("Util Bili"), err)
+		return nil, errors.WithStack(err)
 	}
 	return ret, nil
 }
@@ -98,21 +93,20 @@ func Ytb(ID, Token string) ([]byte, error) {
 func Arxiv(URL string) ([]byte, error) {
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Arxiv"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println("Error getting arxiv info")
-		return nil, errors.Join(errors.New("Util Arxiv"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	rawResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Arxiv"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Arxiv"), err)
+		return nil, errors.WithStack(err)
 	}
 	id := URL[22:]
 	title, author, description := traverseArxiv(doc, "", "", "")
@@ -120,8 +114,7 @@ func Arxiv(URL string) ([]byte, error) {
 	logoImg, err := png.Decode(logoFile)
 	ret, err := DrawArticle(logoImg, id, title, author, description, "")
 	if err != nil {
-		log.Println("Error drawing the img")
-		return nil, errors.Join(errors.New("Util Arxiv"), err)
+		return nil, errors.WithStack(err)
 	}
 	return ret, nil
 }
@@ -129,21 +122,20 @@ func Arxiv(URL string) ([]byte, error) {
 func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util ITHome"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println("Error getting article info")
-		return nil, errors.Join(errors.New("Util Arxiv"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	rawResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Arxiv"), err)
+		return nil, errors.WithStack(err)
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Arxiv"), err)
+		return nil, errors.WithStack(err)
 	}
 	title, tim, content := traverseITHome(doc, "", "", "")
 	description, err := Txt(endpoint, token, model, context, content)
@@ -151,8 +143,7 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 	logoImg, err := png.Decode(logoFile)
 	ret, err := DrawArticle(logoImg, "", title, "", description, tim)
 	if err != nil {
-		log.Println("Error drawing the img")
-		return nil, errors.Join(errors.New("Util ITHome"), err)
+		return nil, errors.WithStack(err)
 	}
 	return ret, nil
 }
@@ -172,22 +163,20 @@ func Repo(URL string, Token string) ([]byte, error) {
 		req.Header.Set("Authorization", "Bearer "+Token)
 	}
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Repo"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Println(errors.Join(errors.New("Util Repo"), err, errors.New(resp.Status)))
-		return nil, errors.Join(errors.New("Util Repo"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Repo"), err)
+		return nil, errors.WithStack(err)
 	}
 	var repo RepoResp
-	err = json.Unmarshal(jsonResp, &repo)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util Repo"), err)
+	if err = json.Unmarshal(jsonResp, &repo); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	author := repo.Owner.Login
 	name := repo.Name
@@ -197,13 +186,11 @@ func Repo(URL string, Token string) ([]byte, error) {
 	bgFile, err := file.Logos.Open(logoURL)
 	bgImg, err := png.Decode(bgFile)
 	if err != nil {
-		log.Println("Unable to decode github background image")
-		return nil, errors.Join(errors.New("Util Repo"), err)
+		return nil, errors.WithStack(err)
 	}
 	ret, err := DrawRepo(bgImg, name, author, description, starCount, forkCount)
 	if err != nil {
-		log.Println("Error when drawing the img")
-		return nil, errors.Join(errors.New("Util Repo"), err)
+		return nil, errors.WithStack(err)
 	}
 	return ret, nil
 }

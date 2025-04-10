@@ -1,29 +1,26 @@
 package util
 
 import (
-	"net/url"
 	"regexp"
 	"strings"
 )
 
-// 只接受原始Referer
-func RefererChecker(referers *[]string, referer *string) bool {
-	domainParse, _ := url.Parse(*referer)
-	domain := domainParse.Hostname()
-	for _, r := range *referers {
+// 通配符检查
+func WildcardChecker(strs *[]string, str *string) bool {
+	for _, r := range *strs {
 		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(r), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, domain)
+		match, err := regexp.MatchString(rgx, *str)
 		if err != nil {
 			continue
 		}
-		if match {
+		if match || r == *str {
 			return true
 		}
 	}
 	return false
 }
 
-// api为空的时候返回正确
+// 完全检查
 func ListChecker(apis *[]string, api *string) bool {
 	if *api == "" {
 		return true

@@ -1,7 +1,8 @@
 package processor
 
 import (
-	"errors"
+	"fmt"
+	"github.com/pkg/errors"
 	"math/rand"
 	"urlAPI/database"
 )
@@ -17,12 +18,12 @@ func (info *Rand) Process(data *database.Task) error {
 	if !ok {
 		data.Status = "failed"
 		data.Return = "Repo not found"
-		return errors.New("Process Rand Repo not found")
+		return errors.WithStack(errors.New("Process Rand Repo not found"))
 	}
 	length := len(content)
 	index := rand.Intn(length)
 	info.Return = content[index]
-	data.Return = info.Return
+	data.Return = fmt.Sprintf(`{"url": "%s"}`, info.Return)
 	data.Status = "success"
 	return nil
 }

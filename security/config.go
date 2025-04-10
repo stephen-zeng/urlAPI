@@ -2,14 +2,6 @@ package security
 
 import "time"
 
-type Interface interface {
-	FrequencyChecker()
-	InfoChecker()
-	ExceptionChecker()
-	APIChecker(general *General)
-	FunctionChecker(general *General)
-}
-
 type General struct {
 	Referer string    `json:"referer"` //Complete Referer
 	IP      string    `json:"ip"`
@@ -22,9 +14,8 @@ type General struct {
 }
 
 type TxtGen struct {
-	API    string `json:"api"`
-	Model  string `json:"model"`
-	Target string `json:"target"`
+	API   string `json:"api"`
+	Model string `json:"model"`
 }
 
 type TxtSum struct {
@@ -44,4 +35,14 @@ type Rand struct {
 
 type WebImg struct {
 	API string `json:"api"`
+}
+
+type FrequencyFilter struct {
+	Type string `json:"type"`
+	IP   string `json:"ip"`
+}
+
+type FrequencyData struct {
+	Counter int       `json:"counter"`
+	Time    time.Time `json:"time"`
 }

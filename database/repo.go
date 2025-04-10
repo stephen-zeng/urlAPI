@@ -2,26 +2,21 @@ package database
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 func (repo *Repo) Create() error {
-	err := db.Create(repo).Error
-	if err != nil {
-		return errors.Join(errors.New("Repo Create"), err)
-	}
-	return nil
+	return errors.WithStack(db.Create(repo).Error)
 }
 
 func (repo *Repo) Update() error {
-	err := db.Save(repo).Error
-	if err != nil {
-		return errors.Join(errors.New("Repo Update"), err)
+	if err := db.Save(repo).Error; err != nil {
+		return errors.WithStack(err)
 	}
 	var tmp []string
-	err = json.Unmarshal([]byte(repo.Content), &tmp)
-	if err != nil {
-		return errors.Join(errors.New("Repo update"), err)
+	if err := json.Unmarshal([]byte(repo.Content), &tmp); err != nil {
+		return errors.WithStack(err)
 	}
 	RepoMap[repo.API+";"+repo.Info] = tmp
 	return nil
@@ -39,22 +34,15 @@ func (repo *Repo) Read() (*DBList, error) {
 		err = db.Find(&repos).Error
 	}
 	if len(repos) == 0 {
-		err = errors.New("No Repo Found")
+		err = gorm.ErrRecordNotFound
 	}
 	ret := DBList{
 		RepoList: repos,
 	}
-	if err != nil {
-		return &ret, errors.Join(errors.New("Repo Read"), err)
-	}
-	return &ret, nil
+	return &ret, errors.WithStack(err)
 }
 
 func (repo *Repo) Delete() error {
-	err := db.Delete(repo).Error
-	if err != nil {
-		return errors.Join(errors.New("Repo Delete"), err)
-	}
 	delete(RepoMap, repo.API+";"+repo.Info)
-	return nil
+	return errors.WithStack(db.Delete(repo).Error)
 }

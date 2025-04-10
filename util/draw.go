@@ -2,24 +2,32 @@ package util
 
 import (
 	"bytes"
-	"errors"
 	"github.com/golang/freetype"
 	"github.com/nfnt/resize"
+	"github.com/pkg/errors"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"net/http"
 	"unicode/utf8"
 	"urlAPI/file"
 )
 
-func DrawTxt(content string) ([]byte, error) {
-	Content := DrawTxtArrange(content)
+func getDrawer() *freetype.Context {
+	drawer := freetype.NewContext()
+	drawer.SetDPI(144)
+	drawer.SetFont(font)
+	drawer.SetSrc(image.Black)
+	return drawer
+}
+
+func DrawTxt(oriContent string) ([]byte, error) {
+	Content := DrawTxtArrange(oriContent)
 
 	templateImg := image.NewRGBA(image.Rect(0, 0, (25 + 40*utf8.RuneCountInString(Content[0])), (60*len(Content) + 13)))
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -34,9 +42,8 @@ func DrawTxt(content string) ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	err := png.Encode(&buf, templateImg)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawTxt"), err)
+	if err := png.Encode(&buf, templateImg); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return buf.Bytes(), nil
 }
@@ -47,8 +54,7 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 	starIcon, err := png.Decode(starIO)
 	forkIcon, err := png.Decode(forkIO)
 	if err != nil {
-		log.Println("Decode icon error")
-		return nil, errors.Join(errors.New("Util DrawRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 
 	var nameLen int
@@ -70,6 +76,7 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), logo, logo.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -91,9 +98,8 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 	}
 
 	var buf bytes.Buffer
-	err = png.Encode(&buf, templateImg)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawTxt"), err)
+	if err = png.Encode(&buf, templateImg); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return buf.Bytes(), nil
 }
@@ -101,17 +107,16 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin string) ([]byte, error) {
 	req, err := http.NewRequest("GET", CoverURL, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawVideo"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawVideo"), err)
+		return nil, errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	pic, err := jpeg.Decode(resp.Body)
 	if err != nil {
-		log.Println("Decode jpeg image error")
-		return nil, errors.Join(errors.New("Util DrawVideo"), err)
+		return nil, errors.WithStack(err)
 	}
 	pic = resize.Resize(0, 450, pic, resize.Lanczos3)
 
@@ -137,6 +142,7 @@ func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin s
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), templatePic, templatePic.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -159,8 +165,7 @@ func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin s
 	playIcon, err := png.Decode(playIO)
 	coinIcon, err := png.Decode(coinIO)
 	if err != nil {
-		log.Println("Decode icon error")
-		return nil, errors.Join(errors.New("Util DrawVideo"), err)
+		return nil, errors.WithStack(err)
 	}
 
 	draw.Draw(templateImg, image.Rect(templatePic.Bounds().Dx()+100, 300, width, height), playIcon, playIcon.Bounds().Min, draw.Over)
@@ -173,9 +178,8 @@ func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin s
 	drawer.DrawString(Coin, freetype.Pt(templatePic.Bounds().Dx()+max(len(View), len(Like))*27+280, 450))
 
 	var buf bytes.Buffer
-	err = png.Encode(&buf, templateImg)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawTxt"), err)
+	if err = png.Encode(&buf, templateImg); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return buf.Bytes(), nil
 }
@@ -197,6 +201,7 @@ func DrawArticle(logo image.Image, ID, Title, Author, Description, Time string) 
 	DrawRoundedRect(templateImg, "fill")
 	draw.Draw(templateImg, image.Rect(30, 30, width, height), logo, logo.Bounds().Min, draw.Over)
 
+	drawer := getDrawer()
 	drawer.SetDst(templateImg)
 	drawer.SetClip(templateImg.Bounds())
 
@@ -215,9 +220,8 @@ func DrawArticle(logo image.Image, ID, Title, Author, Description, Time string) 
 	}
 
 	var buf bytes.Buffer
-	err := png.Encode(&buf, templateImg)
-	if err != nil {
-		return nil, errors.Join(errors.New("Util DrawTxt"), err)
+	if err := png.Encode(&buf, templateImg); err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return buf.Bytes(), nil
 }

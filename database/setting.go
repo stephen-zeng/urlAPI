@@ -2,7 +2,7 @@ package database
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"io"
 	"urlAPI/file"
 )
@@ -29,28 +29,24 @@ func settingInit() error {
 }
 
 func (setting *Setting) Create() error {
-	err := db.Create(&setting).Error
-	if err != nil {
-		return errors.Join(errors.New("Setting create"), err)
+	if err := db.Create(&setting).Error; err != nil {
+		return errors.WithStack(err)
 	}
 	var tmp []string
-	err = json.Unmarshal([]byte(setting.Value), &tmp)
-	if err != nil {
-		return errors.Join(errors.New("Setting create"), err)
+	if err := json.Unmarshal([]byte(setting.Value), &tmp); err != nil {
+		return errors.WithStack(err)
 	}
 	SettingMap[setting.Name] = tmp
 	return nil
 }
 
 func (setting *Setting) Update() error {
-	err := db.Save(setting).Error
-	if err != nil {
-		return errors.Join(errors.New("Setting update"), err)
+	if err := db.Save(setting).Error; err != nil {
+		return errors.WithStack(err)
 	}
 	var tmp []string
-	err = json.Unmarshal([]byte(setting.Value), &tmp)
-	if err != nil {
-		return errors.Join(errors.New("Setting update"), err)
+	if err := json.Unmarshal([]byte(setting.Value), &tmp); err != nil {
+		return errors.WithStack(err)
 	}
 	SettingMap[setting.Name] = tmp
 	return nil
@@ -60,21 +56,14 @@ func (setting *Setting) Read() (*DBList, error) {
 	var settings []Setting
 	err := db.Where("name=?", setting.Name).Find(&settings).Error
 	if len(settings) == 0 {
-		err = errors.New("Setting not found")
+		err = errors.WithStack(errors.New("Setting not found"))
 	}
 	ret := DBList{
 		SettingList: settings,
 	}
-	if err != nil {
-		return &ret, errors.Join(errors.New("Setting read"), err)
-	}
-	return &ret, nil
+	return &ret, errors.WithStack(err)
 }
 
 func (setting *Setting) Delete() error {
-	err := db.Delete(setting).Error
-	if err != nil {
-		return errors.Join(errors.New("Setting delete"), err)
-	}
-	return nil
+	return errors.WithStack(db.Delete(setting).Error)
 }

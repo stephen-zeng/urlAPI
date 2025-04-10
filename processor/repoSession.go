@@ -2,8 +2,9 @@ package processor
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"urlAPI/database"
 	"urlAPI/util"
 )
@@ -15,16 +16,16 @@ func newRepo(info *Session, data *database.Session) error {
 	case "github":
 		content, err = util.GetRepo("https://api.github.com/repos/" + info.RepoInfo + "/contents")
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingMap["rand"][1])
 	case "gitee":
 		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 	default:
-		err = errors.New(info.RepoAPI + " is not supported")
+		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
 	}
 	jsonString, err := json.Marshal(content)
 	if err != nil {
@@ -36,8 +37,7 @@ func newRepo(info *Session, data *database.Session) error {
 		Info:    info.RepoInfo,
 		Content: string(jsonString),
 	}
-	err = repoDB.Create()
-	return err
+	return errors.WithStack(repoDB.Create())
 }
 
 func refreshRepo(info *Session, data *database.Session) error {
@@ -46,7 +46,7 @@ func refreshRepo(info *Session, data *database.Session) error {
 	}
 	repoDBList, err := repoFinder.Read()
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 	repoDB := (*repoDBList).RepoList[0]
 	info.RepoAPI = repoDB.API
@@ -56,40 +56,38 @@ func refreshRepo(info *Session, data *database.Session) error {
 	case "github":
 		content, err = util.GetRepo("https://api.github.com/repos/" + info.RepoInfo + "/contents")
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingMap["rand"][1])
 	case "gitee":
 		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
 		if err != nil {
-			return err
+			return errors.WithStack(err)
 		}
 	default:
-		err = errors.New(info.RepoAPI + " is not supported")
+		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
 	}
 	jsonString, err := json.Marshal(content)
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 	repoDB.Content = string(jsonString)
-	err = repoDB.Update()
-	return err
+	return errors.WithStack(repoDB.Update())
 }
 
 func delRepo(info *Session, data *database.Session) error {
 	repoDB := database.Repo{
 		UUID: info.RepoUUID,
 	}
-	err := repoDB.Delete()
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.WithStack(repoDB.Delete())
 }
 
 func fetchRepo(info *Session, data *database.Session) error {
 	repoFinder := database.Repo{}
-	repoDBList, _ := repoFinder.Read()
+	repoDBList, err := repoFinder.Read()
 	info.RepoData = repoDBList.RepoList
+	if err != gorm.ErrRecordNotFound && err != nil {
+		return errors.WithStack(err)
+	}
 	return nil
 }

@@ -18,13 +18,6 @@ var (
 	SessionMap = make(map[string]Session)
 )
 
-type Interface interface { //丢进来一个struct，然后就可以用这些方法了
-	Create() error
-	Update() error
-	Read() (*DBList, error)
-	Delete() error
-}
-
 type Repo struct {
 	UUID    string `json:"uuid" gorm:"primaryKey"`
 	API     string `json:"api"`

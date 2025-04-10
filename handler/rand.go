@@ -2,74 +2,27 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log"
 	"net/http"
-	"time"
-	"urlAPI/database"
-	"urlAPI/processor"
 	"urlAPI/request"
-	"urlAPI/security"
 	"urlAPI/util"
 )
 
 func randHandler(c *gin.Context) {
-	var randRequest request.Request
-	randRequestBuilder(c, &randRequest)
-	randChecker(&randRequest)
-	if randRequest.Security.General.Unsafe {
-		log.Println(randRequest.Security.General.Info)
+	var newRequest request.Request
+	rand{}.requestBuilder(c, &newRequest)
+	rand{}.checker(&newRequest)
+	if newRequest.Security.General.Unsafe {
+		log.Printf("%s from %s\n", newRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
-			"error": randRequest.Security.General.Info,
+			"error": newRequest.Security.General.Info,
 		})
 		return
 	}
-	if err := randRequest.Processor.Rand.Process(&randRequest.DB.Task); err != nil {
-		log.Println(err)
+	util.ErrorPrinter(newRequest.Processor.Rand.Process(&newRequest.DB.Task))
+	newRequest.Processor.Return = newRequest.Processor.Rand.Return
+	if !newRequest.Security.General.SkipDB {
+		util.ErrorPrinter(newRequest.DB.Task.Create())
 	}
-	taskSaver(&randRequest)
-	returner(c, randRequest.DB.Task.Return, randRequest.Processor.Rand.Return)
-}
-
-func randChecker(r *request.Request) {
-	r.Security.General.FrequencyChecker()
-	r.Security.General.InfoChecker()
-	r.Security.General.ExceptionChecker()
-	r.Security.Rand.FunctionChecker(&r.Security.General)
-	r.Security.Rand.APIChecker(&r.Security.General)
-}
-
-func randRequestBuilder(c *gin.Context, r *request.Request) {
-	referer := c.Request.Referer()
-	ip := c.ClientIP()
-	target := c.Query("user") + "/" + c.Query("repo")
-	api := c.Query("api")
-	device := util.GetDeviceType(c.GetHeader("User-Agent"))
-	region := util.GetRegion(ip)
-	r.Security.General = security.General{
-		Referer: referer,
-		IP:      ip,
-		Type:    util.TypeMap["rand"],
-		Target:  target,
-		Time:    time.Now(),
-	}
-	r.Security.Rand = security.Rand{
-		API:    api,
-		Target: target,
-	}
-	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Type:    util.TypeMap["rand"],
-		Target:  target,
-		Region:  region,
-		Referer: referer,
-		Device:  device,
-		API:     api,
-	}
-	r.Processor.Rand = processor.Rand{
-		API:    api,
-		Target: target,
-	}
+	returner(c, &newRequest)
 }

@@ -2,8 +2,8 @@ package processor
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"net/url"
 	"os"
@@ -36,7 +36,7 @@ func (info *WebImg) Process(data *database.Task) error {
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.Join(errors.New("Processor WebImg"), err)
+		return errors.WithStack(err)
 	}
 	info.API = urlParse.Host
 	data.API = info.API
@@ -61,12 +61,12 @@ func (info *WebImg) Process(data *database.Task) error {
 	default:
 		data.Status = "failed"
 		data.Return = "Invalid URL"
-		return errors.Join(errors.New("Processor WebImg"), errors.New("Invalid URL"))
+		return errors.WithStack(errors.New("Invalid URL"))
 	}
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.Join(errors.New("Processor WebImg"), err)
+		return errors.WithStack(err)
 	}
 	file, _ := os.Create(ImgPath + data.UUID + ".png")
 	defer file.Close()
@@ -74,7 +74,7 @@ func (info *WebImg) Process(data *database.Task) error {
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()
-		return errors.Join(errors.New("Processor WebImg"), err)
+		return errors.WithStack(err)
 	}
 	data.Status = "success"
 	data.Return = fmt.Sprintf(`{"url": "%s"}`, info.Host+"/download?img="+data.UUID)

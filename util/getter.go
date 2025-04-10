@@ -2,10 +2,14 @@ package util
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // 获取设备类型
@@ -50,12 +54,12 @@ func GetRegion(ip string) string {
 func Downloader(url string) ([]byte, error) {
 	resp, err := GlobalHTTPClient.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.Join(errors.New("Util Downloader"), err, errors.New(resp.Status))
+		return nil, errors.WithMessage(err, resp.Status)
 	}
 	defer resp.Body.Close()
 	ret, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util Downloader"), err)
+		return nil, errors.WithStack(err)
 	} else {
 		return ret, nil
 	}
@@ -64,24 +68,40 @@ func Downloader(url string) ([]byte, error) {
 func GetRepo(url string) ([]string, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 	jsonResponse, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	var response []RepoContentResp
 	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		return nil, errors.Join(errors.New("Util GetRepo"), err)
+		return nil, errors.WithStack(err)
 	}
 	var ret []string
 	for _, repo := range response {
 		ret = append(ret, repo.DownloadURL)
 	}
 	return ret, nil
+}
+
+func GetDomain(URL string) string {
+	domainParse, err := url.Parse(URL)
+	if err != nil {
+		return ""
+	}
+	return domainParse.Hostname()
+}
+
+func GetDate(ori string) time.Time {
+	// yyyy.mm -> time.Time
+	parts := strings.Split(ori, ".")
+	year, _ := strconv.Atoi(parts[0])
+	month, _ := strconv.Atoi(parts[1])
+	return time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 }

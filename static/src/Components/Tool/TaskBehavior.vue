@@ -53,7 +53,7 @@ async function sendSetting() {
       </mdui-list-item>
       <mdui-list-item nonclickable>
         <mdui-card variant="outlined">
-          <p>任务不记录的Referer</p>
+          <p>不记录任务的Referer</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable
                            @input="input1 = $event.target.value" :value="input1">
             <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!='') settings[0].push(input1);input1=''}"></mdui-button-icon>

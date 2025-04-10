@@ -19,16 +19,14 @@ func downloadHandler(c *gin.Context) {
 	downloadRequestBuilder(c, &downloadRequest)
 	downloadChecker(&downloadRequest)
 	if downloadRequest.Security.General.Unsafe {
-		log.Println(downloadRequest.Security.General.Info)
+		log.Printf("%s from %s\n", downloadRequest.Security.General.Info, c.ClientIP())
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": downloadRequest.Security.General.Info,
 		})
 		return
 	}
-	if err := downloadRequest.Processor.Download.Process(&downloadRequest.DB.Task); err != nil {
-		log.Println(err)
-	}
-	taskSaver(&downloadRequest)
+	util.ErrorPrinter(downloadRequest.Processor.Download.Process(&downloadRequest.DB.Task))
+	afterTask(&downloadRequest)
 	downloadReturn(c, &downloadRequest)
 	return
 }
@@ -51,20 +49,19 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 		Time:    time.Now(),
 	}
 	r.DB.Task = database.Task{
-		UUID:   uuid.New().String(),
-		Time:   time.Now(),
-		IP:     ip,
-		Target: target,
-		Type:   typ,
-		Device: device,
-		Region: region,
+		UUID:    uuid.New().String(),
+		Time:    time.Now(),
+		IP:      ip,
+		Target:  target,
+		Type:    typ,
+		Device:  device,
+		Region:  region,
+		Referer: referer,
 	}
 }
 
 func downloadChecker(r *request.Request) {
-	r.Security.General.FrequencyChecker()
-	r.Security.General.InfoChecker()
-	r.Security.General.ExceptionChecker()
+	r.Security.General.GeneralChecker()
 }
 
 func downloadReturn(c *gin.Context, r *request.Request) {

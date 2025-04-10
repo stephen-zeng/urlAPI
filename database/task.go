@@ -1,24 +1,16 @@
 package database
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 	"reflect"
 )
 
 func (task *Task) Create() error {
-	err := db.Create(task).Error
-	if err != nil {
-		return errors.Join(errors.New("Task Create"), err)
-	}
-	return nil
+	return errors.WithStack(db.Create(task).Error)
 }
 
 func (task *Task) Update() error {
-	err := db.Save(task).Error
-	if err != nil {
-		return errors.Join(errors.New("Task Update"), err)
-	}
-	return nil
+	return errors.WithStack(db.Save(task).Error)
 }
 
 func (task *Task) Read() (*DBList, error) {
@@ -50,16 +42,9 @@ func (task *Task) Read() (*DBList, error) {
 	ret := DBList{
 		TaskList: tasks,
 	}
-	if err != nil {
-		return &ret, errors.Join(errors.New("Task Read"), err)
-	}
-	return &ret, nil
+	return &ret, errors.WithStack(err)
 }
 
 func (task *Task) Delete() error {
-	err := db.Delete(task).Error
-	if err != nil {
-		return errors.Join(errors.New("Task Delete"), err)
-	}
-	return nil
+	return errors.WithStack(db.Delete(task).Error)
 }
