@@ -13,6 +13,7 @@ import (
 var (
 	GlobalHTTPClient *http.Client
 	font             *truetype.Font
+	IPTmp            = make(map[string]string)
 )
 
 func init() {
