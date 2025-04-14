@@ -2,12 +2,20 @@ package security
 
 import (
 	"fmt"
+	"sync"
 	"time"
 	"urlAPI/database"
 	"urlAPI/util"
 )
 
-var IPFrequency = make(map[FrequencyFilter]FrequencyData)
+type SafeIPFrequency struct {
+	mu          sync.Mutex
+	IPFrequency map[FrequencyFilter]FrequencyData
+}
+
+var IPFrequency = SafeIPFrequency{
+	IPFrequency: make(map[FrequencyFilter]FrequencyData),
+}
 
 func (info *General) GeneralChecker() {
 	info.FrequencyChecker()
@@ -16,16 +24,20 @@ func (info *General) GeneralChecker() {
 }
 
 func (info *General) FrequencyChecker() {
+	// 上锁，解锁
+	IPFrequency.mu.Lock()
+	defer IPFrequency.mu.Unlock()
+
 	filter := FrequencyFilter{
 		Type: info.Type,
 		IP:   info.IP,
 	}
-	value, exists := IPFrequency[filter]
+	value, exists := IPFrequency.IPFrequency[filter]
 	if !exists {
 		value = FrequencyData{}
 		value.Counter = 1
 		value.Time = time.Now()
-		IPFrequency[filter] = value
+		IPFrequency.IPFrequency[filter] = value
 		return
 	}
 	switch {
@@ -39,7 +51,7 @@ func (info *General) FrequencyChecker() {
 	case value.Counter < 10:
 		value.Counter++
 	}
-	IPFrequency[filter] = value
+	IPFrequency.IPFrequency[filter] = value
 	return
 }
 

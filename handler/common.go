@@ -27,15 +27,26 @@ type JsonStruct struct {
 2. 写入数据库
 */
 func afterTask(r *request.Request) {
-	// 运行后更新
-	processor.TaskCounter[r.Processor.Filter.API]--
-	taskTmp := processor.TaskQueue[r.Processor.Filter]
+	// 读
+	processor.TaskCounter.Mu.Lock()
+	processor.TaskCounter.Counter[r.Processor.Filter.API]--
+	processor.TaskCounter.Mu.Unlock()
+
+	//写
+	processor.TaskCounter.Mu.RLock()
+	taskTmp := processor.TaskQueue.Queue[r.Processor.Filter]
+	processor.TaskCounter.Mu.RUnlock()
+
 	taskTmp.Running = false
 	if r.DB.Task.Status == "success" {
 		taskTmp.DB = r.DB.Task
 		taskTmp.Return = r.Processor.Return
 	}
-	processor.TaskQueue[r.Processor.Filter] = taskTmp
+
+	processor.TaskCounter.Mu.Lock()
+	processor.TaskQueue.Queue[r.Processor.Filter] = taskTmp
+	processor.TaskCounter.Mu.Unlock()
+
 	if !r.Security.General.SkipDB {
 		util.ErrorPrinter(r.DB.Task.Create())
 	}
@@ -48,10 +59,16 @@ func afterTask(r *request.Request) {
 3. 将任务添加至任务队列中
 */
 func beforeTask(r *request.Request) {
+	//正式开始
 	settingName := task2settingName[r.Processor.Filter.Type]
 	expiredPosition := expiredSettingPosition[settingName]
 	expiredTime, _ := strconv.Atoi(database.SettingMap[settingName][expiredPosition])
-	if task, ok := processor.TaskQueue[r.Processor.Filter]; ok {
+
+	processor.TaskCounter.Mu.RLock()
+	task, ok := processor.TaskQueue.Queue[r.Processor.Filter]
+	processor.TaskCounter.Mu.RUnlock()
+
+	if ok {
 		for {
 			if !task.Running {
 				break
@@ -65,15 +82,22 @@ func beforeTask(r *request.Request) {
 			r.DB.Task = task.DB
 			r.DB.Task.UUID = id
 			r.DB.Task.Time = time.Now()
+			r.DB.Task.Temp = "Yes"
 			r.Processor.Return = task.Return
 			return
 		} else {
 			os.Remove(processor.ImgPath + task.DB.UUID + ".png")
 		}
 	}
+
 	// 没有已知任务，准备开新任务
+	r.DB.Task.Temp = "No"
 	for {
-		value, ok := processor.TaskCounter[r.Processor.Filter.API]
+
+		processor.TaskCounter.Mu.RLock()
+		value, ok := processor.TaskCounter.Counter[r.Processor.Filter.API]
+		processor.TaskCounter.Mu.RUnlock()
+
 		if !ok || value <= 2 {
 			break
 		}
@@ -81,10 +105,16 @@ func beforeTask(r *request.Request) {
 	}
 
 	// 运行前准备
-	taskTmp := processor.TaskQueue[r.Processor.Filter]
+	processor.TaskCounter.Mu.RLock()
+	taskTmp := processor.TaskQueue.Queue[r.Processor.Filter]
+	processor.TaskCounter.Mu.RUnlock()
+
 	taskTmp.Running = true
-	processor.TaskQueue[r.Processor.Filter] = taskTmp
-	processor.TaskCounter[r.Processor.Filter.API]++
+
+	processor.TaskCounter.Mu.Lock()
+	processor.TaskQueue.Queue[r.Processor.Filter] = taskTmp
+	processor.TaskCounter.Counter[r.Processor.Filter.API]++
+	processor.TaskCounter.Mu.Unlock()
 }
 
 func returner(c *gin.Context, r *request.Request) {

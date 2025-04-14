@@ -48,6 +48,7 @@ type Task struct {
 
 	// txt, img
 	Model string `json:"model"`
+	Temp  string `json:"temp"`
 
 	// img
 	Size string `json:"size"`
