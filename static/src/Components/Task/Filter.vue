@@ -11,6 +11,7 @@ import Referer from "@/Components/Task/Referer.vue";
 import {Notification, Post} from "@/fetch.js";
 import {inject, onMounted, ref} from "vue";
 import Cookies from "js-cookie";
+import Info from "@/Components/Task/Info.vue";
 
 const task = ref([]);
 const title = inject("title");
@@ -54,6 +55,7 @@ onMounted(async ()=>{
     <Referer :tasks="task" @refresh="(emitter=4)"></Referer>
     <Time :tasks="task" @refresh="(emitter=4)"></Time>
     <Device :tasks="task" @refresh="(emitter=4)"></Device>
+    <Info :tasks="task" @refresh="(emitter=4)"></Info>
   </div>
 </template>
 

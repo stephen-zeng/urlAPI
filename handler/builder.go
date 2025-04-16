@@ -19,6 +19,7 @@ func (txt) requestBuilder(c *gin.Context, r *request.Request) {
 	target := c.Query("prompt")
 	model := c.Query("model")
 	api := c.Query("api")
+	more := c.Query("more")
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
@@ -29,16 +30,17 @@ func (txt) requestBuilder(c *gin.Context, r *request.Request) {
 		Time:    time.Now(),
 	}
 	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Type:    util.TypeMap["txt.gen"],
-		Target:  target,
-		Region:  region,
-		Referer: referer,
-		Device:  device,
-		API:     api,
-		Model:   model,
+		UUID:     uuid.New().String(),
+		Time:     time.Now(),
+		IP:       ip,
+		Type:     util.TypeMap["txt.gen"],
+		Target:   target,
+		Region:   region,
+		Referer:  referer,
+		Device:   device,
+		API:      api,
+		Model:    model,
+		MoreInfo: more,
 	}
 	r.Processor.TxtGen = processor.TxtGen{
 		API:    api,
@@ -58,6 +60,7 @@ func (rand) requestBuilder(c *gin.Context, r *request.Request) {
 	ip := c.ClientIP()
 	target := c.Query("user") + "/" + c.Query("repo")
 	api := c.Query("api")
+	more := c.Query("more")
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
@@ -72,15 +75,16 @@ func (rand) requestBuilder(c *gin.Context, r *request.Request) {
 		Target: target,
 	}
 	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Type:    util.TypeMap["rand"],
-		Target:  target,
-		Region:  region,
-		Referer: referer,
-		Device:  device,
-		API:     api,
+		UUID:     uuid.New().String(),
+		Time:     time.Now(),
+		IP:       ip,
+		Type:     util.TypeMap["rand"],
+		Target:   target,
+		Region:   region,
+		Referer:  referer,
+		Device:   device,
+		API:      api,
+		MoreInfo: more,
 	}
 	r.Processor.Rand = processor.Rand{
 		API:    api,
@@ -98,6 +102,7 @@ func (img) requestBuilder(c *gin.Context, r *request.Request) {
 	target := c.Query("prompt")
 	size := c.Query("size")
 	api := c.Query("api")
+	more := c.Query("more")
 
 	r.Security.General = security.General{
 		Referer: referer,
@@ -111,17 +116,18 @@ func (img) requestBuilder(c *gin.Context, r *request.Request) {
 		Model: model,
 	}
 	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Type:    util.TypeMap["img.gen"],
-		Target:  target,
-		Region:  region,
-		Referer: referer,
-		Device:  device,
-		API:     api,
-		Model:   model,
-		Size:    size,
+		UUID:     uuid.New().String(),
+		Time:     time.Now(),
+		IP:       ip,
+		Type:     util.TypeMap["img.gen"],
+		Target:   target,
+		Region:   region,
+		Referer:  referer,
+		Device:   device,
+		API:      api,
+		Model:    model,
+		MoreInfo: more,
+		Size:     size,
 	}
 	r.Processor.ImgGen = processor.ImgGen{
 		API:    api,
@@ -143,6 +149,7 @@ func (web) requestBuilder(c *gin.Context, r *request.Request) {
 	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
 	target := c.Query("img")
+	more := c.Query("more")
 	urlParse, _ := url.Parse(target)
 	api := urlParse.Host
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
@@ -158,15 +165,16 @@ func (web) requestBuilder(c *gin.Context, r *request.Request) {
 		API: api,
 	}
 	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Type:    util.TypeMap["web.img"],
-		Target:  target,
-		Region:  region,
-		Referer: referer,
-		Device:  device,
-		API:     api,
+		UUID:     uuid.New().String(),
+		Time:     time.Now(),
+		IP:       ip,
+		Type:     util.TypeMap["web.img"],
+		Target:   target,
+		Region:   region,
+		Referer:  referer,
+		Device:   device,
+		API:      api,
+		MoreInfo: more,
 	}
 	r.Processor.WebImg = processor.WebImg{
 		API:    api,
