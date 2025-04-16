@@ -37,6 +37,14 @@ func afterTask(r *request.Request) {
 	taskTmp := processor.TaskQueue.Queue[r.Processor.Filter]
 	processor.TaskCounter.Mu.RUnlock()
 
+	//验证图像是否有效
+	if !util.PngChecker(processor.ImgPath+r.DB.Task.UUID+".png") &&
+		r.DB.Task.Temp != "Yes" && r.DB.Task.Status == "success" {
+		r.DB.Task.Status = "failed"
+		r.DB.Task.Return = "Invalid Image File"
+		r.Processor.Return = "download?img=empty"
+	}
+
 	taskTmp.Running = false
 	if r.DB.Task.Status == "success" {
 		taskTmp.DB = r.DB.Task
@@ -76,7 +84,9 @@ func beforeTask(r *request.Request) {
 			time.Sleep(1 * time.Second)
 		}
 		time.Sleep(1 * time.Millisecond)
-		if !task.Running && time.Now().Sub(task.DB.Time) <= time.Duration(expiredTime)*time.Minute {
+		if !task.Running &&
+			time.Now().Sub(task.DB.Time) <= time.Duration(expiredTime)*time.Minute &&
+			task.DB.Status == "success" {
 			r.Processor.Return = task.Return
 			id := r.DB.Task.UUID
 			r.DB.Task = task.DB

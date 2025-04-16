@@ -4,10 +4,18 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"urlAPI/database"
+	"urlAPI/file"
 )
 
 func (info *Download) Process(data *database.Task) error {
-	img, err := os.ReadFile(ImgPath + info.Target + ".png")
+	var img []byte
+	var err error
+	switch info.Target {
+	case "empty":
+		img, err = file.EmptyPNG.ReadFile("empty.png")
+	default:
+		img, err = os.ReadFile(ImgPath + info.Target + ".png")
+	}
 	if err != nil {
 		data.Status = "failed"
 		data.Return = err.Error()

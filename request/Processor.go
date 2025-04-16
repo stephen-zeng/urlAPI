@@ -11,4 +11,5 @@ type Processor struct {
 	Rand     processor.Rand
 	Filter   processor.TaskQueueFilter
 	Return   string
+	Fallback string
 }
