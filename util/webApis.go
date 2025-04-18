@@ -134,8 +134,11 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	rawResp, err := io.ReadAll(resp.Body)
