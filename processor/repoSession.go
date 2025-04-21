@@ -86,7 +86,7 @@ func fetchRepo(info *Session, data *database.Session) error {
 	repoFinder := database.Repo{}
 	repoDBList, err := repoFinder.Read()
 	info.RepoData = repoDBList.RepoList
-	if err != gorm.ErrRecordNotFound && err != nil {
+	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

@@ -1,41 +1,16 @@
 <script setup>
 
-import { ref, inject } from 'vue';
-import { Post, Notification } from "@/fetch.js"
-import Cookies from "js-cookie";
+import { ref } from 'vue';
+import {Setting} from "@/js/util.js";
 
-const url = inject('url')
 const settings = ref()
 
 async function getSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchSetting",
-      "setting_part": "otherapi"
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    settings.value = session.setting_data
-  }
+  settings.value = await Setting("fetchSetting", "otherapi")
 }
 
 async function sendSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "editSetting",
-      "setting_part": "otherapi",
-      "setting_edit": settings.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Saved")
-  }
+  await Setting("editSetting", "otherapi", settings.value)
 }
 
 </script>

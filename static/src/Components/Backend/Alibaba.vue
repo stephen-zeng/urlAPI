@@ -1,40 +1,15 @@
 <script setup>
-  import { ref, inject } from 'vue';
-  import { Post, Notification } from "@/fetch.js"
-  import Cookies from "js-cookie";
+  import { ref } from 'vue';
+  import {Setting} from "@/js/util.js";
 
-  const url = inject('url')
   const settings = ref()
 
   async function getSetting() {
-    const session = await Post({
-      "Token": Cookies.get("token"),
-      "Send": {
-        "operation": "fetchSetting",
-        "setting_part": "alibaba"
-      }
-    })
-    if (session.error) {
-      Notification(session.error)
-    } else {
-      settings.value = session.setting_data
-    }
+    settings.value = await Setting("fetchSetting", "alibaba")
   }
 
   async function sendSetting() {
-    const session = await Post({
-      "Token": Cookies.get("token"),
-      "Send": {
-        "operation": "editSetting",
-        "setting_part": "alibaba",
-        "setting_edit": settings.value,
-      }
-    })
-    if (session.error) {
-      Notification(session.error)
-    } else {
-      Notification("Saved")
-    }
+    await Setting("editSetting", "alibaba", settings.value)
   }
 </script>
 
@@ -88,7 +63,7 @@
           <p>默认图片生成大小</p>
           <mdui-radio-group :value="settings?settings[0][4]:'1024*1024'"
                             @change="settings[0][4]=$event.target.value"
-                            v-if="settings?settings[0][3]=='wanx-v1':false"
+                            v-if="settings?settings[0][3]==='wanx-v1':false"
                             style="margin-top: 0">
             <mdui-radio value="1024*1024">正方形 (1024x1024)</mdui-radio>
             <mdui-radio value="1280*720">横屏 (1280x720)</mdui-radio>
@@ -97,7 +72,7 @@
           </mdui-radio-group>
           <mdui-radio-group :value="settings?settings[0][4]:'1024*1024'"
                             @change="settings[0][4]=$event.target.value"
-                            v-if="settings?settings[0][3]!='wanx-v1':false"
+                            v-if="settings?settings[0][3]!=='wanx-v1':false"
                             style="margin-top: 0">
             <mdui-radio value="1024*1024">大 (1024x1024)</mdui-radio>
             <mdui-radio value="512*512">中 (512x512)</mdui-radio>

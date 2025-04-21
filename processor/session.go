@@ -11,6 +11,8 @@ func (info *Session) Process(data *database.Session) error {
 		return errors.WithStack(err)
 	}
 	switch info.Operation {
+	case "login":
+		break
 	case "logout":
 		err = logout(info, data)
 	case "exit":

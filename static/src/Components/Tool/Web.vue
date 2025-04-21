@@ -1,66 +1,35 @@
 <script setup>
 
-import { ref, inject } from 'vue';
-import { Post, Notification } from "@/fetch.js"
-import Cookies from "js-cookie";
+import { ref } from 'vue';
+import {Setting} from "@/js/util.js";
 
-const url = inject('url')
 const settings = ref()
-const input2 = ref('')
 
 async function getSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchSetting",
-      "setting_part": "web"
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    settings.value = session.setting_data
-  }
+  settings.value = await Setting("fetchSetting", "web")
 }
 
 async function sendSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "editSetting",
-      "setting_part": "web",
-      "setting_edit": settings.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Saved")
-  }
+  await Setting("editSetting", "web", settings.value)
 }
 
 function find(list, status, value, operation) {
   let index
-  if (operation == "edit" && status == true) {
+  if (operation === "edit" && status === true) {
     list.push(value)
   }
   for (let i = 0; i < list.length; i++) {
-    if (list[i] == value) {
+    if (list[i] === value) {
       index = i
-      if (operation == "find") {
+      if (operation === "find") {
         return true
       }
     }
   }
-  if (operation == "find") {
+  if (operation === "find") {
     return false
   }
-  if (operation == "edit" && status == false) {
-    list.splice(index, 1)
-  }
-}
-function del(list, index) {
-  if (list.length > 1) {
+  if (operation === "edit" && status === false) {
     list.splice(index, 1)
   }
 }

@@ -2,10 +2,9 @@
   import Text from "@/Components/Tool/Text.vue";
   import Image from "@/Components/Tool/Image.vue";
   import Web from "@/Components/Tool/Web.vue";
-  import Security from "@/Components/Tool/Security.vue";
   import Rand from "@/Components/Tool/Rand.vue"
   import {onMounted, inject} from "vue";
-  import TaskBehavior from "@/Components/Tool/TaskBehavior.vue";
+  import TaskBehavior from "@/Components/Security/TaskBehavior.vue";
 
   const title = inject("title");
 
@@ -16,12 +15,10 @@
 
 <template>
   <mdui-layout-main>
-    <Security></Security>
     <Text></Text>
     <Image></Image>
     <Rand></Rand>
     <Web></Web>
-    <TaskBehavior></TaskBehavior>
   </mdui-layout-main>
 </template>
 

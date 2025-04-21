@@ -1,33 +1,30 @@
 <script setup>
 import {inject, onMounted, ref} from 'vue';
 import { sha256 } from "js-sha256";
-import { Post, Notification } from "@/fetch.js";
+import { Post, Notification } from "@/js/fetch.js";
 import Cookies from 'js-cookie';
+import {useRouter} from "vue-router";
+import {Login} from "@/js/util.js";
 
 const pwd = ref("")
 const term = ref(false)
 const loginStatus = inject("login");
 const title = inject("title");
+const router = useRouter();
 
 async function login() {
-  const session = await Post({
-    "Token": sha256(pwd.value),
-    "Send": {
-      "operation": "login",
-      "login_term": term.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {``
-    Cookies.set("token", session.session_token, {expires: 7});
+  if (await Login(sha256(pwd.value), term.value)) {
     loginStatus.value = true;
-    Notification("Login successful!");
+    router.push("/dash/task");
   }
 }
 
-onMounted(() => {
+onMounted(async() => {
   title.value = "登录";
+  if (Cookies.get("token") && await (Cookies.get("token"), false)) {
+      loginStatus.value = true;
+      router.push("/dash/task");
+  }
 })
 </script>
 

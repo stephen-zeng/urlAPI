@@ -3,14 +3,15 @@ import {ref, provide, inject, onUnmounted, onMounted, watch} from 'vue';
   import Header from "@/frameworks/Header.vue";
   import Sidebar from "@/frameworks/Sidebar.vue";
   import Cookies from "js-cookie";
-  import {Notification, Post} from "@/fetch.js";
   import {useRouter} from "vue-router";
+import {Login} from "@/js/util.js";
 
 const sidebarStatus = ref(false);
   const pages = ref([
       '所有记录',
       '接口设置',
       '功能设置',
+      '安全设置',
       '工作台',
   ])
   const login = inject("login");
@@ -22,18 +23,7 @@ const sidebarStatus = ref(false);
 
   onMounted(async() => {
     if (Cookies.get("token")) {
-      const session = await Post({
-        "Token": Cookies.get("token"),
-        "Send": {
-          "operation": "login",
-          "login_term": false,
-        }
-      })
-      if (session.error) {
-        Notification(session.error)
-      } else {
-        login.value = true
-      }
+      login.value = await Login(Cookies.get("token"), false)
     }
     if (!login.value) {
       router.push("/dash/login");
@@ -42,26 +32,13 @@ const sidebarStatus = ref(false);
 
   onUnmounted(async() => {
     if (Cookies.get("token")) {
-      const session = await Post({
-        "Token": Cookies.get("token"),
-        "Send": {
-          "operation": "exit",
-          "login_term": false,
-        }
-      })
-      login.value = false
+      await Logout(Cookies.get("token"))
     }
   })
 
   watch(login, (newValue, oldValue) => {
     if (!newValue) {
       router.push("/dash/login");
-    } else {
-      if (Cookies.get("tab")) {
-        router.push(Cookies.get("tab"));
-      } else {
-        router.push('/dash/task')
-      }
     }
   })
 

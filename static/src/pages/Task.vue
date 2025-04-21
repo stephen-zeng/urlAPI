@@ -6,7 +6,7 @@
   import Model from "@/Components/Task/Model.vue";
   import {ref, provide, onMounted, inject, watch} from 'vue';
   import Cookies from "js-cookie";
-  import { Post, Notification } from "@/fetch.js"
+  import { Post, Notification } from "@/js/fetch.js"
   import Status from "@/Components/Task/Status.vue";
   import Referer from "@/Components/Task/Referer.vue";
   import Time from "@/Components/Task/Time.vue";

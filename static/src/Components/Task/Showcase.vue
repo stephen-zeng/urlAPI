@@ -1,8 +1,7 @@
 <script setup>
 import {ref, provide, inject, onMounted, watch} from 'vue';
 import Detail from "@/Components/Task/Detail.vue";
-import {Notification, Post} from "@/fetch.js";
-import Cookies from "js-cookie";
+import {Task} from "@/js/util.js";
 
 const dialogStatus = ref(false);
 const target = ref(0)
@@ -20,23 +19,13 @@ provide('target',target);
 
 
 async function fetchTask() {
-  if (by.value == "") {
+  if (by.value === "") {
     title.value = "任务查看"
   } else {
-    title.value = "任务查看 → " + (by.value == "" ? "N/A" : by.value);
+    title.value = "任务查看 → " + (by.value === "" ? "N/A" : by.value);
   }
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchTask",
-      "task_catagory": catagory.value,
-      "task_by": by.value,
-      "task_page": page.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
+  const session = await Task("fetchTask", catagory.value, by.value, page.value);
+  if (session) {
     task.value = session.task_data
     maxPage.value = session.task_max_page;
   }
@@ -52,11 +41,11 @@ function showDetail(newTarget) {
 }
 
 function getTime(tim) {
-  var date = new Date(tim).toJSON();
-  return new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.[\d]{3}Z/,'');
+  let date = new Date(tim).toJSON();
+  return new Date(+new Date(date)+8*3600*1000).toISOString().replace(/T/g,' ').replace(/\.\d{3}Z/,'');
 }
 
-watch(emitter, async(newVal, oldVal) => {
+watch(emitter, async(newVal) => {
   switch (newVal) {
     case 1: //
       page.value = 1;
@@ -98,7 +87,7 @@ watch(emitter, async(newVal, oldVal) => {
       </tr>
       </thead>
       <tbody>
-        <tr @click="showDetail(item)" v-for="(item,index) in task">
+        <tr @click="showDetail(item)" v-for="item in task">
           <td>{{ getTime(item.time) }}</td>
           <td>{{ item.type }}</td>
           <td>{{ item.region }}</td>
