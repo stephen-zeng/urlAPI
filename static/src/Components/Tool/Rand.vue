@@ -1,96 +1,33 @@
 <script setup>
 
-import { ref, inject } from 'vue';
-import { Post, Notification } from "@/fetch.js"
-import Cookies from "js-cookie";
+import { ref } from 'vue';
+import {Repo, Setting} from "@/js/util.js";
 
-const url = inject('url')
 const settings = ref()
 const repoAPI = ref("github")
 const repoInfo = ref("")
 const repos = ref([])
 
 async function getRepos() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchRepo",
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    repos.value = session.repo_data
-  }
+  repos.value = await Repo("fetchRepo")
 }
 async function editRepo(operation, id) {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": operation,
-      "repo_uuid": id,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Success")
-  }
+  await Repo(operation, id)
   await getRepos()
 }
 async function newRepo() {
-  if (repoInfo == "") return
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "newRepo",
-      "repo_api": repoAPI.value,
-      "repo_info": repoInfo.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Success")
-  }
+  if (repoInfo.value === "") return
+  await Repo("newRepo", "", repoAPI.value, repoInfo.value)
   repoInfo.value = ""
   await getRepos()
 }
 
 async function getSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchSetting",
-      "setting_part": "rand"
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    settings.value = session.setting_data
-  }
+  settings.value = await Setting("fetchSetting", "rand")
   await getRepos()
 }
 async function sendSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "editSetting",
-      "setting_part": "rand",
-      "setting_edit": settings.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Saved")
-  }
-}
-function del(list, index) {
-  if (list.length > 1) {
-    list.splice(index, 1)
-  }
+  await Setting("editSetting", "rand", settings.value)
 }
 </script>
 

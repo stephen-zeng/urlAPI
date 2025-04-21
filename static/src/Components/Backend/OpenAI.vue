@@ -1,41 +1,16 @@
 <script setup>
 
-import { ref, inject } from 'vue';
-import { Post, Notification } from "@/fetch.js"
-import Cookies from "js-cookie";
+import { ref } from 'vue';
+import {Setting} from "@/js/util.js";
 
-const url = inject('url')
 const settings = ref()
 
 async function getSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchSetting",
-      "setting_part": "openai"
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    settings.value = session.setting_data
-  }
+  settings.value = await Setting("fetchSetting", "openai")
 }
 
 async function sendSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "editSetting",
-      "setting_part": "openai",
-      "setting_edit": settings.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Saved")
-  }
+  await Setting("editSetting", "openai", settings.value)
 }
 
 </script>
@@ -76,14 +51,14 @@ async function sendSetting() {
           </mdui-radio-group>
           <p>默认图片生成大小</p>
           <mdui-radio-group :value="settings?settings[0][4]:'1024x1024'" style="margin-top: 0"
-                            v-if="settings?settings[0][3]=='dall-e-3':false"
+                            v-if="settings?settings[0][3]==='dall-e-3':false"
                             @change="settings[0][4]=$event.target.value">
             <mdui-radio value="1024x1024">正方形 (1024x1024)</mdui-radio>
             <mdui-radio value="1792x1024">横屏（1792x1024）</mdui-radio>
             <mdui-radio value="1024x1792">竖屏 (1024x1792)</mdui-radio>
           </mdui-radio-group>
           <mdui-radio-group :value="settings?settings[0][4]:'1024x1024'" style="margin-top: 0"
-                            v-if="settings?settings[0][3]=='dall-e-2':false"
+                            v-if="settings?settings[0][3]==='dall-e-2':false"
                             @change="settings[0][4]=$event.target.value">
             <mdui-radio value="256x256">小 (256x256)</mdui-radio>
             <mdui-radio value="512x512">中（512x512）</mdui-radio>

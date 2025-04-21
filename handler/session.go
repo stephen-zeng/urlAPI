@@ -32,5 +32,6 @@ func sessionBuilder(c *gin.Context, r *request.Request) error {
 	r.DB.Session.Token = c.Request.Header.Get("Authorization")
 	r.DB.Session.Term = r.Processor.Session.LoginTerm
 	r.Processor.Session.SessionIP = c.ClientIP()
+	r.Processor.Session.SessionToken = c.Request.Header.Get("Authorization")
 	return nil
 }

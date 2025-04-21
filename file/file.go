@@ -13,3 +13,6 @@ var Logos embed.FS
 
 //go:embed setting.json
 var Settings embed.FS
+
+//go:embed empty.png
+var EmptyPNG embed.FS

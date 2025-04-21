@@ -33,6 +33,9 @@ func GetDeviceType(ua string) string {
 }
 
 func GetRegion(ip string) string {
+	if value, ok := IPTmp[ip]; ok {
+		return value
+	}
 	url := "https://api.vore.top/api/IPdata?ip=" + ip
 	resp, err := GlobalHTTPClient.Get(url)
 	if err != nil {
@@ -48,6 +51,10 @@ func GetRegion(ip string) string {
 	if err != nil {
 		return "Unknown"
 	}
+	if len(IPTmp) >= 1000 {
+		IPTmp = make(map[string]string)
+	}
+	IPTmp[ip] = response.IPData.Info1
 	return response.IPData.Info1
 }
 

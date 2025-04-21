@@ -8,37 +8,18 @@ import API from "@/Components/Task/API.vue";
 import Region from "@/Components/Task/Region.vue";
 import Device from "@/Components/Task/Device.vue";
 import Referer from "@/Components/Task/Referer.vue";
-import {Notification, Post} from "@/fetch.js";
 import {inject, onMounted, ref} from "vue";
-import Cookies from "js-cookie";
+import Info from "@/Components/Task/Info.vue";
+import {Task} from "@/js/util.js";
 
 const task = ref([]);
-const title = inject("title");
 const catagory = inject("catagory");
 const by = inject("by");
 const emitter = inject("emitter");
 
-async function fetchTask() {
-  if (by.value == "") {
-    title.value = "任务查看"
-  } else {
-    title.value = "任务查看 → " + (by.value == "" ? "N/A" : by.value);
-  }
-}
-
 onMounted(async ()=>{
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchTask",
-      "task_catagory": catagory.value,
-      "task_by": by.value,
-      "task_page": -1,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
+  const session = await Task("fetchTask", catagory.value, by.value);
+  if (session) {
     task.value = session.task_data;
   }
 })
@@ -54,6 +35,7 @@ onMounted(async ()=>{
     <Referer :tasks="task" @refresh="(emitter=4)"></Referer>
     <Time :tasks="task" @refresh="(emitter=4)"></Time>
     <Device :tasks="task" @refresh="(emitter=4)"></Device>
+    <Info :tasks="task" @refresh="(emitter=4)"></Info>
   </div>
 </template>
 

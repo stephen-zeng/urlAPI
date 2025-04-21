@@ -1,6 +1,6 @@
 import './assets/main.css'
 import { createApp, ref } from 'vue'
-import router from './router'
+import router from './js/router.js'
 import App from './App.vue'
 import 'mdui'
 import 'mdui/mdui.css'

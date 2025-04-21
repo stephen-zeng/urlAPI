@@ -27,8 +27,10 @@
       @click="changeTab('/dash/backend')">{{ pages[1] }}</mdui-list-item>
       <mdui-list-item icon="auto_fix_high"
       @click="changeTab('/dash/tool')">{{ pages[2] }}</mdui-list-item>
+      <mdui-list-item icon="security"
+      @click="changeTab('/dash/security')">{{ pages[3] }}</mdui-list-item>
       <mdui-list-item icon="dashboard"
-      @click="changeTab('/dash/workshop')">{{ pages[3] }}</mdui-list-item>
+      @click="changeTab('/dash/workshop')">{{ pages[4] }}</mdui-list-item>
     </mdui-list>
   </mdui-navigation-drawer>
 </template>

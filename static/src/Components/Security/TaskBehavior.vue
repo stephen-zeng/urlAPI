@@ -1,45 +1,17 @@
 <script setup>
 
-import { ref, inject } from 'vue';
-import { Post, Notification } from "@/fetch.js"
-import Cookies from "js-cookie";
-import {sha256} from "js-sha256";
+import {ref} from 'vue';
+import {Setting} from "@/js/util.js";
 
-const url = inject('url')
 const settings = ref({})
 const input1 = ref('')
-const ip = ref('')
 
 async function getSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "fetchSetting",
-      "setting_part": "taskBehavior",
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    settings.value = session.setting_data
-    console.log(settings.value)
-  }
+  settings.value = await Setting("fetchSetting", "taskBehavior")
 }
 
 async function sendSetting() {
-  const session = await Post({
-    "Token": Cookies.get("token"),
-    "Send": {
-      "operation": "editSetting",
-      "setting_part": "taskBehavior",
-      "setting_edit": settings.value,
-    }
-  })
-  if (session.error) {
-    Notification(session.error)
-  } else {
-    Notification("Saved")
-  }
+  await Setting("editSetting", "taskBehavior", settings.value)
 }
 
 </script>
@@ -56,7 +28,7 @@ async function sendSetting() {
           <p>不记录任务的Referer</p>
           <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable
                            @input="input1 = $event.target.value" :value="input1">
-            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!='') settings[0].push(input1);input1=''}"></mdui-button-icon>
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!=='') settings[0].push(input1);input1=''}"></mdui-button-icon>
           </mdui-text-field>
           <div class="list">
             <mdui-list>

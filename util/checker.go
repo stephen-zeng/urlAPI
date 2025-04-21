@@ -1,6 +1,8 @@
 package util
 
 import (
+	"image/png"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -31,4 +33,17 @@ func ListChecker(apis *[]string, api *string) bool {
 		}
 	}
 	return false
+}
+
+// 检查png图像是否合法，给路径
+func PngChecker(path string) bool {
+	file, err := os.Open(path)
+	if err != nil {
+		return false
+	}
+	defer file.Close()
+	if _, err = png.Decode(file); err != nil {
+		return false
+	}
+	return true
 }

@@ -2,18 +2,34 @@ package processor
 
 import (
 	"os"
+	"sync"
 	"urlAPI/database"
 )
 
+type SafeTaskQueue struct {
+	Mu    sync.RWMutex
+	Queue map[TaskQueueFilter]TaskQueueItem
+}
+
+type SafeTaskCounter struct {
+	Mu      sync.RWMutex
+	Counter map[string]int
+}
+
 var (
-	ImgPath     = "assets/img/"
-	TaskQueue   = make(map[TaskQueueFilter]TaskQueueItem)
-	TaskCounter = make(map[string]int)
+	ImgPath   = "assets/img/"
+	TaskQueue = SafeTaskQueue{
+		Queue: make(map[TaskQueueFilter]TaskQueueItem),
+	}
+	TaskCounter = SafeTaskCounter{
+		Counter: make(map[string]int),
+	}
 )
 
 func init() {
 	os.RemoveAll(ImgPath)
 	os.MkdirAll(ImgPath, 0777)
+
 }
 
 func getEndpoint(api string) string {

@@ -30,8 +30,11 @@ func Bili(ABV string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
@@ -65,12 +68,15 @@ func Ytb(ID, Token string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	var info YtbResp
@@ -96,8 +102,11 @@ func Arxiv(URL string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	rawResp, err := io.ReadAll(resp.Body)
@@ -125,8 +134,11 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	rawResp, err := io.ReadAll(resp.Body)
@@ -166,8 +178,11 @@ func Repo(URL string, Token string) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
+	switch {
+	case err != nil:
+		return nil, errors.WithStack(err)
+	case resp.StatusCode != http.StatusOK:
+		return nil, errors.WithStack(errors.New(resp.Status))
 	}
 	defer resp.Body.Close()
 	jsonResp, err := io.ReadAll(resp.Body)

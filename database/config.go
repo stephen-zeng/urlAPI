@@ -33,21 +33,23 @@ type Session struct {
 
 type Task struct {
 	// all
-	UUID    string    `json:"uuid" gorm:"primaryKey"`
-	Time    time.Time `json:"time"`
-	IP      string    `json:"ip"`
-	Type    string    `json:"type"`
-	Status  string    `json:"status"`
-	Target  string    `json:"target"`
-	Return  string    `json:"return"`
-	Region  string    `json:"region"`
-	Referer string    `json:"referer"`
-	Device  string    `json:"device"`
+	UUID     string    `json:"uuid" gorm:"primaryKey"`
+	Time     time.Time `json:"time"`
+	IP       string    `json:"ip"`
+	Type     string    `json:"type"`
+	Status   string    `json:"status"`
+	Target   string    `json:"target"`
+	Return   string    `json:"return"`
+	Region   string    `json:"region"`
+	Referer  string    `json:"referer"`
+	Device   string    `json:"device"`
+	MoreInfo string    `json:"more_info" gorm:"more_info"`
 	//txt, img, web, rand
 	API string `json:"api"`
 
 	// txt, img
 	Model string `json:"model"`
+	Temp  string `json:"temp"`
 
 	// img
 	Size string `json:"size"`

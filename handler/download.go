@@ -3,11 +3,9 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"time"
-	"urlAPI/database"
 	"urlAPI/processor"
 	"urlAPI/request"
 	"urlAPI/security"
@@ -35,9 +33,7 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 	referer := c.Request.Referer()
 	ip := c.ClientIP()
 	target := c.Query("img")
-	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	typ := util.TypeMap["download"]
-	region := util.GetRegion(ip)
 	r.Processor.Download = processor.Download{
 		Target: target,
 	}
@@ -48,20 +44,12 @@ func downloadRequestBuilder(c *gin.Context, r *request.Request) {
 		Type:    typ,
 		Time:    time.Now(),
 	}
-	r.DB.Task = database.Task{
-		UUID:    uuid.New().String(),
-		Time:    time.Now(),
-		IP:      ip,
-		Target:  target,
-		Type:    typ,
-		Device:  device,
-		Region:  region,
-		Referer: referer,
-	}
 }
 
 func downloadChecker(r *request.Request) {
-	r.Security.General.GeneralChecker()
+	r.Security.General.SkipDB = true
+	r.Security.General.InfoChecker()
+	r.Security.General.ExceptionChecker()
 }
 
 func downloadReturn(c *gin.Context, r *request.Request) {
