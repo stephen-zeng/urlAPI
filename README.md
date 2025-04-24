@@ -88,3 +88,35 @@
 
 # 一些可能生成错误的原因
 + 服务器与上游API的连接问题，比如国内服务器不经过特殊手段无法连接OpenAI的服务器。
+
+# Docker部署
+
+可以使用项目中的`Dockerfile`自行构建，也可以使用下面的命令来运行
+```bash
+docker run -d --name urlapi -p %EXPOSE_PORT%:2233 -v %LOCAL_DATA_PLACE%:/app/data 0w0w0/urlapi:latest
+
+# e.g
+docker run -d --name urlapi -p 8080:2233 -v /home/stephenzeng/dockerData/urlAPI:/app/data 0w0w0/urlapi:latest
+```
++ 镜像目前`latest`和具体版本号两种tag，建议使用`latest`。
++ arm版本的镜像为`0w0w0/urlapi-arm`
+
+# 注册为systemctl服务
+下面是`/etc/systemd/system/urlAPI.service`模板
+```
+[Unit]
+Description = urlAPI
+After = network.target syslog.target
+Wants = network.target
+
+[Service]
+Type = simple
+WorkingDirectory = /root/urlAPI/
+ExecStart = /root/urlAPI/urlAPI port 2233
+Restart = on-failure
+
+
+[Install]
+WantedBy = multi-user.target
+```
+之后运行`systemctl daemon-reload && systemctl enable --now urlAPI`即可注册为开机启动的服务
