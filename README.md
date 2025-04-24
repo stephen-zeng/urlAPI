@@ -80,14 +80,13 @@
 注意，初始密码为`123456`，请注意及时修改
 
 # Demo
-+ demo地址: https://urlapi.goforit.eu.org
-+ dashboard的demo地址: https://urlapi.goforit.eu.org/dash
++ demo地址: 在简介里面
 + dash密码是123456
 + 运用了该项目的文章demo：https://www.qwqwq.com.cn/test/urlapi/
-+ P.S. 项目release的时候本人的OpenAI余额用完了，然后充钱渠道暂时不可用，所以OpenAI的接口均为理论可行，实际未测试状态。使用demo的时候请注意不要留下任何敏感信息。
 
 # 一些可能生成错误的原因
 + 服务器与上游API的连接问题，比如国内服务器不经过特殊手段无法连接OpenAI的服务器。
++ 还有出现的问题欢迎Issue
 
 # Docker部署
 
