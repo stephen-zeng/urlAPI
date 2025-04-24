@@ -92,10 +92,10 @@
 
 可以使用项目中的`Dockerfile`自行构建，也可以使用下面的命令来运行
 ```bash
-docker run -d --name urlapi -p %EXPOSE_PORT%:2233 -v %LOCAL_DATA_PLACE%:/app/data 0w0w0/urlapi:latest
+docker run -d --name urlapi -p %EXPOSE_PORT%:2233 -v %LOCAL_DATA_PLACE%:/app/assets 0w0w0/urlapi:latest
 
 # e.g
-docker run -d --name urlapi -p 8080:2233 -v /home/stephenzeng/dockerData/urlAPI:/app/data 0w0w0/urlapi:latest
+docker run -d --name urlapi -p 8080:2233 -v /home/stephenzeng/dockerData/urlAPI:/app/assets 0w0w0/urlapi:latest
 ```
 + 镜像目前`latest`和具体版本号两种tag，建议使用`latest`。
 + arm版本的镜像为`0w0w0/urlapi-arm`

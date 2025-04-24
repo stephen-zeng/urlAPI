@@ -7,7 +7,8 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o urlAPI .
+RUN apk update && apk add --no-cache gcc musl-dev
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o urlAPI .
 
 FROM alpine:latest
 
