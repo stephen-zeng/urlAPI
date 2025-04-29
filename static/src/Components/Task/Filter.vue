@@ -11,6 +11,7 @@ import Referer from "@/Components/Task/Referer.vue";
 import {inject, onMounted, ref} from "vue";
 import Info from "@/Components/Task/Info.vue";
 import {Task} from "@/js/util.js";
+import Temp from "@/Components/Task/Temp.vue";
 
 const task = ref([]);
 const catagory = inject("catagory");
@@ -36,6 +37,7 @@ onMounted(async ()=>{
     <Time :tasks="task" @refresh="(emitter=4)"></Time>
     <Device :tasks="task" @refresh="(emitter=4)"></Device>
     <Info :tasks="task" @refresh="(emitter=4)"></Info>
+    <Temp :tasks="task" @refresh="(emitter=4)"></Temp>
   </div>
 </template>
 
