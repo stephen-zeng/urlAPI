@@ -2,10 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [ main, dev ]
-  pull_request:
-    branches: [ main, dev ]
-
+    branches:
+      - dev
+      
 jobs:
   build-linux-windows:
     runs-on: ubuntu-latest
