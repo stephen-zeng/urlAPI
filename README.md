@@ -100,6 +100,9 @@ docker run -d --name urlapi -p 8080:2233 -v /home/stephenzeng/dockerData/urlAPI:
 + 镜像目前`latest`和具体版本号两种tag，建议使用`latest`。
 + arm版本的镜像为`0w0w0/urlapi-arm`
 
+# 二进制文件
+可以到action里面寻找最新的build，也可以去release里面寻找稳定的build
+
 # 注册为systemctl服务
 下面是`/etc/systemd/system/urlAPI.service`模板
 ```
