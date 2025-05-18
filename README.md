@@ -20,6 +20,7 @@
 | format（选填） | json, txt | 默认直接跳转图片，json为输出JSON格式 |
 | api（选填） | alibaba/openai/deepseek/otherapi | 在后台可以设置默认API |
 | model（选填） | * | 在后台可以设置默认模型 |
+| more（选填） | * | 添加更多信息，便于记录和筛选 |
 
 + 图片上使用的字体是得意黑:)
 
@@ -31,6 +32,7 @@
 | format（选填） | json | 默认直接跳转，json为输出JSON格式 |
 | api（选填） | alibaba, openai | 在后台可以设置默认API |
 | size（选填） | / | 后台可以设置默认大小，自定义的话参见对应的文档填入 |
+| more（选填） | * | 添加更多信息，便于记录和筛选 |
 
 ## 随机图片
 格式：https://api.example.com/rand? + 参数1=值1&参数2=值2&参数3=值3，参数如下
@@ -40,6 +42,7 @@
 | user（必填） | / | 仓库主人的用户名 |
 | repo（必填） | / | 仓库名称 |
 | format（选填） | json | 默认直接跳转，json为输出JSON |
+| more（选填） | * | 添加更多信息，便于记录和筛选 |
 
 **请注意，仓库内不要出现文件夹，否则会添加失败**
 
@@ -49,6 +52,7 @@
 | ---- | ---- | ---- |
 | img（必填） | URL | 网页缩略图 |
 | format（选填） | json | 默认返回图片，json为返回JSON |
+| more（选填） | * | 添加更多信息，便于记录和筛选 |
 
 ## 参考文档
 + OpenAI - https://platform.openai.com/docs/api-reference/images/create
@@ -75,7 +79,7 @@
 + repwd - 重置后台登录密码
 + port .... - 将端口设置为....，默认端口是2233
 + clear_ip_restriction - 清除后台登录IP限制
-反向代理的时候注意将发送域名设置为`$http_host`
+  反向代理的时候注意将发送域名设置为`$http_host`
 
 注意，初始密码为`123456`，请注意及时修改
 
