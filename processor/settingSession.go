@@ -17,7 +17,7 @@ var PartMap = map[string][]string{
 	"web":          []string{"web", "webimgallowed"},
 	"rand":         []string{"rand"},
 	"contxt":       []string{"context", "prompt"},
-	"taskBehavior": []string{"taskexceptdomain"},
+	"taskBehavior": []string{"taskexceptdomain", "taskexceptinfo"},
 }
 
 func fetchSetting(info *Session, data *database.Session) error {

@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"urlAPI/file"
+	"urlAPI/util"
 )
 
 func settingInit() error {
@@ -14,6 +15,9 @@ func settingInit() error {
 	_ = json.Unmarshal(d, &settingsInit)
 	for index, settingInitName := range settingsInit.Names {
 		settingInitList := settingsInit.Edits[index]
+		if len(settingInitList) == 0 {
+			settingInitList = append(settingInitList, util.GetShortRandomString(16))
+		}
 		dbSettingWriter := Setting{
 			Name: settingInitName,
 		}

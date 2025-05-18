@@ -23,6 +23,7 @@ func (txt) requestBuilder(c *gin.Context, r *request.Request) {
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
+		Info:    more,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["txt.gen"],
@@ -64,6 +65,7 @@ func (rand) requestBuilder(c *gin.Context, r *request.Request) {
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
+		Info:    more,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["rand"],
@@ -105,6 +107,7 @@ func (img) requestBuilder(c *gin.Context, r *request.Request) {
 	more := c.Query("more")
 
 	r.Security.General = security.General{
+		Info:    more,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["img.gen"],
@@ -155,6 +158,7 @@ func (web) requestBuilder(c *gin.Context, r *request.Request) {
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
+		Info:    more,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["web.img"],
