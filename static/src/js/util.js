@@ -5,7 +5,10 @@ import {snackbar} from "mdui";
 export function Notification(data) {
     snackbar({
         message: data,
-        placement: "top-end",
+        placement: "bottom-end",
+        action: "Copy",
+        autoCloseDelay: 3000,
+        onActionClick: () => navigator.clipboard.writeText(data)
     })
 }
 
