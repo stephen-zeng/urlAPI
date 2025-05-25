@@ -3,6 +3,7 @@
 /bin
 /note
 /json
+/.github
 .idea
 .vscode
 *.db
