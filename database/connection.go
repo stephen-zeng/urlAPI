@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
+	"github.com/common-nighthawk/go-figure"
 	"github.com/pkg/errors"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -12,6 +13,8 @@ import (
 
 // 包括所有数据的初始化
 func init() {
+	figlet := figure.NewFigure("urlAPI", "", true)
+	figlet.Print()
 	connect()
 	migration()
 	initSettingMap()

@@ -1,6 +1,16 @@
-import {Notification, Post} from "@/js/fetch.js";
+import {Post} from "@/js/fetch.js";
 import Cookies from "js-cookie";
-import {ref} from "vue";
+import {snackbar} from "mdui";
+
+export function Notification(data) {
+    snackbar({
+        message: data,
+        placement: "bottom-end",
+        action: "Copy",
+        autoCloseDelay: 3000,
+        onActionClick: () => navigator.clipboard.writeText(data)
+    })
+}
 
 export async function Login(token, term) {
     const session = await Post({

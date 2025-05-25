@@ -12,12 +12,14 @@ var PartMap = map[string][]string{
 	"alibaba":      []string{"alibaba"},
 	"otherapi":     []string{"otherapi"},
 	"security":     []string{"dash", "dashallowedip", "allowedref"},
-	"txt":          []string{"txt", "txtgenenabled", "txtacceptprompt"},
-	"img":          []string{"img", "imgacceptprompt"},
+	"txt":          []string{"txt", "txtgenenabled"},
+	"img":          []string{"img"},
 	"web":          []string{"web", "webimgallowed"},
 	"rand":         []string{"rand"},
 	"contxt":       []string{"context", "prompt"},
-	"taskBehavior": []string{"taskexceptdomain"},
+	"taskBehavior": []string{"taskexceptdomain", "taskexceptinfo"},
+	"imgSecurity":  []string{"imgacceptprompt"},
+	"txtSecurity":  []string{"txtacceptprompt"},
 }
 
 func fetchSetting(info *Session, data *database.Session) error {

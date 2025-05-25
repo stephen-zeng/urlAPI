@@ -1,7 +1,6 @@
 <script setup>
 import {inject, onMounted, ref} from 'vue';
 import { sha256 } from "js-sha256";
-import { Post, Notification } from "@/js/fetch.js";
 import Cookies from 'js-cookie';
 import {useRouter} from "vue-router";
 import {Login} from "@/js/util.js";

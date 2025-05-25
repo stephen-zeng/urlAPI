@@ -7,6 +7,7 @@ import (
 )
 
 func Arg(args []string) {
+	log.Println("The default password is 123456")
 	for index, arg := range args {
 		if index == 0 {
 			continue

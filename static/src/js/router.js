@@ -7,14 +7,15 @@ import Login from "@/pages/Login.vue";
 import Security from "@/pages/Security.vue";
 
 const routes = [
-    {path:"/dash",component:Task},
-    {path:"/dash/task",component:Task},
-    {path:"/dash/tool",component:Tool},
-    {path:"/dash/security",component:Security},
-    {path:"/dash/backend",component:Backend},
-    {path:"/dash/workshop",component:Workshop},
+    { path: "/dash", component: () => import('@/pages/Task.vue') },
+    { path: "/dash/task", component: () => import('@/pages/Task.vue') },
+    { path: "/dash/tool", component: () => import('@/pages/Tool.vue') },
+    { path: "/dash/security", component: () => import('@/pages/Security.vue') },
+    { path: "/dash/backend", component: () => import('@/pages/Backend.vue') },
+    { path: "/dash/workshop", component: () => import('@/pages/Workshop.vue') },
     {path:"/dash/login",component:Login},
 ]
+
 
 const router=  createRouter({
     history:createWebHistory(),

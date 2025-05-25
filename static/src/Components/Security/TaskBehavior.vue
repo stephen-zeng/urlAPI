@@ -5,6 +5,7 @@ import {Setting} from "@/js/util.js";
 
 const settings = ref({})
 const input1 = ref('')
+const input2 = ref('')
 
 async function getSetting() {
   settings.value = await Setting("fetchSetting", "taskBehavior")
@@ -35,6 +36,19 @@ async function sendSetting() {
               <mdui-list-item v-for="(item, index) in settings?settings[0]:[]" nonclickable>
                 {{ item }}
                 <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[0].length>1) settings[0].splice(index, 1)}"></mdui-button-icon>
+              </mdui-list-item>
+            </mdui-list>
+          </div>
+          <p>不记录任务的Info</p>
+          <mdui-text-field variant="outlined" label="输入*表示这个部分遵从任何信息" clearable
+                           @input="input2 = $event.target.value" :value="input2">
+            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!=='') settings[1].push(input2);input2=''}"></mdui-button-icon>
+          </mdui-text-field>
+          <div class="list">
+            <mdui-list>
+              <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" nonclickable>
+                {{ item }}
+                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[1].length>1) settings[1].splice(index, 1)}"></mdui-button-icon>
               </mdui-list-item>
             </mdui-list>
           </div>

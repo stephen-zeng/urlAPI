@@ -1,9 +1,13 @@
 package util
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"github.com/pkg/errors"
 	"io"
+	"math/big"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -111,4 +115,23 @@ func GetDate(ori string) time.Time {
 	year, _ := strconv.Atoi(parts[0])
 	month, _ := strconv.Atoi(parts[1])
 	return time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+}
+
+func GetRandomString() string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	randomNumber := n.String()
+	hash := sha256.Sum256([]byte(randomNumber))
+	hashStr := hex.EncodeToString(hash[:])
+	return hashStr
+}
+
+func GetShortRandomString(len int) string {
+	if len >= 64 {
+		return GetRandomString()
+	}
+	n, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+	randomNumber := n.String()
+	hash := sha256.Sum256([]byte(randomNumber))
+	hashStr := hex.EncodeToString(hash[:])
+	return hashStr[:len]
 }

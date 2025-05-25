@@ -1,16 +1,16 @@
 package processor
 
 import (
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"time"
 	"urlAPI/database"
+	"urlAPI/util"
 )
 
 func login(info *Session, data *database.Session) error {
 	var session database.Session
 	if info.Operation == "login" && database.SettingMap["dash"][0] == data.Token {
-		session.Token = uuid.New().String() + uuid.New().String()
+		session.Token = util.GetRandomString()
 		info.SessionToken = session.Token
 		session.Term = info.LoginTerm
 		if info.LoginTerm {

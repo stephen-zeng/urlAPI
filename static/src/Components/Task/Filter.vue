@@ -11,31 +11,36 @@ import Referer from "@/Components/Task/Referer.vue";
 import {inject, onMounted, ref} from "vue";
 import Info from "@/Components/Task/Info.vue";
 import {Task} from "@/js/util.js";
+import Temp from "@/Components/Task/Temp.vue";
 
 const task = ref([]);
 const catagory = inject("catagory");
 const by = inject("by");
 const emitter = inject("emitter");
+const fetched = ref(false);
 
 onMounted(async ()=>{
+  fetched.value = false;
   const session = await Task("fetchTask", catagory.value, by.value);
   if (session) {
     task.value = session.task_data;
+    fetched.value = true;
   }
 })
 </script>
 
 <template>
   <div class="filter">
-    <Region :tasks="task" @refresh="(emitter=4)"></Region>
-    <Type :tasks="task" @refresh="(emitter=4)"></Type>
-    <Status :tasks="task" @refresh="(emitter=4)"></Status>
-    <API :tasks="task" @refresh="(emitter=4)"></API>
-    <Model :tasks="task" @refresh="(emitter=4)"></Model>
-    <Referer :tasks="task" @refresh="(emitter=4)"></Referer>
-    <Time :tasks="task" @refresh="(emitter=4)"></Time>
-    <Device :tasks="task" @refresh="(emitter=4)"></Device>
-    <Info :tasks="task" @refresh="(emitter=4)"></Info>
+    <Region :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Region>
+    <Type :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Type>
+    <Status :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Status>
+    <API :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></API>
+    <Model :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Model>
+    <Referer :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Referer>
+    <Time :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Time>
+    <Device :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Device>
+    <Info :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Info>
+    <Temp :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Temp>
   </div>
 </template>
 

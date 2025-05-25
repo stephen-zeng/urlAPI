@@ -71,8 +71,10 @@ func (info *General) InfoChecker() {
 
 func (info *General) ExceptionChecker() {
 	taskexceptdomain := database.SettingMap["taskexceptdomain"]
+	taskexceptinfo := database.SettingMap["taskexceptinfo"]
 	domain := util.GetDomain(info.Referer)
-	if util.WildcardChecker(&taskexceptdomain, &domain) {
+	auxInfo := info.Info
+	if util.WildcardChecker(&taskexceptdomain, &domain) || util.WildcardChecker(&taskexceptinfo, &auxInfo) {
 		info.SkipDB = true
 		return
 	}

@@ -4,7 +4,6 @@ import { ref } from 'vue';
 import {Setting} from "@/js/util.js";
 
 const settings = ref()
-const input1 = ref('')
 
 async function getSetting() {
   settings.value = await Setting("fetchSetting", "img")
@@ -44,20 +43,6 @@ async function sendSetting() {
           <mdui-text-field variant="outlined" label="分钟"
                            :value="settings?settings[0][2]:'60'"
                            @change="settings[0][2] = $event.target.value"></mdui-text-field>
-          <mdui-divider></mdui-divider>
-          <p>允许的Prompt</p>
-          <mdui-text-field variant="outlined" label="适配通配符" clearable
-                           @input="input1 = $event.target.value" :value="input1">
-            <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!=='') settings[1].push(input1);input1=''}"></mdui-button-icon>
-          </mdui-text-field>
-          <div class="list">
-            <mdui-list>
-              <mdui-list-item v-for="(item, index) in settings?settings[1]:[]" nonclickable>
-                {{ item }}
-                <mdui-button-icon slot="end-icon" icon="delete" @click="()=>{if (settings[1].length>1) settings[1].splice(index, 1)}"></mdui-button-icon>
-              </mdui-list-item>
-            </mdui-list>
-          </div>
           <mdui-divider></mdui-divider>
           <p>生成失败时返回的图片</p>
           <mdui-text-field variant="outlined" label="URL"
