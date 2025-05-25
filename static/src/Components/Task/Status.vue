@@ -1,7 +1,7 @@
 <script setup>
 import {inject, ref} from "vue";
 
-const props = defineProps(["tasks"])
+const props = defineProps(["tasks", "fetched"])
 const emits = defineEmits(["refresh"])
 const map = ref({})
 const catagory = inject("catagory");
@@ -31,7 +31,7 @@ function setFilter(filter) {
 <template>
   <mdui-collapse>
     <mdui-collapse-item rounded>
-      <mdui-list-item slot="header" icon="done" rounded @click="getValue(props.tasks)">
+      <mdui-list-item slot="header" icon="done" rounded @click="getValue(props.tasks)" :disabled="!props.fetched">
         状态
         <mdui-icon slot="end-icon" name="keyboard_arrow_down"></mdui-icon>
       </mdui-list-item>
