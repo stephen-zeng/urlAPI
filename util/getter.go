@@ -19,7 +19,7 @@ import (
 // 获取设备类型
 func GetDeviceType(ua string) string {
 	mobileRegexp := `(?i)(Mobile|Tablet|Android|iOS|iPhone|iPad|iPod)`
-	desktopRegexp := `(?i)(Desktop|Windows|Macintosh|Linux)`
+	desktopRegexp := `(?i)(Desktop|Windows|Macintosh|Linux|PC)`
 	botRegexp := `(?i)(Bot)`
 	matched, _ := regexp.MatchString(mobileRegexp, ua)
 	if matched {
