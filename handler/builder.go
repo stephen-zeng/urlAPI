@@ -13,21 +13,19 @@ import (
 )
 
 func (txt) requestBuilder(c *gin.Context, r *request.Request) {
+	var query apiQuery
 	referer := c.Request.Referer()
 	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
-	target := c.Query("prompt")
-	model := c.Query("model")
-	api := c.Query("api")
-	more := c.Query("more")
+	_ = c.ShouldBindQuery(&query)
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
-		Info:    more,
+		Info:    query.More,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["txt.gen"],
-		Target:  target,
+		Target:  query.Prompt,
 		Time:    time.Now(),
 	}
 	r.DB.Task = database.Task{
@@ -35,130 +33,136 @@ func (txt) requestBuilder(c *gin.Context, r *request.Request) {
 		Time:     time.Now(),
 		IP:       ip,
 		Type:     util.TypeMap["txt.gen"],
-		Target:   target,
+		Target:   query.Prompt,
 		Region:   region,
 		Referer:  referer,
 		Device:   device,
-		API:      api,
-		Model:    model,
-		MoreInfo: more,
+		API:      query.API,
+		Model:    query.Model,
+		MoreInfo: query.More,
 	}
 	r.Processor.TxtGen = processor.TxtGen{
-		API:    api,
-		Model:  model,
-		Target: target,
+		API:    query.API,
+		Model:  query.Model,
+		Target: query.Prompt,
 		Host:   host,
 	}
 	r.Processor.Filter = processor.TaskQueueFilter{
 		Type:   "txt.gen",
-		Target: target,
-		API:    api,
+		Target: query.Prompt,
+		API:    query.API,
 	}
 }
 
 func (rand) requestBuilder(c *gin.Context, r *request.Request) {
+	var query apiQuery
+	_ = c.ShouldBindQuery(&query)
 	referer := c.Request.Referer()
 	ip := c.ClientIP()
-	target := c.Query("user") + "/" + c.Query("repo")
-	api := c.Query("api")
-	more := c.Query("more")
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
 	r.Security.General = security.General{
-		Info:    more,
+		Info:    query.More,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["rand"],
-		Target:  target,
+		Target:  query.User + "/" + query.Repo,
 		Time:    time.Now(),
 	}
 	r.Security.Rand = security.Rand{
-		API:    api,
-		Target: target,
+		API:    query.API,
+		Target: query.Prompt,
 	}
 	r.DB.Task = database.Task{
 		UUID:     uuid.New().String(),
 		Time:     time.Now(),
 		IP:       ip,
 		Type:     util.TypeMap["rand"],
-		Target:   target,
+		Target:   query.User + "/" + query.Repo,
 		Region:   region,
 		Referer:  referer,
 		Device:   device,
-		API:      api,
-		MoreInfo: more,
+		API:      query.API,
+		MoreInfo: query.More,
 	}
 	r.Processor.Rand = processor.Rand{
-		API:    api,
-		Target: target,
+		API:    query.API,
+		Target: query.User + "/" + query.Repo,
 	}
 }
 
 func (img) requestBuilder(c *gin.Context, r *request.Request) {
+	var query apiQuery
+	_ = c.ShouldBindQuery(&query)
 	referer := c.Request.Referer()
 	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
-	model := c.Query("model")
-	target := c.Query("prompt")
-	size := c.Query("size")
-	api := c.Query("api")
-	more := c.Query("more")
 
 	r.Security.General = security.General{
-		Info:    more,
+		Info:    query.More,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["img.gen"],
-		Target:  target,
+		Target:  query.Prompt,
 		Time:    time.Now(),
 	}
 	r.Security.ImgGen = security.ImgGen{
-		API:   api,
-		Model: model,
+		API:   query.API,
+		Model: query.Model,
 	}
 	r.DB.Task = database.Task{
 		UUID:     uuid.New().String(),
 		Time:     time.Now(),
 		IP:       ip,
 		Type:     util.TypeMap["img.gen"],
-		Target:   target,
+		Target:   query.Prompt,
 		Region:   region,
 		Referer:  referer,
 		Device:   device,
-		API:      api,
-		Model:    model,
-		MoreInfo: more,
-		Size:     size,
+		API:      query.API,
+		Model:    query.Model,
+		MoreInfo: query.More,
+		Size:     query.Size,
 	}
 	r.Processor.ImgGen = processor.ImgGen{
-		API:    api,
-		Model:  model,
-		Target: target,
+		API:    query.API,
+		Model:  query.Model,
+		Target: query.Prompt,
 		Host:   host,
-		Size:   size,
+		Size:   query.Size,
 	}
 	r.Processor.Filter = processor.TaskQueueFilter{
 		Type:   "img.gen",
-		Size:   size,
-		Target: target,
-		API:    api,
+		Size:   query.Size,
+		Target: query.Prompt,
+		API:    query.API,
 	}
 }
 
 func (web) requestBuilder(c *gin.Context, r *request.Request) {
+	var query apiQuery
+	var target string
+	_ = c.ShouldBindQuery(&query)
+
+	switch {
+	case query.Img != "":
+		target = query.Img
+	case query.URL != "":
+		target = query.URL
+	}
+	urlParse, _ := url.Parse(target)
+
 	referer := c.Request.Referer()
 	host := getScheme(c) + c.Request.Host
 	ip := c.ClientIP()
-	target := c.Query("img")
-	more := c.Query("more")
-	urlParse, _ := url.Parse(target)
 	api := urlParse.Host
 	device := util.GetDeviceType(c.GetHeader("User-Agent"))
 	region := util.GetRegion(ip)
+
 	r.Security.General = security.General{
-		Info:    more,
+		Info:    query.More,
 		Referer: referer,
 		IP:      ip,
 		Type:    util.TypeMap["web.img"],
@@ -178,7 +182,7 @@ func (web) requestBuilder(c *gin.Context, r *request.Request) {
 		Referer:  referer,
 		Device:   device,
 		API:      api,
-		MoreInfo: more,
+		MoreInfo: query.More,
 	}
 	r.Processor.WebImg = processor.WebImg{
 		API:    api,

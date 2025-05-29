@@ -12,6 +12,18 @@ var expiredSettingPosition = map[string]int{
 	"img": 2,
 }
 
+type apiQuery struct {
+	Prompt string `form:"prompt"`
+	Model  string `form:"model"`
+	API    string `form:"api"`
+	More   string `form:"more"`
+	User   string `form:"user"`
+	Repo   string `form:"repo"`
+	Img    string `form:"img"`
+	URL    string `form:"url"`
+	Size   string `form:"size"`
+}
+
 type txt struct{}
 type img struct{}
 type web struct{}
