@@ -1,21 +1,35 @@
 package util
 
 import (
+	"github.com/dlclark/regexp2"
 	"image/png"
 	"os"
 	"regexp"
 	"strings"
 )
 
-// 通配符检查
-func WildcardChecker(strs *[]string, str *string) bool {
+// 通配符检查，兼容正则表达式
+func RegexChecker(strs *[]string, str *string) bool {
 	for _, r := range *strs {
-		rgx := "^" + strings.ReplaceAll(regexp.QuoteMeta(r), `\*`, ".*") + "$"
-		match, err := regexp.MatchString(rgx, *str)
-		if err != nil {
+		if strings.HasPrefix(r, "re:") {
+			pattern := r[3:]
+			re := regexp2.MustCompile(pattern, 0)
+			match, err := re.MatchString(*str)
+			if err == nil && match {
+				return true
+			}
 			continue
 		}
-		if match || r == *str {
+		if strings.Contains(r, "*") {
+			pattern := "^" + strings.ReplaceAll(regexp.QuoteMeta(r), `\*`, ".*") + "$"
+			re := regexp2.MustCompile(pattern, 0)
+			match, err := re.MatchString(*str)
+			if err == nil && match {
+				return true
+			}
+			continue
+		}
+		if r == *str {
 			return true
 		}
 	}

@@ -33,7 +33,7 @@ async function sendSetting() {
                            @change="settings[0][0] = sha256($event.target.value)"
                            toggle-password label="密码"></mdui-text-field>
           <p>允许登录后台的IP</p>
-          <mdui-text-field variant="outlined" label="输入*为该子段都可以使用" clearable
+          <mdui-text-field variant="outlined" label="支持通配符或正则表达式(re:开头)" clearable
                            @input="input1 = $event.target.value" :value="input1">
             <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input1!=='') settings[1].push(input1);input1=''}"></mdui-button-icon>
           </mdui-text-field>
@@ -48,7 +48,7 @@ async function sendSetting() {
           <mdui-button @click="settings[1].push(ip)">添加本机IP</mdui-button>
           <mdui-divider></mdui-divider>
           <p>可以使用urlAPI的网站（防盗）</p>
-          <mdui-text-field variant="outlined" label="输入*为该子域都可以使用" clearable
+          <mdui-text-field variant="outlined" label="支持通配符或正则表达式(re:开头)" clearable
                            @input="input2 = $event.target.value" :value="input2">
             <mdui-button-icon slot="end-icon" icon="add" @click="()=>{if (input2!=='') settings[2].push(input2);input2=''}"></mdui-button-icon>
           </mdui-text-field>

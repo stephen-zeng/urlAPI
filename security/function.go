@@ -21,7 +21,7 @@ func (info *TxtGen) FunctionChecker(general *General) {
 		break
 	case !util.ListChecker(&txtgenenabled, &(prompt)):
 		general.Info = fmt.Sprintf("Target %s is not enabled for Txt	Gen", general.Target)
-	case (general.Target == "" || !util.WildcardChecker(&txtacceptprompt, &(general.Target))) && prompt == "other":
+	case (general.Target == "" || !util.RegexChecker(&txtacceptprompt, &(general.Target))) && prompt == "other":
 		general.Info = fmt.Sprintf("Prompt %s is not enabled for Txt	Gen", general.Target)
 		break
 	default:
@@ -47,7 +47,7 @@ func (info *ImgGen) FunctionChecker(general *General) {
 	case database.SettingMap["img"][0] != "true":
 		general.Info = "Img is not enabled"
 		break
-	case general.Target == "" || !util.WildcardChecker(&imgacceptprompt, &(general.Target)):
+	case general.Target == "" || !util.RegexChecker(&imgacceptprompt, &(general.Target)):
 		general.Info = fmt.Sprintf("Prompt %s is not allowed for ImgGen", general.Target)
 	default:
 		return
