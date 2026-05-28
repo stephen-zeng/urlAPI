@@ -21,9 +21,9 @@ const fetched = ref(false);
 
 onMounted(async ()=>{
   fetched.value = false;
-  const session = await Task("fetchTask", catagory.value, by.value);
+  const session = await Task("fetchTaskStats", catagory.value, by.value);
   if (session) {
-    task.value = session.task_data;
+    task.value = session.task_stats;
     fetched.value = true;
   }
 })
@@ -31,16 +31,16 @@ onMounted(async ()=>{
 
 <template>
   <div class="filter">
-    <Region :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Region>
-    <Type :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Type>
-    <Status :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Status>
-    <API :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></API>
-    <Model :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Model>
-    <Referer :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Referer>
-    <Time :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Time>
-    <Device :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Device>
-    <Info :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Info>
-    <Temp :tasks="task" @refresh="(emitter=4)" :fetched="fetched"></Temp>
+    <Region :tasks="task.region" @refresh="(emitter=4)" :fetched="fetched"></Region>
+    <Type :tasks="task.type" @refresh="(emitter=4)" :fetched="fetched"></Type>
+    <Status :tasks="task.status" @refresh="(emitter=4)" :fetched="fetched"></Status>
+    <API :tasks="task.api" @refresh="(emitter=4)" :fetched="fetched"></API>
+    <Model :tasks="task.model" @refresh="(emitter=4)" :fetched="fetched"></Model>
+    <Referer :tasks="task.referer" @refresh="(emitter=4)" :fetched="fetched"></Referer>
+    <Time :tasks="task.time" @refresh="(emitter=4)" :fetched="fetched"></Time>
+    <Device :tasks="task.device" @refresh="(emitter=4)" :fetched="fetched"></Device>
+    <Info :tasks="task.more_info" @refresh="(emitter=4)" :fetched="fetched"></Info>
+    <Temp :tasks="task.temp" @refresh="(emitter=4)" :fetched="fetched"></Temp>
   </div>
 </template>
 

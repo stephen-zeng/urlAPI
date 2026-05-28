@@ -28,6 +28,8 @@ func HandleSession(request Session, authSession model.Session) (Session, error) 
 		err = fetchRepo(&response)
 	case "fetchTask":
 		err = fetchTask(&response)
+	case "fetchTaskStats":
+		err = fetchTaskStats(&response)
 	case "fetchSettings":
 		err = fetchSettings(&response)
 	case "editSettings":

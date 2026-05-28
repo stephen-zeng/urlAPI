@@ -8,18 +8,7 @@ const catagory = inject("catagory");
 const by = inject("by");
 
 function getValue(tasks) {
-  if (Object.keys(map.value).length) {
-    map.value = {}
-  }
-  for (let task of tasks) {
-    if (task.region in map.value) {
-      map.value[task.region]++;
-    } else {
-      map.value[task.region] = 1;
-    }
-  }
-  const sortedEntries = Object.entries(map.value).sort((a, b) => b[1] - a[1]);
-  map.value = Object.fromEntries(sortedEntries);
+  map.value = Object.fromEntries((tasks || []).map((task) => [task.key, task.count]));
 }
 function setFilter(filter) {
   catagory.value = "region";

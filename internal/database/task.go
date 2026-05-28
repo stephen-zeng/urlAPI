@@ -6,6 +6,11 @@ import (
 	"urlAPI/internal/model"
 )
 
+type TaskStatItem struct {
+	Key   string
+	Count int
+}
+
 func (adapter *SQLiteAdapter) CreateTask(task *model.Task) error {
 	return errors.WithStack(adapter.db.Create(task).Error)
 }
@@ -46,11 +51,23 @@ func (adapter *SQLiteAdapter) ReadTask(task model.Task) (*model.DBList, error) {
 	return &ret, errors.WithStack(err)
 }
 
+func (adapter *SQLiteAdapter) ReadTaskStats(field string) ([]TaskStatItem, error) {
+	var stats []TaskStatItem
+	expr := "COALESCE(" + field + ", '')"
+	err := adapter.db.Model(&model.Task{}).
+		Select(expr + " AS key, COUNT(*) AS count").
+		Group("key").
+		Order("count DESC").
+		Find(&stats).Error
+	return stats, errors.WithStack(err)
+}
+
 func (adapter *SQLiteAdapter) DeleteTask(task *model.Task) error {
 	return errors.WithStack(adapter.db.Delete(task).Error)
 }
 
-func CreateTask(task *model.Task) error               { return localDB.CreateTask(task) }
-func UpdateTask(task *model.Task) error               { return localDB.UpdateTask(task) }
-func ReadTask(task model.Task) (*model.DBList, error) { return localDB.ReadTask(task) }
-func DeleteTask(task *model.Task) error               { return localDB.DeleteTask(task) }
+func CreateTask(task *model.Task) error                  { return localDB.CreateTask(task) }
+func UpdateTask(task *model.Task) error                  { return localDB.UpdateTask(task) }
+func ReadTask(task model.Task) (*model.DBList, error)    { return localDB.ReadTask(task) }
+func ReadTaskStats(field string) ([]TaskStatItem, error) { return localDB.ReadTaskStats(field) }
+func DeleteTask(task *model.Task) error                  { return localDB.DeleteTask(task) }

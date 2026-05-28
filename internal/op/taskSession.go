@@ -4,9 +4,23 @@ import (
 	"github.com/pkg/errors"
 	"reflect"
 	"sort"
+	"strings"
+	"urlAPI/internal/database"
 	"urlAPI/internal/model"
 	"urlAPI/util"
 )
+
+var taskStatFields = map[string]string{
+	"region":    "region",
+	"type":      "type",
+	"status":    "status",
+	"api":       "api",
+	"model":     "model",
+	"referer":   "referer",
+	"device":    "device",
+	"more_info": "more_info",
+	"temp":      "temp",
+}
 
 func fetchTask(info *Session) error {
 	var taskGetter model.Task
@@ -55,4 +69,33 @@ func fetchTask(info *Session) error {
 		info.TaskData = taskList[start:end]
 	}
 	return nil
+}
+
+func fetchTaskStats(info *Session) error {
+	info.TaskStats = make(TaskStats, len(taskStatFields)+1)
+	for key, field := range taskStatFields {
+		stats, err := db.ReadTaskStats(field)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		info.TaskStats[key] = toTaskStatMap(stats)
+	}
+
+	timeStats, err := db.ReadTaskStats("strftime('%Y.%m', time)")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	info.TaskStats["time"] = toTaskStatMap(timeStats)
+	return nil
+}
+
+func toTaskStatMap(stats []database.TaskStatItem) []TaskStatItem {
+	ret := make([]TaskStatItem, 0, len(stats))
+	for _, stat := range stats {
+		ret = append(ret, TaskStatItem{
+			Key:   strings.TrimSpace(stat.Key),
+			Count: stat.Count,
+		})
+	}
+	return ret
 }

@@ -53,6 +53,7 @@ type Session struct {
 	SettingData  [][]string      `json:"setting_data"`
 	SettingBody  json.RawMessage `json:"setting_body,omitempty"`
 	TaskData     []model.Task    `json:"task_data"`
+	TaskStats    TaskStats       `json:"task_stats"`
 	TaskMaxPage  int             `json:"task_max_page"`
 	RepoData     []model.Repo    `json:"repo_data"`
 
@@ -78,6 +79,13 @@ type GenerateResult struct {
 	Response       string `json:"response"`
 	URL            string `json:"url"`
 }
+
+type TaskStatItem struct {
+	Key   string `json:"key"`
+	Count int    `json:"count"`
+}
+
+type TaskStats map[string][]TaskStatItem
 
 type TaskQueueItem struct {
 	DB      model.Task `json:"db"`
