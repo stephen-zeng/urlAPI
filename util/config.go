@@ -11,6 +11,13 @@ import (
 	"github.com/golang/freetype/truetype"
 )
 
+/**
+ * @file config.go
+ * @brief 全局客户端、字体与外部 API 数据结构定义。
+ * @author 武汉大学开源软件与技术课程 2026
+ * @copyright GPL-3.0
+ */
+
 var (
 	GlobalHTTPClient *http.Client
 	font             *truetype.Font

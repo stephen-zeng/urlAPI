@@ -8,6 +8,13 @@ import (
 )
 
 /**
+ * @file admin.go
+ * @brief 后台管理命令实现。
+ * @author 武汉大学开源软件与技术课程 2026
+ * @copyright GPL-3.0
+ */
+
+/**
  * @brief 执行后台管理命令。
  * @param args 管理子命令及其参数。
  * @return error 命令不存在或执行失败时返回错误。
@@ -22,16 +29,24 @@ func admin(args []string) error {
 	defer bootstrap.Release()
 	switch args[0] {
 	case "repwd":
-		resetPassword()
+		if err := resetPassword(); err != nil {
+			return err
+		}
 		log.Println("Password has been reset to 123456, please change it ASAP.")
 	case "clear":
-		database.ClearTask()
+		if err := database.ClearTask(); err != nil {
+			return err
+		}
 		log.Println("Task Cleared")
 	case "logout":
-		database.ClearSession()
+		if err := database.ClearSession(); err != nil {
+			return err
+		}
 		log.Println("Session Restored")
 	case "clear_ip_restriction":
-		clearIPRestrict()
+		if err := clearIPRestrict(); err != nil {
+			return err
+		}
 		log.Println("Cleared IP restriction")
 	default:
 		return fmt.Errorf("unknown admin command %q", args[0])
@@ -41,23 +56,23 @@ func admin(args []string) error {
 
 /**
  * @brief 将后台密码重置为默认值并清空现有会话。
+ * @return error 保存设置或清空会话失败时返回错误。
  */
-func resetPassword() {
+func resetPassword() error {
 	settings := database.SettingsStore.Get()
 	settings.Security.DashboardPasswordHash = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
 	if err := database.SaveAppSettings(settings); err != nil {
-		log.Fatal(err)
+		return err
 	}
-	database.ClearSession()
+	return database.ClearSession()
 }
 
 /**
  * @brief 清空后台 IP 白名单限制。
+ * @return error 保存设置失败时返回错误。
  */
-func clearIPRestrict() {
+func clearIPRestrict() error {
 	settings := database.SettingsStore.Get()
 	settings.Security.DashboardAllowedIPs = []string{"*"}
-	if err := database.SaveAppSettings(settings); err != nil {
-		log.Fatal(err)
-	}
+	return database.SaveAppSettings(settings)
 }

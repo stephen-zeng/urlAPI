@@ -1,3 +1,41 @@
+# urlAPI
+
+**作者：武汉大学开源软件与技术课程 2026**
+
+urlAPI 是一个基于 Go、Gin、SQLite 和 Vue/Vite 的多功能 API 服务，提供文本生成、图片生成、随机图片、网页缩略图、下载中转、后台管理和安全防护能力。
+
+## 仓库文档
+
+- `COURSE_REPORT.md`：可作为平时作业提交的全局完整文档。
+- `api&db.md`：接口、鉴权、安全和数据库说明。
+- `OPEN_SOURCE_COMPLIANCE.md`：开源合规说明。
+- `NOTICE`：项目声明和第三方组件合规提示。
+- `LICENSE`：GPL-3.0 许可证全文。
+
+## 快速验证
+
+```bash
+go test ./...
+go build ./...
+cd static && npm ci && npm run build
+```
+
+## Git 仓库地址递交
+
+课程提交时递交实际 Git 仓库 URL。可使用 `git remote -v` 查看远程地址，并按以下格式提交：
+
+```text
+项目名称：urlAPI
+作者：武汉大学开源软件与技术课程 2026
+仓库地址：<填写实际 Git 仓库 URL>
+许可证：GPL-3.0
+完整文档：COURSE_REPORT.md
+```
+
+## 许可证
+
+本项目采用 GPL-3.0 许可证。分发源码、二进制、Docker 镜像或前端构建产物时，应保留 `LICENSE`、`NOTICE` 和必要的第三方组件许可证说明。
+
 # 项目功能计划
 + [x] 后台管理
 + [x] 安全检测

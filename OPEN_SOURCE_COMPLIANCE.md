@@ -1,5 +1,7 @@
 # Open Source Compliance
 
+Author: 武汉大学开源软件与技术课程 2026
+
 ## Project License
 
 urlAPI is distributed under GPL-3.0. This is a strong copyleft license. If a

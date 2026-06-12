@@ -3,13 +3,21 @@ package database
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
+	"os"
+
 	"github.com/common-nighthawk/go-figure"
 	"github.com/pkg/errors"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
-	"os"
 )
+
+/**
+ * @file connection.go
+ * @brief 数据库连接、迁移和缓存初始化。
+ * @author 武汉大学开源软件与技术课程 2026
+ * @copyright GPL-3.0
+ */
 
 /**
  * @brief 初始化数据库连接及内存缓存。
@@ -21,7 +29,9 @@ func Init() error {
 	if err := connect(); err != nil {
 		return err
 	}
-	migration()
+	if err := migration(); err != nil {
+		return errors.Wrap(err, "migration")
+	}
 	if err := initRepoMap(); err != nil {
 		return err
 	}
@@ -36,18 +46,21 @@ func Init() error {
 
 /**
  * @brief 执行数据库表结构迁移。
+ * @return error 数据库迁移失败时返回错误。
  */
-func migration() {
-	localDB.db.AutoMigrate(&AppSetting{})
-	localDB.db.AutoMigrate(&Provider{})
-	localDB.db.AutoMigrate(&ServiceConfig{})
-	localDB.db.AutoMigrate(&Prompt{})
-	localDB.db.AutoMigrate(&ConfigListItem{})
-	localDB.db.AutoMigrate(&Task{})
-	localDB.db.AutoMigrate(&Session{})
-	localDB.db.AutoMigrate(&Repo{})
-	localDB.db.AutoMigrate(&APIKey{})
-	localDB.db.AutoMigrate(&APIKeyUsage{})
+func migration() error {
+	return localDB.db.AutoMigrate(
+		&AppSetting{},
+		&Provider{},
+		&ServiceConfig{},
+		&Prompt{},
+		&ConfigListItem{},
+		&Task{},
+		&Session{},
+		&Repo{},
+		&APIKey{},
+		&APIKeyUsage{},
+	)
 }
 
 /**
@@ -115,29 +128,33 @@ func initSessionMap() error {
 
 /**
  * @brief 清空任务表并重新创建结构。
+ * @return error 删除或重建任务表失败时返回错误。
  */
-func ClearTask() {
+func ClearTask() error {
 	if localDB.db.Migrator().HasTable(&Task{}) {
 		if err := localDB.db.Migrator().DropTable(&Task{}); err != nil {
-			log.Fatal(errors.Wrap(err, "db"))
+			return errors.Wrap(err, "db")
 		}
 		if err := localDB.db.AutoMigrate(&Task{}); err != nil {
-			log.Fatal(errors.Wrap(err, "db"))
+			return errors.Wrap(err, "db")
 		}
 	}
+	return nil
 }
 
 /**
  * @brief 清空会话表并重置内存会话缓存。
+ * @return error 删除或重建会话表失败时返回错误。
  */
-func ClearSession() {
+func ClearSession() error {
 	if localDB.db.Migrator().HasTable(&Session{}) {
 		if err := localDB.db.Migrator().DropTable(&Session{}); err != nil {
-			log.Fatal(errors.Wrap(err, "db"))
+			return errors.Wrap(err, "db")
 		}
 		if err := localDB.db.AutoMigrate(&Session{}); err != nil {
-			log.Fatal(errors.Wrap(err, "db"))
+			return errors.Wrap(err, "db")
 		}
 	}
 	SessionMap = make(map[string]Session)
+	return nil
 }

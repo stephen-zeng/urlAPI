@@ -5,6 +5,13 @@ import (
 	"os"
 )
 
+/**
+ * @file root.go
+ * @brief 命令行入口与参数分派。
+ * @author 武汉大学开源软件与技术课程 2026
+ * @copyright GPL-3.0
+ */
+
 /** @brief 服务默认监听端口。 */
 var Port = "2233"
 
