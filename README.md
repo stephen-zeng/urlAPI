@@ -22,15 +22,19 @@ cd static && npm ci && npm run build
 
 ## Git 仓库地址递交
 
-课程提交时递交实际 Git 仓库 URL。可使用 `git remote -v` 查看远程地址，并按以下格式提交：
+课程提交时递交实际 Git 仓库 URL。当前仓库远程地址为 `https://github.com/stephen-zeng/urlAPI.git`。可使用 `git remote -v` 查看远程地址，并按以下格式提交：
 
 ```text
 项目名称：urlAPI
 作者：武汉大学开源软件与技术课程 2026
-仓库地址：<填写实际 Git 仓库 URL>
+仓库地址：https://github.com/stephen-zeng/urlAPI.git
 许可证：GPL-3.0
 完整文档：COURSE_REPORT.md
 ```
+
+## 注释规范
+
+关键 Go 源文件采用 Doxygen 风格注释，包含 `@file`、`@brief`、`@author`、`@param` 和 `@return` 等字段。项目作者标识统一为：**武汉大学开源软件与技术课程 2026**。
 
 ## 许可证
 

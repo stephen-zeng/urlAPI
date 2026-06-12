@@ -143,7 +143,7 @@ cd static && npm ci && npm run build
 ```text
 项目名称：urlAPI
 作者：武汉大学开源软件与技术课程 2026
-仓库地址：<填写实际 Git 仓库 URL，例如 https://github.com/<owner>/<repo>>
+仓库地址：https://github.com/stephen-zeng/urlAPI.git
 许可证：GPL-3.0
 完整文档：COURSE_REPORT.md
 ```
@@ -153,6 +153,8 @@ cd static && npm ci && npm run build
 ```bash
 git remote -v
 ```
+
+本仓库当前远程地址为：`https://github.com/stephen-zeng/urlAPI.git`。
 
 ## 15. 后续改进方向
 

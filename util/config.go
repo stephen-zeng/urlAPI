@@ -50,8 +50,9 @@ func init() {
 	reader, err := file.Font.ReadFile("ssfonts.ttf")
 	if err != nil {
 		log.Println("Read font file error")
+		return
 	}
-	font, _ = freetype.ParseFont(reader)
+	font, err = freetype.ParseFont(reader)
 	if err != nil {
 		log.Println("Parse font error")
 	}
