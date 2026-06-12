@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"time"
 	"urlAPI/internal/server/handles"
 	"urlAPI/internal/server/middleware"
 	"urlAPI/static"
@@ -25,6 +26,8 @@ func NewRouter() *gin.Engine {
 	config.AllowMethods = []string{"GET", "POST"}
 
 	r := gin.New()
+	r.HandleMethodNotAllowed = true
+	r.Use(requestLogger())
 	r.Use(cors.New(config))
 	rootFS, _ := fs.Sub(static.StaticFS, "dist")
 	assetsFS, _ := fs.Sub(static.StaticFS, "dist/assets")
@@ -43,6 +46,7 @@ func NewRouter() *gin.Engine {
 	v1 := r.Group("/v1")
 	v1.Use(middleware.APIKeyAuthMiddleware(middleware.AuthConfig{Mode: middleware.AuthModeRequired}))
 	{
+		v1.POST("/responses", handles.ResponsesHandler)
 		v1.POST("/chat/completions", handles.ChatCompletionHandler)
 		v1.POST("/embeddings", handles.EmbeddingsHandler)
 		v1.GET("/models", handles.ModelsHandler)
@@ -57,8 +61,18 @@ func NewRouter() *gin.Engine {
 		admin.PATCH("/:id", handles.UpdateAPIKeyHandler)
 	}
 
+	r.NoMethod(handles.MethodNotAllowedHandler)
 	r.NoRoute(handles.StaticHandler)
 	return r
+}
+
+func requestLogger() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		log.Printf("[HTTP] --> %s %s | IP: %s | UA: %s", c.Request.Method, c.Request.URL.RequestURI(), c.ClientIP(), c.Request.UserAgent())
+		c.Next()
+		log.Printf("[HTTP] <-- %s %s | Status: %d | Duration: %s", c.Request.Method, c.Request.URL.RequestURI(), c.Writer.Status(), time.Since(start))
+	}
 }
 
 /**

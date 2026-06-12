@@ -302,7 +302,7 @@ function parseHeaders(text) {
           <mdui-icon name="notes"></mdui-icon>
           <div>
             <h3>自定义 Header</h3>
-            <p>每行一个 `Key: Value`，用于代理、组织 ID 或网关扩展</p>
+            <p>每行一个 Key: Value；可用于代理、组织 ID，或覆盖 User-Agent 等上游要求的客户端 Header</p>
           </div>
         </div>
         <mdui-text-field class="field textarea" variant="outlined" rows="5" autosize label="Headers"

@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -41,6 +42,7 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 
 		apiKey := extractAPIKey(c)
 		if apiKey == "" {
+			log.Printf("[Auth] Missing API key from %s | Path: %s", c.ClientIP(), c.Request.URL.Path)
 			if config.Mode == AuthModeOptional {
 				c.Next()
 				return
@@ -74,6 +76,7 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 		// 验证 API Key
 		key, err := database.APIKeyStore.ValidateWithIP(apiKey, c.ClientIP())
 		if err != nil {
+			log.Printf("[Auth] Invalid API key from %s | Error: %v", c.ClientIP(), err)
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": gin.H{
 					"message": err.Error(),
@@ -84,6 +87,7 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		log.Printf("[Auth] API key validated for %s | Key hash: %s", c.ClientIP(), key.KeyHash)
 
 		// 角色检查
 		if len(config.AllowedRoles) > 0 {
@@ -109,6 +113,7 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 
 		// 配额检查
 		if err := database.APIKeyStore.CheckQuota(key.KeyHash, key.QuotaDay, key.QuotaMonth); err != nil {
+			log.Printf("[Auth] Quota exceeded for key %s from %s | Error: %v", key.KeyHash, c.ClientIP(), err)
 			c.JSON(http.StatusTooManyRequests, gin.H{
 				"error": gin.H{
 					"message": err.Error(),
@@ -121,6 +126,7 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 		}
 
 		// 将 key 信息存入上下文
+		log.Printf("[Auth] Request authorized for %s | Key: %s | Role: %s", c.ClientIP(), key.KeyHash, key.Role)
 		c.Set(APIKeyContextKey, key)
 		c.Next()
 	}

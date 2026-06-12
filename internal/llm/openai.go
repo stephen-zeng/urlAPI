@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"urlAPI/util"
@@ -50,6 +51,9 @@ func (p *openAICompatibleProvider) ChatCompletion(ctx context.Context, req ChatC
 		return nil, err
 	}
 
+	log.Printf("[OpenAIProvider] Sending request to %s | Model: %s | Stream: %v | Messages: %d",
+		p.config.Endpoint, req.Model, req.Stream, len(req.Messages))
+
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", p.config.Endpoint, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
@@ -66,6 +70,7 @@ func (p *openAICompatibleProvider) ChatCompletion(ctx context.Context, req ChatC
 
 	resp, err := util.GlobalHTTPClient.Do(httpReq)
 	if err != nil {
+		log.Printf("[OpenAIProvider] HTTP request failed: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -76,6 +81,7 @@ func (p *openAICompatibleProvider) ChatCompletion(ctx context.Context, req ChatC
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		log.Printf("[OpenAIProvider] HTTP error %d from %s | Body: %s", resp.StatusCode, p.config.Endpoint, string(body))
 		var errResp struct {
 			Error Error `json:"error"`
 		}
@@ -87,8 +93,12 @@ func (p *openAICompatibleProvider) ChatCompletion(ctx context.Context, req ChatC
 
 	var result ChatCompletionResponse
 	if err := json.Unmarshal(body, &result); err != nil {
+		log.Printf("[OpenAIProvider] Failed to parse response: %v | Body: %s", err, string(body))
 		return nil, err
 	}
+
+	log.Printf("[OpenAIProvider] Response received | Choices: %d | Usage: %d tokens",
+		len(result.Choices), result.Usage.TotalTokens)
 
 	return &result, nil
 }
@@ -106,6 +116,8 @@ func (p *openAICompatibleProvider) ChatCompletionStream(ctx context.Context, req
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("[OpenAIProvider] Starting stream request to %s | Model: %s", p.config.Endpoint, req.Model)
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", p.config.Endpoint, bytes.NewReader(payload))
 	if err != nil {
@@ -125,6 +137,7 @@ func (p *openAICompatibleProvider) ChatCompletionStream(ctx context.Context, req
 
 	resp, err := util.GlobalHTTPClient.Do(httpReq)
 	if err != nil {
+		log.Printf("[OpenAIProvider] Stream HTTP request failed: %v", err)
 		return nil, err
 	}
 
@@ -135,11 +148,14 @@ func (p *openAICompatibleProvider) ChatCompletionStream(ctx context.Context, req
 
 		if resp.StatusCode != http.StatusOK {
 			body, _ := io.ReadAll(resp.Body)
+			log.Printf("[OpenAIProvider] Stream HTTP error %d from %s | Body: %s", resp.StatusCode, p.config.Endpoint, string(body))
 			events <- StreamEvent{Error: fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))}
 			return
 		}
 
+		log.Printf("[OpenAIProvider] Stream connection established to %s", p.config.Endpoint)
 		scanner := bufio.NewScanner(resp.Body)
+		eventCount := 0
 		for scanner.Scan() {
 			line := scanner.Text()
 			if line == "" {
@@ -150,14 +166,18 @@ func (p *openAICompatibleProvider) ChatCompletionStream(ctx context.Context, req
 			}
 			data := strings.TrimPrefix(line, "data: ")
 			if data == "[DONE]" {
+				log.Printf("[OpenAIProvider] Stream completed | Events: %d", eventCount)
 				events <- StreamEvent{Done: true}
 				return
 			}
+			eventCount++
 			events <- StreamEvent{Data: data}
 		}
 		if err := scanner.Err(); err != nil {
+			log.Printf("[OpenAIProvider] Stream scanner error: %v | Events: %d", err, eventCount)
 			events <- StreamEvent{Error: err}
 		}
+		log.Printf("[OpenAIProvider] Stream ended | Events: %d", eventCount)
 	}()
 
 	return events, nil
@@ -179,6 +199,8 @@ func (p *openAICompatibleProvider) Embeddings(ctx context.Context, req Embedding
 		return nil, err
 	}
 
+	log.Printf("[OpenAIProvider] Sending embeddings request to %s | Model: %s", embeddingEndpoint, req.Model)
+
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", embeddingEndpoint, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
@@ -195,6 +217,7 @@ func (p *openAICompatibleProvider) Embeddings(ctx context.Context, req Embedding
 
 	resp, err := util.GlobalHTTPClient.Do(httpReq)
 	if err != nil {
+		log.Printf("[OpenAIProvider] Embeddings HTTP request failed: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -205,13 +228,17 @@ func (p *openAICompatibleProvider) Embeddings(ctx context.Context, req Embedding
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		log.Printf("[OpenAIProvider] Embeddings HTTP error %d from %s | Body: %s", resp.StatusCode, embeddingEndpoint, string(body))
 		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
 	}
 
 	var result EmbeddingResponse
 	if err := json.Unmarshal(body, &result); err != nil {
+		log.Printf("[OpenAIProvider] Failed to parse embeddings response: %v | Body: %s", err, string(body))
 		return nil, err
 	}
+
+	log.Printf("[OpenAIProvider] Embeddings response received | Data count: %d", len(result.Data))
 
 	return &result, nil
 }
@@ -221,6 +248,8 @@ func (p *openAICompatibleProvider) Models(ctx context.Context) (*ModelsResponse,
 	if modelsEndpoint == p.config.Endpoint {
 		modelsEndpoint = p.config.Endpoint + "/models"
 	}
+
+	log.Printf("[OpenAIProvider] Fetching models from %s", modelsEndpoint)
 
 	httpReq, err := http.NewRequestWithContext(ctx, "GET", modelsEndpoint, nil)
 	if err != nil {
@@ -237,6 +266,7 @@ func (p *openAICompatibleProvider) Models(ctx context.Context) (*ModelsResponse,
 
 	resp, err := util.GlobalHTTPClient.Do(httpReq)
 	if err != nil {
+		log.Printf("[OpenAIProvider] Models HTTP request failed: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -247,13 +277,17 @@ func (p *openAICompatibleProvider) Models(ctx context.Context) (*ModelsResponse,
 	}
 
 	if resp.StatusCode != http.StatusOK {
+		log.Printf("[OpenAIProvider] Models HTTP error %d from %s | Body: %s", resp.StatusCode, modelsEndpoint, string(body))
 		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
 	}
 
 	var result ModelsResponse
 	if err := json.Unmarshal(body, &result); err != nil {
+		log.Printf("[OpenAIProvider] Failed to parse models response: %v | Body: %s", err, string(body))
 		return nil, err
 	}
+
+	log.Printf("[OpenAIProvider] Models response received | Count: %d", len(result.Data))
 
 	return &result, nil
 }

@@ -777,7 +777,7 @@ func fallbackAppSettings() AppSettings {
 			},
 		},
 		Text: TextSettings{
-			GenerationAPI:    "alibaba",
+			GenerationAPI:    "otherapi",
 			SummaryAPI:       "alibaba",
 			CacheMinutes:     60,
 			FallbackImageURL: "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png",
@@ -834,6 +834,11 @@ func NormalizeSettings(settings AppSettings) AppSettings {
 	settings.Task.ExceptInfos = normalizeList(settings.Task.ExceptInfos)
 	if settings.Prompts.Templates == nil {
 		settings.Prompts.Templates = make(map[string]string)
+	}
+	if settings.Text.GenerationAPI == "" {
+		settings.Text.GenerationAPI = "otherapi"
+	} else if _, ok := settings.Providers.ByName(settings.Text.GenerationAPI); !ok {
+		settings.Text.GenerationAPI = "otherapi"
 	}
 	return settings
 }
