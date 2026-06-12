@@ -1,0 +1,22 @@
+urlAPI Open Source Notices
+
+This project is licensed under the GNU General Public License version 3.0
+(GPL-3.0). See LICENSE for the full license text.
+
+Project copyright belongs to the urlAPI project contributors unless otherwise
+stated in individual files.
+
+This repository contains and/or builds with third-party open source components,
+including Go modules declared in go.mod and frontend packages declared in
+static/package.json and static/package-lock.json. Redistribution of binaries,
+Docker images, or frontend bundles should include the applicable third-party
+license notices generated from the exact dependency versions used for release.
+
+Compliance reminders:
+
+- Keep this NOTICE file and LICENSE with distributed source and binary artifacts.
+- Preserve third-party copyright notices and license texts.
+- Provide corresponding source code for GPL-3.0 covered distributions.
+- Re-generate dependency license notices before each release from go.mod,
+  go.sum, static/package.json, and static/package-lock.json.
+- Review model-provider and upstream API terms before enabling commercial use.

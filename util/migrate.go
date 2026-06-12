@@ -102,14 +102,14 @@ type ProviderConfig struct {
 	ImageSize        string            `json:"image_size,omitempty"`
 	EmbeddingModel   string            `json:"embedding_model,omitempty"`
 	Endpoint         string            `json:"endpoint"`
-	APIType          string            `json:"api_type"`           // openai, anthropic, gemini, azure, moonshot, alibaba, otherapi
-	Temperature      float64           `json:"temperature"`        // 默认 1.0
-	MaxTokens        int               `json:"max_tokens"`         // 默认 0 (不限制)
-	TopP             float64           `json:"top_p"`              // 默认 1.0
-	PresencePenalty  float64           `json:"presence_penalty"`   // 默认 0
-	FrequencyPenalty float64           `json:"frequency_penalty"`  // 默认 0
+	APIType          string            `json:"api_type"`          // openai, anthropic, gemini, azure, moonshot, alibaba, otherapi
+	Temperature      float64           `json:"temperature"`       // 默认 1.0
+	MaxTokens        int               `json:"max_tokens"`        // 默认 0 (不限制)
+	TopP             float64           `json:"top_p"`             // 默认 1.0
+	PresencePenalty  float64           `json:"presence_penalty"`  // 默认 0
+	FrequencyPenalty float64           `json:"frequency_penalty"` // 默认 0
 	CustomHeaders    map[string]string `json:"custom_headers,omitempty"`
-	Enabled          bool              `json:"enabled"`            // 默认 true
+	Enabled          bool              `json:"enabled"` // 默认 true
 }
 
 /** @brief 功能开关配置。 */

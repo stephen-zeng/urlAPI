@@ -1,0 +1,466 @@
+\documentclass[aspectratio=169,UTF8]{ctexbeamer}
+
+\usetheme{Madrid}
+\usecolortheme{whale}
+\usefonttheme{professionalfonts}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+
+\definecolor{WHUBlue}{RGB}{0,64,152}
+\definecolor{WHULightBlue}{RGB}{232,241,255}
+\definecolor{WHUGray}{RGB}{72,76,84}
+
+\setbeamercolor{structure}{fg=WHUBlue}
+\setbeamercolor{frametitle}{bg=WHUBlue,fg=white}
+\setbeamercolor{title}{fg=WHUBlue}
+\setbeamercolor{block title}{bg=WHUBlue,fg=white}
+\setbeamercolor{block body}{bg=WHULightBlue,fg=black}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\layerbox}[3]{\node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.78cm,align=center] (#1) {#2\\{\scriptsize #3}};}
+
+\title{urlAPI 项目功能与架构展示}
+\subtitle{开源软件课程报告}
+\author{urlAPI 项目}
+\institute{曾浩正，童济州}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+  \vspace{-0.6cm}
+  \begin{center}
+    \includegraphics[height=1.1cm]{logo/whu-logo.png}
+  \end{center}
+\end{frame}
+
+\begin{frame}{目录}
+  \tableofcontents
+\end{frame}
+
+\section{项目定位}
+
+\begin{frame}{项目定位}
+  \begin{block}{一句话概括}
+    urlAPI 是一个 Go + Vue 的 URL 化 API 服务：把文本生成、图片生成、随机图片、网页缩略图和 OpenAI 兼容模型接口封装成可直接调用的 Web 服务，并提供后台管理能力。
+  \end{block}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \textbf{主要能力}
+      \begin{itemize}
+        \item 文字生成并渲染为 PNG 图片
+        \item 图片生成并通过下载接口中转
+        \item GitHub/Gitee 仓库随机图片
+        \item Bilibili、YouTube、arXiv、GitHub 等网页信息卡片
+        \item OpenAI-compatible \code{/v1} 接口
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \textbf{管理能力}
+      \begin{itemize}
+        \item 后台登录、任务查看与筛选
+        \item 供应商、模型、参数和 Prompt 配置
+        \item Referer、IP、Prompt、功能开关安全策略
+        \item API Key 创建、配额、IP 白名单和启停
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{项目分层架构}
+
+\begin{frame}{项目分层架构}
+  \centering
+  \begin{tikzpicture}[node distance=0.36cm, every node/.style={font=\small}]
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center] (entry) {\textbf{cmd / main.go}\\{\scriptsize 启动命令、端口设置、admin 子命令}};
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center,below=of entry] (bootstrap) {\textbf{internal/bootstrap}\\{\scriptsize 数据库、运行目录、配置初始化}};
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center,below=of bootstrap] (server) {\textbf{internal/server}\\{\scriptsize Gin Router、Middleware、Handles、静态前端}};
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center,below=of server] (op) {\textbf{internal/op 与 internal/llm}\\{\scriptsize 任务生命周期、业务处理、上游模型客户端}};
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center,below=of op] (data) {\textbf{internal/database 与 internal/model}\\{\scriptsize SQLite/GORM、结构化设置、任务、会话、仓库、API Key}};
+    \node[draw=WHUBlue,fill=WHULightBlue,rounded corners,minimum width=0.82\linewidth,minimum height=0.58cm,align=center,below=of data] (util) {\textbf{util / file / static}\\{\scriptsize 绘图、下载、外部 API 工具、嵌入资源、Vue 后台}};
+    \draw[-{Latex[length=2mm]},thick,WHUBlue] (entry) -- (bootstrap);
+    \draw[-{Latex[length=2mm]},thick,WHUBlue] (bootstrap) -- (server);
+    \draw[-{Latex[length=2mm]},thick,WHUBlue] (server) -- (op);
+    \draw[-{Latex[length=2mm]},thick,WHUBlue] (op) -- (data);
+    \draw[-{Latex[length=2mm]},thick,WHUBlue] (op) -- ++(-4.6,0) |- (util);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{路由与请求流}
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \textbf{公开 URL API}
+      \begin{itemize}
+        \item \code{GET /txt}：文本生成图片
+        \item \code{GET /img}：AI 图片生成
+        \item \code{GET /rand}：随机图片
+        \item \code{GET /web}：网页缩略图
+        \item \code{GET /download}：临时图片下载
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \textbf{后台与模型接口}
+      \begin{itemize}
+        \item \code{POST /session}：登录、任务、仓库、配置
+        \item \code{/admin/apikeys}：API Key 管理
+        \item \code{/v1/chat/completions}：聊天补全
+        \item \code{/v1/embeddings}：向量接口
+        \item \code{/v1/models}：模型列表
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.4cm}
+  \begin{block}{典型请求流}
+    Router 装载安全中间件 $\rightarrow$ Handler 读取参数 $\rightarrow$ op 执行业务与任务缓存 $\rightarrow$ database 记录任务 $\rightarrow$ JSON 返回或 302 跳转到结果 URL。
+  \end{block}
+\end{frame}
+
+\section{分发方式}
+
+\begin{frame}{分发与部署方式}
+  \begin{table}
+    \small
+    \begin{tabularx}{\linewidth}{lX}
+      \toprule
+      方式 & 说明 \\
+      \midrule
+      单体 Docker & \code{0w0w0/urlapi:latest}，Go 后端内嵌 Vue 前端，默认服务端口 \code{2233}，宿主机目录挂载到 \code{/app/assets} 保存 SQLite 与临时资源。 \\
+      前端独立 Docker & \code{0w0w0/urlapi-frontend:latest}，Nginx 托管前端，通过 \code{BACKEND\_URL} 反代后端公开接口。 \\
+      ARM 镜像 & README 约定使用 \code{0w0w0/urlapi-arm}。 \\
+      二进制文件 & GitHub Actions 构建多平台产物，可从 Actions 或 Release 获取。 \\
+      systemd 服务 & 用 \code{ExecStart=/root/urlAPI/urlAPI port 2233} 注册为系统服务。 \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+
+  \begin{block}{启动参数}
+    支持 \code{port}、\code{admin repwd}、\code{admin clear}、\code{admin logout}、\code{admin clear\_ip\_restriction}，用于端口设置、重置密码、清空任务和会话。
+  \end{block}
+\end{frame}
+
+\section{功能展示}
+
+\begin{frame}[fragile]{访问方式一：URL + Referer 白名单}
+  \textbf{面向博客、页面和简单自动化：把结果当作图片或 JSON 使用。}
+
+  \begin{verbatim}
+curl -L "https://api.example.com/txt?prompt=poem&format=json"
+curl -L "https://api.example.com/img?prompt=cat&api=openai&size=1024x1024"
+curl -L "https://api.example.com/rand?api=github&user=me&repo=images"
+curl -L "https://api.example.com/web?img=https://github.com/owner/repo"
+  \end{verbatim}
+
+  \begin{itemize}
+    \item 默认非 JSON 请求返回 \code{302}，浏览器或 \code{curl -L} 会跟随到图片地址。
+    \item \code{format=json} 返回结构化结果，便于脚本调试。
+    \item 公开接口经过 Referer 白名单、频率限制、功能开关、Prompt 通配符等检查。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{访问方式二：curl + API Key}
+  \textbf{面向开发者：通过 OpenAI 兼容 \code{/v1} 接口接入。}
+
+  \begin{verbatim}
+curl https://api.example.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-..." \
+  -H "X-Provider: deepseek" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"Hi"}]}'
+  \end{verbatim}
+
+  \begin{itemize}
+    \item API Key 可从 \code{Authorization: Bearer}、\code{X-API-Key} 或 \code{api\_key} 查询参数读取。
+    \item 支持 Key 启停、角色、日/月配额、过期时间和 IP 白名单。
+    \item \code{X-Provider} 可切换供应商；不传时使用后台默认文字供应商。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{功能：供应商、模型和参数调整}
+  \begin{columns}[T]
+    \begin{column}{0.52\linewidth}
+      \textbf{供应商配置}
+      \begin{itemize}
+        \item OpenAI、DeepSeek、Alibaba、OtherAPI
+        \item Anthropic、Gemini、Azure、Moonshot
+        \item API Key、endpoint、启用状态
+        \item 文本、总结、图片、Embedding 默认模型
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\linewidth}
+      \textbf{模型参数}
+      \begin{itemize}
+        \item temperature
+        \item max tokens
+        \item top p
+        \item presence penalty
+        \item frequency penalty
+        \item custom headers
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.25cm}
+  \begin{block}{设计目标}
+    上游模型服务以 ProviderConfig 形式统一接入，业务层只关心“使用哪个 provider、哪个 model、哪个 endpoint”。
+  \end{block}
+\end{frame}
+
+\begin{frame}{功能：README 中的四类公开服务}
+  \begin{table}
+    \small
+    \begin{tabularx}{\linewidth}{lX}
+      \toprule
+      功能 & 参数与行为 \\
+      \midrule
+      文字生成 & \code{prompt} 必填；\code{api/model/more/format} 可选；可使用 \code{laugh}、\code{poem}、\code{sentence} 或自定义 Prompt。 \\
+      图片生成 & \code{prompt} 必填；\code{api/size/format/more} 可选；支持 OpenAI 与 Alibaba 图片能力。 \\
+      随机图片 & \code{user/repo} 必填；\code{api} 可选 \code{github/gitee}；从后台维护的仓库图片列表中随机取图。 \\
+      网页缩略图 & \code{img} 参数传入页面 URL；支持视频、论文、新闻、代码仓库等信息卡片绘制。 \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+\end{frame}
+
+\begin{frame}{功能：结合代码发现的更多能力}
+  \begin{itemize}
+    \item \textbf{OpenAI 兼容代理：}实现 \code{/v1/chat/completions}、\code{/v1/embeddings}、\code{/v1/models}，可作为模型网关使用。
+    \item \textbf{流式输出：}聊天补全支持 \code{stream=true}，以 SSE 格式返回 \code{data: ...} 与 \code{[DONE]}。
+    \item \textbf{API Key 治理：}Key 哈希入库，支持配额、启停、过期、IP 限制和使用量统计。
+    \item \textbf{后台工作台：}组合 Host、Operation、Query 参数生成 URL，并预览调用结果。
+    \item \textbf{结构化设置 API：}\code{fetchSettings/editSettings} 使用具名 \code{setting\_body}，避免前端直接依赖数组下标。
+    \item \textbf{资源嵌入：}Vue dist、字体、图标、Logo 和默认配置随 Go 二进制嵌入。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{功能：访问数据统计与用量追踪}
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \textbf{任务与用量统计}
+      \begin{itemize}
+        \item \code{Task} 表中记录每次生成/下载请求的 IP、Referer、状态、API、模型等字段。
+        \item 后台可筛选时间范围、任务类型、状态、来源域名，用于生成访问报表。
+        \item \code{APIKeyUsage} 日志记录每次 API Key 调用的端点、IP、状态码和耗时。
+        \item \code{GetUsageStats} 支持按 API Key 和起止时间查询调用量。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \textbf{配额与并发统计}
+      \begin{itemize}
+        \item API Key 记录 \code{usage\_day} 和 \code{usage\_month}，实时追踪日/月使用量。
+        \item \code{CheckQuota} 校验调用是否超出日/月配额上限。
+        \item \code{TaskCounter} 按上游 API 统计当前并发任务数，防止打满。
+        \item \code{ResetDailyUsage/ResetMonthlyUsage} 自动重置过期日/月计数。
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \begin{block}{统计维度汇总}
+    项目支持按时间范围、任务类型、成功/失败状态、来源 IP、Referer 域名、API 供应商、API Key 等维度统计访问量和生成量，并提供配额上限告警。
+  \end{block}
+\end{frame}
+
+\section{面向人群}
+
+\begin{frame}{面向人群}
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \begin{block}{开发者}
+        \begin{itemize}
+          \item 需要统一接入多个大模型供应商
+          \item 需要 OpenAI-compatible API Key 网关
+          \item 需要可追踪的任务记录和配额控制
+          \item 需要用 Docker 或二进制快速私有部署
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \begin{block}{博客作者}
+        \begin{itemize}
+          \item 需要把动态内容嵌入文章或页面
+          \item 需要随机图、AI 配图、文字卡片
+          \item 需要通过 URL 直接调用，无需写复杂前端
+          \item 需要 Referer 白名单防止公开接口被滥用
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{特性设计}
+
+\begin{frame}{特性设计：执行队列}
+  \begin{block}{核心数据结构}
+    \code{TaskQueue} 以 \code{Type + Size + Target + API} 作为去重键；\code{TaskCounter} 按 API 统计并发任务数。
+  \end{block}
+
+  \begin{itemize}
+    \item 同一任务正在运行时，后续请求等待结果，避免重复调用上游 API。
+    \item 成功任务在缓存时间内复用结果，当前任务标记 \code{Temp=Yes}。
+    \item 过期或失败任务会清理旧临时图片，重新执行。
+    \item 每个 API 的并发执行数受控，避免上游接口或本机资源被打满。
+    \item 任务结束后会校验 PNG 文件有效性，异常时返回空图并记录失败。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{特性设计：图片缓存能力}
+  \begin{block}{缓存目标}
+    对文字生成图、AI 生成图和网页缩略图进行结果复用，减少重复调用上游 API、重复绘图和重复下载。
+  \end{block}
+
+  \begin{itemize}
+    \item 缓存键复用 \code{TaskQueueFilter}：按任务类型、尺寸、目标内容和 API 供应商区分结果。
+    \item 生成成功后图片保存到 \code{assets/img/<uuid>.png}，对外统一返回 \code{/download?img=<uuid>}。
+    \item 缓存过期时间来自后台配置：文字、图片、网页缩略图分别有独立 \code{cache\_minutes}。
+    \item 命中缓存时不重新生成图片，而是复制历史任务结果并标记 \code{Temp=Yes}，仍可按需写入任务记录。
+    \item 缓存过期、生成失败或 PNG 校验失败时会丢弃旧结果，重新执行并在失败时返回空图或 fallback。
+    \item 临时图片目录在服务启动时重建，因此缓存是运行期缓存；持久化任务记录保留，但旧下载 URL 可能随重启失效。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{特性设计：流控与风控}
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \textbf{流控}
+      \begin{itemize}
+        \item 公开 URL API 按 \code{Type + IP} 维护访问频率窗口。
+        \item 0.25 秒内超过 10 次同类请求会被拒绝，避免脚本刷接口。
+        \item API Key 支持日配额、月配额和使用量统计，超额返回 \code{rate\_limit\_error}。
+        \item \code{TaskCounter} 按上游 API 统计并发，防止模型接口和本机资源被打满。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \textbf{风控}
+      \begin{itemize}
+        \item 功能开关控制文字、图片、随机图、网页缩略图是否开放。
+        \item Prompt 支持启用列表和通配符白名单，限制可生成内容范围。
+        \item API 参数限制在受支持供应商集合内，阻断非法 provider 输入。
+        \item 可选 HMAC 签名校验，使用时间戳降低重放风险。
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{特性设计：白名单机制}
+  \begin{table}
+    \small
+    \begin{tabularx}{\linewidth}{lX}
+      \toprule
+      白名单 & 项目实现与作用 \\
+      \midrule
+      Referer 白名单 & \code{Security.AllowedReferers} 校验来源域名，公开图片类接口必须来自允许域名，保护博客嵌入场景。 \\
+      API Key IP 白名单 & 每个 Key 可配置 \code{allowed\_ips}，请求 IP 不匹配时拒绝，\code{*} 表示放行。 \\
+      Web 目标白名单 & \code{Web.AllowedHosts} 限定网页缩略图可解析的站点，避免服务被当作任意 URL 抓取器。 \\
+      Prompt 白名单 & 文字 Prompt 使用启用列表和 \code{accepted\_prompt\_glob}；图片 Prompt 使用 \code{accepted\_prompt\_glob}。 \\
+      任务记录例外 & \code{Task.ExceptDomains/ExceptInfos} 命中后跳过数据库记录，减少可信来源或特定错误信息的噪声。 \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+\end{frame}
+
+\begin{frame}{特性设计：上游 API 对接}
+  \begin{columns}[T]
+    \begin{column}{0.50\linewidth}
+      \textbf{统一抽象}
+      \begin{itemize}
+        \item \code{internal/llm} 封装 provider client
+        \item \code{ProviderConfig} 描述 endpoint、模型、参数
+        \item 上层 Handler 不直接拼接各家请求细节
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\linewidth}
+      \textbf{兼容与扩展}
+      \begin{itemize}
+        \item OpenAI Chat/Embedding/Models 协议
+        \item DeepSeek 与 OtherAPI 走兼容接口
+        \item Alibaba 图片生成采用异步任务轮询
+        \item Anthropic/Gemini/Azure/Moonshot 可配置接入
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.4cm}
+  \begin{block}{失败处理}
+    外部调用失败会落入任务记录，并按接口类型返回 JSON 错误、fallback 图片或 OpenAI 兼容错误结构。
+  \end{block}
+\end{frame}
+
+\begin{frame}{特性设计：数据库版本匹配与更新}
+  \begin{itemize}
+    \item 旧版本使用 \code{settings.name + settings.value(JSON 字符串数组)}，业务和前端依赖魔法下标。
+    \item 新设计拆出 \code{providers}、\code{service\_configs}、\code{prompts}、\code{config\_list\_items}、\code{app\_settings} 等结构化表。
+    \item 启动时通过 \code{SettingsStore} 加载结构化配置，并用读写锁提供线程安全快照。
+    \item 保存设置时先构建 V2 rows，在事务中替换相关表，再替换内存快照。
+    \item 新 \code{fetchSettings/editSettings} 返回具名 DTO，敏感字段不明文回显，空值保留旧密钥。
+    \item 迁移文档要求保留旧表一段时间，支持从旧数组配置安全迁移并避免破坏现有行为。
+  \end{itemize}
+\end{frame}
+
+\section{开源合规性}
+
+\begin{frame}{开源合规性：项目现状}
+  \begin{block}{核心结论}
+    urlAPI 当前仓库已包含 GPL-3.0 许可证；本次补充了 \code{NOTICE} 与 \code{OPEN\_SOURCE\_COMPLIANCE.md}，把分发、依赖、SBOM、SCA 和 AI 服务条款审查要求落到项目文件中。
+  \end{block}
+
+  \begin{itemize}
+    \item 项目主许可证为 \\textbf{GPL-3.0}，属于高风险强 Copyleft：分发修改版或衍生作品时需要提供对应源代码。
+    \item 后端依赖清单来自 \code{go.mod/go.sum}，前端依赖清单来自 \code{static/package.json/package-lock.json}。
+    \item 尚未发现完整第三方许可证汇总文件，因此 \code{NOTICE} 要求发布前按精确版本生成第三方 notices。
+    \item 项目对接多家模型与内容服务，除代码 License 外，还需要审查 API 服务条款、模型社区许可和生成内容使用边界。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{开源合规性：技术管控}
+  \begin{itemize}
+    \item \textbf{SBOM：}以 \code{go.mod/go.sum} 和 \code{package-lock.json} 生成为准，记录直接依赖和间接依赖的名称、版本、许可证。
+    \item \textbf{SCA 扫描：}在 CI/CD 中接入 FOSSology、Snyk、SonarQube、Black Duck 等工具，识别 GPL/AGPL、未知许可证和复制粘贴代码。
+    \item \textbf{交付物合规：}Docker 镜像、二进制和前端 bundle 应附带 \code{LICENSE}、\code{NOTICE}、第三方 notices 和源码获取路径。
+    \item \textbf{修改声明：}如修改第三方文件，需要保留原版权并标记修改；Apache-2.0 等许可证对 NOTICE 有明确要求。
+    \item \textbf{证据链：}保留 Git 提交、Release tag、构建日志、扫描报告和依赖锁文件，支撑后续审计。
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{开源合规性：治理与 AI 合规}
+  \begin{columns}[T]
+    \begin{column}{0.48\linewidth}
+      \textbf{组织治理}
+      \begin{itemize}
+        \item 建立许可证准入白名单、灰名单和黑名单。
+        \item 高风险许可证、模型服务和商用分发需法务/架构审查。
+        \item 发布前执行合规 checklist，输出可追溯扫描结果。
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\linewidth}
+      \textbf{AI 合规}
+      \begin{itemize}
+        \item 检查 Llama、Qwen 等社区许可证的 MAU、用途和竞争模型限制。
+        \item 记录训练、微调、提示词和生成资源的数据来源与变更日志。
+        \item 避免将隐私、商业秘密或未授权数据发送给上游模型供应商。
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{总结}
+  \begin{block}{项目价值}
+    urlAPI 将“模型能力、图片能力、网页摘要能力、后台治理能力”组合为一个可私有部署的 URL/API 网关，既能服务博客内容生产，也能作为开发者模型接入层。
+  \end{block}
+
+  \begin{itemize}
+    \item 架构上已从早期平铺目录迁移到 \code{cmd + internal + util + static} 的分层结构。
+    \item 功能上覆盖公开 URL API、OpenAI 兼容接口、后台配置、任务记录和 API Key 管理。
+    \item 设计上重点解决执行队列、图片缓存、流控风控、白名单、上游 API 适配、配置结构化和数据库迁移问题。
+    \item 合规上已明确 GPL-3.0 分发义务，并补充 NOTICE、SBOM/SCA、交付物 notices 和 AI 服务条款审查要求。
+  \end{itemize}
+\end{frame}
+
+\end{document}

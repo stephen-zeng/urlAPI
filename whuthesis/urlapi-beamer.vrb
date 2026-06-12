@@ -1,0 +1,16 @@
+\frametitle{访问方式二：curl + API Key}
+\textbf{面向开发者：通过 OpenAI 兼容 \code{/v1} 接口接入。}
+
+  \begin{verbatim}
+curl https://api.example.com/v1/chat/completions \
+  -H "Authorization: Bearer sk-..." \
+  -H "X-Provider: deepseek" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"deepseek-chat","messages":[{"role":"user","content":"Hi"}]}'
+  \end{verbatim}
+
+  \begin{itemize}
+    \item API Key 可从 \code{Authorization: Bearer}、\code{X-API-Key} 或 \code{api\_key} 查询参数读取。
+    \item 支持 Key 启停、角色、日/月配额、过期时间和 IP 白名单。
+    \item \code{X-Provider} 可切换供应商；不传时使用后台默认文字供应商。
+  \end{itemize}

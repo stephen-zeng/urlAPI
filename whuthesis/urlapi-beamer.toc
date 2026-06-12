@@ -1,0 +1,7 @@
+\beamer@sectionintoc {1}{项目定位}{3}{0}{1}
+\beamer@sectionintoc {2}{项目分层架构}{4}{0}{2}
+\beamer@sectionintoc {3}{分发方式}{6}{0}{3}
+\beamer@sectionintoc {4}{功能展示}{7}{0}{4}
+\beamer@sectionintoc {5}{面向人群}{13}{0}{5}
+\beamer@sectionintoc {6}{特性设计}{14}{0}{6}
+\beamer@sectionintoc {7}{开源合规性}{20}{0}{7}

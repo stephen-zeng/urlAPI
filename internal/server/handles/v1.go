@@ -20,16 +20,16 @@ import (
 )
 
 type responsesRequest struct {
-	Model           string          `json:"model"`
-	Input           json.RawMessage `json:"input"`
-	Instructions    string          `json:"instructions,omitempty"`
-	Stream          bool            `json:"stream,omitempty"`
-	Temperature     float64         `json:"temperature,omitempty"`
-	TopP            float64         `json:"top_p,omitempty"`
-	MaxOutputTokens int             `json:"max_output_tokens,omitempty"`
+	Model           string            `json:"model"`
+	Input           json.RawMessage   `json:"input"`
+	Instructions    string            `json:"instructions,omitempty"`
+	Stream          bool              `json:"stream,omitempty"`
+	Temperature     float64           `json:"temperature,omitempty"`
+	TopP            float64           `json:"top_p,omitempty"`
+	MaxOutputTokens int               `json:"max_output_tokens,omitempty"`
 	Tools           []json.RawMessage `json:"tools,omitempty"`
-	ToolChoice      any             `json:"tool_choice,omitempty"`
-	ResponseFormat  any             `json:"response_format,omitempty"`
+	ToolChoice      any               `json:"tool_choice,omitempty"`
+	ResponseFormat  any               `json:"response_format,omitempty"`
 }
 
 type responseInputItem struct {
@@ -51,7 +51,10 @@ type responseTool struct {
 	Function    *responseToolFunction `json:"function,omitempty"`
 }
 
-// ChatCompletionHandler handles /v1/chat/completions requests.
+/**
+ * @brief 处理 OpenAI 兼容的聊天补全请求。
+ * @param c Gin 请求上下文。
+ */
 func ChatCompletionHandler(c *gin.Context) {
 	var req llm.ChatCompletionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -196,6 +199,10 @@ func ChatCompletionHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+/**
+ * @brief 处理 OpenAI 兼容的 Responses 请求。
+ * @param c Gin 请求上下文。
+ */
 func ResponsesHandler(c *gin.Context) {
 	var req responsesRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -345,13 +352,13 @@ func handleResponsesStream(c *gin.Context, client llm.Provider, req llm.ChatComp
 		eventCount++
 		outputText.WriteString(delta)
 		fmt.Fprintf(w, "event: response.output_text.delta\ndata: %s\n\n", llm.ToJSON(gin.H{
-			"type":          "response.output_text.delta",
+			"type":            "response.output_text.delta",
 			"sequence_number": nextSequence(&sequence),
-			"item_id":       itemID,
-			"output_index":  0,
-			"content_index": 0,
-			"delta":         delta,
-			"logprobs":      []gin.H{},
+			"item_id":         itemID,
+			"output_index":    0,
+			"content_index":   0,
+			"delta":           delta,
+			"logprobs":        []gin.H{},
 		}))
 		return true
 	})
@@ -645,7 +652,10 @@ func chatStreamDelta(data string) string {
 	return resp.Choices[0].Delta.Content
 }
 
-// EmbeddingsHandler handles /v1/embeddings requests.
+/**
+ * @brief 处理 OpenAI 兼容的 Embeddings 请求。
+ * @param c Gin 请求上下文。
+ */
 func EmbeddingsHandler(c *gin.Context) {
 	var req llm.EmbeddingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -709,7 +719,10 @@ func EmbeddingsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// ModelsHandler handles /v1/models requests.
+/**
+ * @brief 处理 OpenAI 兼容的模型列表请求。
+ * @param c Gin 请求上下文。
+ */
 func ModelsHandler(c *gin.Context) {
 	providerName := c.Query("provider")
 	if providerName == "" {

@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-// ChatMessage represents a message in a chat conversation.
+/** @brief 聊天补全中的单条消息。 */
 type ChatMessage struct {
 	Role       string     `json:"role"`
 	Content    string     `json:"content"`
@@ -15,7 +15,7 @@ type ChatMessage struct {
 	ToolCallID string     `json:"tool_call_id,omitempty"`
 }
 
-// ToolCall represents a tool call in a message.
+/** @brief 聊天消息中的工具调用。 */
 type ToolCall struct {
 	ID       string `json:"id"`
 	Type     string `json:"type"`
@@ -25,7 +25,7 @@ type ToolCall struct {
 	} `json:"function"`
 }
 
-// ChatCompletionRequest represents a request to the chat completion API.
+/** @brief 聊天补全接口请求结构。 */
 type ChatCompletionRequest struct {
 	Model            string        `json:"model"`
 	Messages         []ChatMessage `json:"messages"`
@@ -42,7 +42,7 @@ type ChatCompletionRequest struct {
 	ResponseFormat   any           `json:"response_format,omitempty"`
 }
 
-// Tool represents a tool definition.
+/** @brief 可供模型调用的工具定义。 */
 type Tool struct {
 	Type     string `json:"type"`
 	Function struct {
@@ -52,7 +52,7 @@ type Tool struct {
 	} `json:"function"`
 }
 
-// ChatCompletionResponse represents a response from the chat completion API.
+/** @brief 聊天补全接口响应结构。 */
 type ChatCompletionResponse struct {
 	ID      string   `json:"id"`
 	Object  string   `json:"object"`
@@ -63,7 +63,7 @@ type ChatCompletionResponse struct {
 	Error   *Error   `json:"error,omitempty"`
 }
 
-// Choice represents a choice in a chat completion response.
+/** @brief 聊天补全响应中的单个候选结果。 */
 type Choice struct {
 	Index        int         `json:"index"`
 	Message      ChatMessage `json:"message"`
@@ -71,28 +71,28 @@ type Choice struct {
 	Delta        ChatMessage `json:"delta,omitempty"`
 }
 
-// Usage represents token usage information.
+/** @brief Token 使用量统计。 */
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
 	TotalTokens      int `json:"total_tokens"`
 }
 
-// Error represents an API error.
+/** @brief LLM 接口错误响应。 */
 type Error struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
 	Code    string `json:"code"`
 }
 
-// EmbeddingRequest represents a request to the embeddings API.
+/** @brief Embeddings 接口请求结构。 */
 type EmbeddingRequest struct {
-	Model string   `json:"model"`
-	Input any      `json:"input"`
-	User  string   `json:"user,omitempty"`
+	Model string `json:"model"`
+	Input any    `json:"input"`
+	User  string `json:"user,omitempty"`
 }
 
-// EmbeddingResponse represents a response from the embeddings API.
+/** @brief Embeddings 接口响应结构。 */
 type EmbeddingResponse struct {
 	Object string      `json:"object"`
 	Data   []Embedding `json:"data"`
@@ -101,36 +101,36 @@ type EmbeddingResponse struct {
 	Error  *Error      `json:"error,omitempty"`
 }
 
-// Embedding represents a single embedding.
+/** @brief 单条向量结果。 */
 type Embedding struct {
 	Object    string    `json:"object"`
 	Embedding []float64 `json:"embedding"`
 	Index     int       `json:"index"`
 }
 
-// Model represents a model information.
+/** @brief 模型元数据信息。 */
 type Model struct {
-	ID         string `json:"id"`
-	Object     string `json:"object"`
-	Created    int64  `json:"created"`
-	OwnedBy    string `json:"owned_by"`
+	ID      string `json:"id"`
+	Object  string `json:"object"`
+	Created int64  `json:"created"`
+	OwnedBy string `json:"owned_by"`
 }
 
-// ModelsResponse represents a response from the models API.
+/** @brief 模型列表接口响应结构。 */
 type ModelsResponse struct {
 	Object string  `json:"object"`
 	Data   []Model `json:"data"`
 	Error  *Error  `json:"error,omitempty"`
 }
 
-// StreamEvent represents a single SSE stream event.
+/** @brief SSE 流中的单个事件。 */
 type StreamEvent struct {
 	Data  string
 	Error error
 	Done  bool
 }
 
-// Provider defines the interface for LLM providers.
+/** @brief LLM 提供方统一接口。 */
 type Provider interface {
 	// Name returns the provider name.
 	Name() string
@@ -154,24 +154,35 @@ type Provider interface {
 	IsEmbeddingsSupported() bool
 }
 
-// SSEWriter is a helper to write SSE events.
+/** @brief SSE 事件写入辅助器。 */
 type SSEWriter struct {
 	Writer io.Writer
 }
 
-// WriteEvent writes a single SSE event.
+/**
+ * @brief 写入单个 SSE 数据事件。
+ * @param data 事件数据。
+ * @return error 写入失败时返回错误。
+ */
 func (w *SSEWriter) WriteEvent(data string) error {
 	_, err := w.Writer.Write([]byte("data: " + data + "\n\n"))
 	return err
 }
 
-// WriteDone writes the SSE done event.
+/**
+ * @brief 写入 SSE 结束事件。
+ * @return error 写入失败时返回错误。
+ */
 func (w *SSEWriter) WriteDone() error {
 	_, err := w.Writer.Write([]byte("data: [DONE]\n\n"))
 	return err
 }
 
-// ToJSON marshals a value to JSON string.
+/**
+ * @brief 将任意值序列化为 JSON 字符串。
+ * @param v 待序列化的值。
+ * @return string JSON 字符串。
+ */
 func ToJSON(v any) string {
 	b, _ := json.Marshal(v)
 	return string(b)

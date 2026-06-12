@@ -11,25 +11,39 @@ import (
 	"gorm.io/gorm"
 )
 
+/** @brief 线程安全的应用设置缓存。 */
 type appSettingsStore struct {
 	mu       sync.RWMutex
 	settings util.AppSettings
 }
 
+/** @brief 全局应用设置缓存入口。 */
 var SettingsStore = appSettingsStore{}
 
+/**
+ * @brief 获取当前应用设置快照。
+ * @return util.AppSettings 当前缓存中的应用设置。
+ */
 func (store *appSettingsStore) Get() util.AppSettings {
 	store.mu.RLock()
 	defer store.mu.RUnlock()
 	return store.settings
 }
 
+/**
+ * @brief 替换当前应用设置缓存。
+ * @param settings 新的应用设置。
+ */
 func (store *appSettingsStore) Replace(settings util.AppSettings) {
 	store.mu.Lock()
 	defer store.mu.Unlock()
 	store.settings = settings
 }
 
+/**
+ * @brief 从数据库加载并持久化规范化后的应用设置。
+ * @return error 加载或保存失败时返回错误。
+ */
 func initAppSettings() error {
 	settings, err := loadAppSettings()
 	if err != nil {
@@ -38,6 +52,11 @@ func initAppSettings() error {
 	return SaveAppSettings(settings)
 }
 
+/**
+ * @brief 保存完整应用设置并刷新缓存。
+ * @param settings 待保存的应用设置。
+ * @return error 持久化失败时返回错误。
+ */
 func SaveAppSettings(settings util.AppSettings) error {
 	settings = util.NormalizeSettings(settings)
 	if err := localDB.db.Transaction(func(tx *gorm.DB) error {
@@ -65,6 +84,11 @@ func SaveAppSettings(settings util.AppSettings) error {
 	return nil
 }
 
+/**
+ * @brief 加载应用设置，必要时从旧版表迁移。
+ * @return util.AppSettings 规范化后的应用设置。
+ * @return error 加载失败时返回错误。
+ */
 func loadAppSettings() (util.AppSettings, error) {
 	rows, err := readV2SettingsRows()
 	if err != nil {
@@ -74,6 +98,11 @@ func loadAppSettings() (util.AppSettings, error) {
 	return util.NormalizeSettings(settings), nil
 }
 
+/**
+ * @brief 读取 V2 设置相关表并组装为行集合。
+ * @return util.V2SettingsRows V2 配置行集合。
+ * @return error 查询或解析失败时返回错误。
+ */
 func readV2SettingsRows() (util.V2SettingsRows, error) {
 	rows := util.V2SettingsRows{}
 	if err := localDB.db.Find(&[]Provider{}).Error; err != nil {
@@ -276,14 +305,17 @@ func decodeSecret(value string) string {
 	return string(decoded)
 }
 
+/** @brief 创建标量应用设置项。 */
 func CreateAppSetting(setting *model.AppSetting) error {
 	return errors.WithStack(localDB.db.Create(setting).Error)
 }
 
+/** @brief 更新标量应用设置项。 */
 func UpdateAppSetting(setting *model.AppSetting) error {
 	return errors.WithStack(localDB.db.Save(setting).Error)
 }
 
+/** @brief 读取标量应用设置项。 */
 func ReadAppSetting(setting model.AppSetting) (*model.DBList, error) {
 	var settings []model.AppSetting
 	err := localDB.db.Where("key = ?", setting.Key).Find(&settings).Error
@@ -296,6 +328,7 @@ func ReadAppSetting(setting model.AppSetting) (*model.DBList, error) {
 	return &ret, errors.WithStack(err)
 }
 
+/** @brief 删除标量应用设置项。 */
 func DeleteAppSetting(setting *model.AppSetting) error {
 	return errors.WithStack(localDB.db.Delete(setting).Error)
 }

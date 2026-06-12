@@ -14,25 +14,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/** @brief Gin 上下文中保存 API Key 信息的键名。 */
 const APIKeyContextKey = "api_key"
 
-// AuthMode 定义鉴权模式
+/** @brief API Key 鉴权模式。 */
 type AuthMode int
 
 const (
+	/** @brief 关闭 API Key 鉴权。 */
 	AuthModeDisabled AuthMode = iota
+	/** @brief API Key 可选，存在时校验。 */
 	AuthModeOptional
+	/** @brief API Key 必须存在且有效。 */
 	AuthModeRequired
 )
 
-// AuthConfig 鉴权配置
+/** @brief API Key 鉴权中间件配置。 */
 type AuthConfig struct {
-	Mode       AuthMode
-	RequireHMAC bool
+	Mode         AuthMode
+	RequireHMAC  bool
 	AllowedRoles []string
 }
 
-// APIKeyAuthMiddleware 创建 API Key 鉴权中间件
+/**
+ * @brief 创建 API Key 鉴权中间件。
+ * @param config 鉴权模式、HMAC 与角色限制配置。
+ * @return gin.HandlerFunc Gin 中间件函数。
+ */
 func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if config.Mode == AuthModeDisabled {
@@ -132,7 +140,11 @@ func APIKeyAuthMiddleware(config AuthConfig) gin.HandlerFunc {
 	}
 }
 
-// extractAPIKey 从请求中提取 API Key
+/**
+ * @brief 从请求头或查询参数中提取 API Key。
+ * @param c Gin 请求上下文。
+ * @return string 提取到的 API Key，未提供时为空字符串。
+ */
 func extractAPIKey(c *gin.Context) string {
 	// 1. Authorization: Bearer sk-xxx
 	auth := c.GetHeader("Authorization")
@@ -156,7 +168,12 @@ func extractAPIKey(c *gin.Context) string {
 	return ""
 }
 
-// verifyHMAC 验证 HMAC 签名
+/**
+ * @brief 校验请求的 HMAC 签名。
+ * @param c Gin 请求上下文。
+ * @param apiKey 用于计算签名的 API Key。
+ * @return bool 签名有效且时间戳未过期时返回 true。
+ */
 func verifyHMAC(c *gin.Context, apiKey string) bool {
 	timestamp := c.GetHeader("X-Timestamp")
 	signature := c.GetHeader("X-Signature")
@@ -188,13 +205,24 @@ func verifyHMAC(c *gin.Context, apiKey string) bool {
 	return hmac.Equal([]byte(signature), []byte(expectedSig))
 }
 
+/**
+ * @brief 将十进制字符串解析为 int64。
+ * @param s 原始字符串。
+ * @return int64 解析后的整数。
+ * @return error 解析失败时返回错误。
+ */
 func parseInt64(s string) (int64, error) {
 	var result int64
 	_, err := fmt.Sscanf(s, "%d", &result)
 	return result, err
 }
 
-// GetAPIKey 从上下文中获取 API Key 信息
+/**
+ * @brief 从 Gin 上下文中获取已认证的 API Key 信息。
+ * @param c Gin 请求上下文。
+ * @return *database.APIKey API Key 记录。
+ * @return bool 是否存在且类型正确。
+ */
 func GetAPIKey(c *gin.Context) (*database.APIKey, bool) {
 	value, exists := c.Get(APIKeyContextKey)
 	if !exists {
@@ -204,7 +232,11 @@ func GetAPIKey(c *gin.Context) (*database.APIKey, bool) {
 	return key, ok
 }
 
-// IsAuthenticated 检查请求是否已通过 API Key 鉴权
+/**
+ * @brief 检查当前请求是否已通过 API Key 鉴权。
+ * @param c Gin 请求上下文。
+ * @return bool 上下文中存在 API Key 信息时返回 true。
+ */
 func IsAuthenticated(c *gin.Context) bool {
 	_, exists := c.Get(APIKeyContextKey)
 	return exists

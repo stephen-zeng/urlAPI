@@ -9,12 +9,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// APIKeyListResponse API Key 列表响应
+/** @brief API Key 列表响应。 */
 type APIKeyListResponse struct {
 	Keys []APIKeyResponse `json:"keys"`
 }
 
-// APIKeyResponse API Key 响应
+/** @brief API Key 元数据响应。 */
 type APIKeyResponse struct {
 	ID          uint      `json:"id"`
 	Name        string    `json:"name"`
@@ -30,7 +30,7 @@ type APIKeyResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-// CreateAPIKeyRequest 创建 API Key 请求
+/** @brief 创建 API Key 的请求参数。 */
 type CreateAPIKeyRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -41,12 +41,12 @@ type CreateAPIKeyRequest struct {
 	ExpiresAt   string   `json:"expires_at"`
 }
 
-// CreateAPIKeyResponse 创建 API Key 响应
+/** @brief 创建 API Key 后返回的明文密钥响应。 */
 type CreateAPIKeyResponse struct {
 	APIKey string `json:"api_key"`
 }
 
-// UpdateAPIKeyRequest 更新 API Key 请求
+/** @brief 更新 API Key 的请求参数。 */
 type UpdateAPIKeyRequest struct {
 	Name        string   `json:"name,omitempty"`
 	Description string   `json:"description,omitempty"`
@@ -57,7 +57,10 @@ type UpdateAPIKeyRequest struct {
 	AllowedIPs  []string `json:"allowed_ips,omitempty"`
 }
 
-// ListAPIKeysHandler 列出所有 API Key
+/**
+ * @brief 处理 API Key 列表查询请求。
+ * @param c Gin 请求上下文。
+ */
 func ListAPIKeysHandler(c *gin.Context) {
 	keys, err := database.APIKeyStore.List()
 	if err != nil {
@@ -86,7 +89,10 @@ func ListAPIKeysHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"keys": response})
 }
 
-// CreateAPIKeyHandler 创建新的 API Key
+/**
+ * @brief 处理 API Key 创建请求。
+ * @param c Gin 请求上下文。
+ */
 func CreateAPIKeyHandler(c *gin.Context) {
 	var req CreateAPIKeyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -118,7 +124,10 @@ func CreateAPIKeyHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, CreateAPIKeyResponse{APIKey: apiKey})
 }
 
-// DeleteAPIKeyHandler 删除 API Key
+/**
+ * @brief 处理 API Key 删除请求。
+ * @param c Gin 请求上下文。
+ */
 func DeleteAPIKeyHandler(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -135,7 +144,10 @@ func DeleteAPIKeyHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
 
-// UpdateAPIKeyHandler 更新 API Key
+/**
+ * @brief 处理 API Key 更新请求。
+ * @param c Gin 请求上下文。
+ */
 func UpdateAPIKeyHandler(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
