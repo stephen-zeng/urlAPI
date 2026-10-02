@@ -1,7 +1,6 @@
 package handles
 
 import (
-	"net/url"
 	"time"
 	"urlAPI/internal/model"
 
@@ -23,7 +22,6 @@ var webAPIMap = map[string]string{
 
 func WebHandler(c *gin.Context) {
 	target := c.Query("img")
-	parsedURL, _ := url.Parse(target)
 	referer := c.Request.Referer()
 	ip := c.ClientIP()
 	host := getScheme(c) + c.Request.Host
@@ -36,7 +34,7 @@ func WebHandler(c *gin.Context) {
 		Region:   util.GetRegion(ip),
 		Referer:  referer,
 		Device:   util.GetDeviceType(c.GetHeader("User-Agent")),
-		API:      parsedURL.Host,
+		API:      util.WebTargetHost(target),
 		MoreInfo: c.Query("more"),
 	}
 	_, result, err := op.GenerateWebImage(task, host, middleware.GetSkipDB(c))

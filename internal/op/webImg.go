@@ -10,35 +10,26 @@ import (
 	"urlAPI/util"
 )
 
-func getBiliABV(URL string) string {
-	for i := 31; i < len(URL); i++ {
-		if URL[i] == '/' || URL[i] == '?' {
-			return URL[31:i]
-		}
-	}
-	return URL[31:]
-}
-
-func getYtbID(URL string) string {
-	for i := 32; i < len(URL); i++ {
-		if URL[i] == '&' {
-			return URL[32:i]
-		}
-	}
-	return URL[32:]
-}
-
 func generateWebImage(task *model.Task, host string) (GenerateResult, error) {
 	var img []byte
 	var err error
 	settings := database.SettingsStore.Get()
 	switch task.API {
 	case "www.bilibili.com":
-		img, err = util.Bili(getBiliABV(task.Target))
+		var id string
+		if id, err = util.BilibiliVideoID(task.Target); err == nil {
+			img, err = util.Bili(id)
+		}
 	case "www.youtube.com":
-		img, err = util.Ytb(getYtbID(task.Target), settings.Web.YouTubeToken)
+		var id string
+		if id, err = util.YouTubeVideoID(task.Target); err == nil {
+			img, err = util.Ytb(id, settings.Web.YouTubeToken)
+		}
 	case "arxiv.org":
-		img, err = util.Arxiv(task.Target)
+		var id string
+		if id, err = util.ArxivID(task.Target); err == nil {
+			img, err = util.Arxiv(id)
+		}
 	case "www.ithome.com":
 		api := settings.Text.SummaryAPI
 		provider, ok := settings.Providers.ByName(api)
