@@ -11,7 +11,11 @@ import (
 func login(info *Session, data *model.Session) error {
 	var session model.Session
 	if info.Operation == "login" && database.SettingsStore.Get().Security.DashboardPasswordHash == data.Token {
-		session.Token = util.GetRandomString()
+		token, err := util.NewSessionToken()
+		if err != nil {
+			return err
+		}
+		session.Token = token
 		info.SessionToken = session.Token
 		session.Term = info.LoginTerm
 		if info.LoginTerm {
