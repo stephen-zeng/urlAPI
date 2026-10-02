@@ -17,7 +17,7 @@ func Init() error {
 	if err := os.RemoveAll(ImgPath); err != nil {
 		return err
 	}
-	return os.MkdirAll(ImgPath, 0777)
+	return os.MkdirAll(ImgPath, 0o755)
 }
 
 func getEndpoint(api string) string {
