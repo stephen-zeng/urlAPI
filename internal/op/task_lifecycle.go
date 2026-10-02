@@ -222,6 +222,6 @@ func finishTask(task *model.Task, result *GenerateResult) {
 	if task.Status == "success" && task.Temp != "Yes" && !util.PngChecker(ImgPath+task.UUID+".png") {
 		task.Status = "failed"
 		task.Return = "Invalid Image File"
-		result.URL = "download?img=empty"
+		result.URL = downloadURL(EmptyImageID)
 	}
 }

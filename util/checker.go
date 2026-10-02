@@ -6,14 +6,18 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // 通配符检查，兼容 re: 前缀的正则表达式
 func WildcardChecker(strs *[]string, str *string) bool {
 	for _, r := range *strs {
 		if strings.HasPrefix(r, "re:") {
-			pattern := r[3:]
-			re := regexp2.MustCompile(pattern, 0)
+			re, err := regexp2.Compile(r[3:], 0)
+			if err != nil {
+				continue
+			}
+			re.MatchTimeout = time.Second
 			match, err := re.MatchString(*str)
 			if err == nil && match {
 				return true
@@ -22,7 +26,10 @@ func WildcardChecker(strs *[]string, str *string) bool {
 		}
 		if strings.Contains(r, "*") {
 			pattern := "^" + strings.ReplaceAll(regexp.QuoteMeta(r), `\*`, ".*") + "$"
-			re := regexp2.MustCompile(pattern, 0)
+			re, err := regexp2.Compile(pattern, 0)
+			if err != nil {
+				continue
+			}
 			match, err := re.MatchString(*str)
 			if err == nil && match {
 				return true

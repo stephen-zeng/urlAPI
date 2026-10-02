@@ -14,7 +14,6 @@ import (
 func ImgHandler(c *gin.Context) {
 	referer := c.Request.Referer()
 	ip := c.ClientIP()
-	host := getScheme(c) + c.Request.Host
 	modelName := c.Query("model")
 	size := c.Query("size")
 	task := model.Task{
@@ -31,7 +30,7 @@ func ImgHandler(c *gin.Context) {
 		Size:     size,
 		MoreInfo: c.Query("more"),
 	}
-	_, result, err := op.GenerateImage(task, host, middleware.GetSkipDB(c))
+	_, result, err := op.GenerateImage(task, middleware.GetSkipDB(c))
 	util.ErrorPrinter(err)
 	if err != nil {
 		errorReturner(c, err)

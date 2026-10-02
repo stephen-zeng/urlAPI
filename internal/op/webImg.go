@@ -10,7 +10,7 @@ import (
 	"urlAPI/util"
 )
 
-func generateWebImage(task *model.Task, host string) (GenerateResult, error) {
+func generateWebImage(task *model.Task) (GenerateResult, error) {
 	var img []byte
 	var err error
 	settings := database.SettingsStore.Get()
@@ -63,7 +63,7 @@ func generateWebImage(task *model.Task, host string) (GenerateResult, error) {
 		task.Return = err.Error()
 		return GenerateResult{}, fmt.Errorf("web image write: %w", err)
 	}
-	result := GenerateResult{URL: host + "/download?img=" + task.UUID}
+	result := GenerateResult{URL: downloadURL(task.UUID)}
 	if err := setTaskResult(task, result); err != nil {
 		return GenerateResult{}, err
 	}

@@ -8,7 +8,7 @@ import (
 	"urlAPI/util"
 )
 
-func GenerateTextImage(task model.Task, host string, skipDB bool) (model.Task, GenerateResult, error) {
+func GenerateTextImage(task model.Task, skipDB bool) (model.Task, GenerateResult, error) {
 	settings := database.SettingsStore.Get()
 	if _, ok := database.PromptMap[task.Target]; ok {
 		task.Target = settings.Prompts.Templates[task.Target]
@@ -25,11 +25,11 @@ func GenerateTextImage(task model.Task, host string, skipDB bool) (model.Task, G
 	}
 	filter := TaskQueueFilter{Type: "txt.gen", Target: task.Target, API: task.API}
 	return ExecuteCachedTask(task, filter, skipDB, func(task *model.Task) (GenerateResult, error) {
-		return generateText(task, host, provider, settings.Prompts.GenerationContext)
+		return generateText(task, provider, settings.Prompts.GenerationContext)
 	})
 }
 
-func GenerateImage(task model.Task, host string, skipDB bool) (model.Task, GenerateResult, error) {
+func GenerateImage(task model.Task, skipDB bool) (model.Task, GenerateResult, error) {
 	settings := database.SettingsStore.Get()
 	if task.API == "" {
 		task.API = settings.Image.API
@@ -46,11 +46,11 @@ func GenerateImage(task model.Task, host string, skipDB bool) (model.Task, Gener
 	}
 	filter := TaskQueueFilter{Type: "img.gen", Size: task.Size, Target: task.Target, API: task.API}
 	return ExecuteCachedTask(task, filter, skipDB, func(task *model.Task) (GenerateResult, error) {
-		return generateImage(task, host, provider)
+		return generateImage(task, provider)
 	})
 }
 
-func GenerateWebImage(task model.Task, host string, skipDB bool) (model.Task, GenerateResult, error) {
+func GenerateWebImage(task model.Task, skipDB bool) (model.Task, GenerateResult, error) {
 	settings := database.SettingsStore.Get()
 	task.API = util.WebTargetHost(task.Target)
 	if task.API == "" {
@@ -59,7 +59,7 @@ func GenerateWebImage(task model.Task, host string, skipDB bool) (model.Task, Ge
 	}
 	filter := TaskQueueFilter{Type: "web.img", Target: task.Target, API: task.API}
 	return ExecuteCachedTask(task, filter, skipDB, func(task *model.Task) (GenerateResult, error) {
-		return generateWebImage(task, host)
+		return generateWebImage(task)
 	})
 }
 

@@ -1,6 +1,7 @@
 package handles
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,15 @@ import (
 
 func DownloadHandler(c *gin.Context) {
 	img, fallbackURL, err := op.DownloadImage(c.Query("img"))
+	if errors.Is(err, op.ErrInvalidImageID) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	util.ErrorPrinter(err)
+	if err != nil && fallbackURL == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "image not found"})
+		return
+	}
 	downloadReturn(c, img, fallbackURL)
 }
 

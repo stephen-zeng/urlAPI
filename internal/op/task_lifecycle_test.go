@@ -347,7 +347,7 @@ func TestFailedResultsAreNotCached(t *testing.T) {
 		return GenerateResult{}, setTaskResult(task, GenerateResult{})
 	}
 	task, res, _ := ExecuteCachedTask(newTask(0), filter, true, noImage)
-	if task.Status != "failed" || res.URL != "download?img=empty" {
+	if task.Status != "failed" || res.URL != "/download?img=empty" {
 		t.Fatalf("invalid image accepted: %+v %+v", task, res)
 	}
 	_, _, _ = ExecuteCachedTask(newTask(1), filter, true, noImage)
