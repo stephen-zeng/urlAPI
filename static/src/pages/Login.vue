@@ -1,7 +1,6 @@
 <script setup>
-import {inject, onMounted, ref} from 'vue';
+import {inject, onMounted, ref, watch} from 'vue';
 import { sha256 } from "js-sha256";
-import Cookies from 'js-cookie';
 import {useRouter} from "vue-router";
 import {Login} from "@/js/util.js";
 
@@ -13,18 +12,20 @@ const router = useRouter();
 
 async function login() {
   if (await Login(sha256(pwd.value), term.value)) {
-    loginStatus.value = true;
-    router.push("/dash/task");
+    loginStatus.value = true; // the watcher below navigates
   }
 }
 
-onMounted(async() => {
+onMounted(() => {
   title.value = "登录";
-  if (Cookies.get("token") && await (Cookies.get("token"), false)) {
-      loginStatus.value = true;
-      router.push("/dash/task");
-  }
 })
+
+// App.vue validates a saved session on load; leave the form once it has.
+watch(loginStatus, (loggedIn) => {
+  if (loggedIn) {
+    router.push("/dash/task");
+  }
+}, {immediate: true})
 </script>
 
 <template>

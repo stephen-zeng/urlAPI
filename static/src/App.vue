@@ -4,7 +4,8 @@ import {ref, provide, inject, onUnmounted, onMounted, watch} from 'vue';
   import Sidebar from "@/frameworks/Sidebar.vue";
   import Cookies from "js-cookie";
   import {useRouter} from "vue-router";
-import {Login} from "@/js/util.js";
+import {Login, Logout, Notification} from "@/js/util.js";
+import {onSessionExpired} from "@/js/fetch.js";
 
 const sidebarStatus = ref(false);
   const pages = ref([
@@ -24,6 +25,9 @@ const sidebarStatus = ref(false);
   onMounted(async() => {
     if (Cookies.get("token")) {
       login.value = await Login(Cookies.get("token"), false)
+      if (!login.value) {
+        Cookies.remove("token");
+      }
     }
     if (!login.value) {
       router.push("/dash/login");
@@ -35,6 +39,16 @@ const sidebarStatus = ref(false);
       await Logout(Cookies.get("token"))
     }
   })
+
+  // Any request rejected for an invalid or expired session drops the stale
+  // token and returns to the login page.
+  const stopSessionExpired = onSessionExpired(() => {
+    if (!login.value) return;
+    Cookies.remove("token");
+    login.value = false;
+    Notification("Session expired, please log in again");
+  });
+  onUnmounted(stopSessionExpired);
 
   watch(login, (newValue, oldValue) => {
     if (!newValue) {

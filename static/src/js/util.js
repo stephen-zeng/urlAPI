@@ -63,9 +63,9 @@ export async function Repo(operation, repoUUID = "", repoAPI = "", repoInfo = ""
     } else {
         switch (operation) {
             case "fetchRepo":
-                return session.repo_data;
-                break;
-            case "refreshRepo" || "delRepo":
+                return session.repo_data || [];
+            case "refreshRepo":
+            case "delRepo":
                 Notification("Successful");
                 break;
         }

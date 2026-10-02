@@ -9,7 +9,7 @@ const repoInfo = ref("")
 const repos = ref([])
 
 async function getRepos() {
-  repos.value = await Repo("fetchRepo")
+  repos.value = (await Repo("fetchRepo")) || []
 }
 async function editRepo(operation, id) {
   await Repo(operation, id)
