@@ -4,9 +4,6 @@ import (
 	"context"
 	"net/url"
 	"regexp"
-	"strconv"
-	"strings"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -85,12 +82,4 @@ func GetDomain(URL string) string {
 		return ""
 	}
 	return domainParse.Hostname()
-}
-
-func GetDate(ori string) time.Time {
-	// yyyy.mm -> time.Time
-	parts := strings.Split(ori, ".")
-	year, _ := strconv.Atoi(parts[0])
-	month, _ := strconv.Atoi(parts[1])
-	return time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 }

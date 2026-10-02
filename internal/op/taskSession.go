@@ -2,12 +2,8 @@ package op
 
 import (
 	"github.com/pkg/errors"
-	"reflect"
-	"sort"
 	"strings"
 	"urlAPI/internal/database"
-	"urlAPI/internal/model"
-	"urlAPI/util"
 )
 
 var taskStatFields = map[string]string{
@@ -22,52 +18,36 @@ var taskStatFields = map[string]string{
 	"temp":      "temp",
 }
 
+// taskPageSize is the number of tasks per dashboard page.
+const taskPageSize = 100
+
 func fetchTask(info *Session) error {
-	var taskGetter model.Task
-	v := reflect.ValueOf(&taskGetter).Elem()
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Type().Field(i)
-		tag := field.Tag.Get("json")
-		if tag == info.TaskCatagory && tag != "time" {
-			v.Field(i).Set(reflect.ValueOf(info.TaskBy))
+	query := database.TaskQuery{Page: info.TaskPage, PageSize: taskPageSize}
+	if info.TaskPage == -1 {
+		query.Page = -1
+	} else if query.Page < 1 {
+		query.Page = 1
+	}
+	switch info.TaskCatagory {
+	case "", "none":
+	case "time":
+		query.Month = info.TaskBy
+	default:
+		if _, ok := database.TaskFilterColumns[info.TaskCatagory]; !ok {
+			return errors.Errorf("unsupported task filter %q", info.TaskCatagory)
+		}
+		// An empty value means "no filter", as before.
+		if info.TaskBy != "" {
+			query.Field = info.TaskCatagory
+			query.Value = info.TaskBy
 		}
 	}
-	if info.TaskCatagory == "time" {
-		taskGetter.Time = util.GetDate(info.TaskBy)
-	}
-	taskDBList, err := db.ReadTask(taskGetter)
+	tasks, total, err := db.QueryTasks(query)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	taskList := taskDBList.TaskList
-	if len(taskList) == 0 {
-		info.TaskMaxPage = 0
-		info.TaskData = nil
-		return nil
-	}
-	info.TaskMaxPage = ((len(taskList) - 1) / 100) + 1
-	sort.Slice(taskList, func(i, j int) bool {
-		return taskList[i].Time.After(taskList[j].Time)
-	})
-	switch {
-	case info.TaskPage == -1:
-		info.TaskData = taskList
-	default:
-		page := info.TaskPage
-		if page < 1 {
-			page = 1
-		}
-		start := (page - 1) * 100
-		if start >= len(taskList) {
-			info.TaskData = nil
-			return nil
-		}
-		end := start + 100
-		if end > len(taskList) {
-			end = len(taskList)
-		}
-		info.TaskData = taskList[start:end]
-	}
+	info.TaskMaxPage = int((total + taskPageSize - 1) / taskPageSize)
+	info.TaskData = tasks
 	return nil
 }
 

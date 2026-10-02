@@ -17,7 +17,7 @@ type Session struct {
 
 type Task struct {
 	UUID     string    `json:"uuid" gorm:"primaryKey"`
-	Time     time.Time `json:"time"`
+	Time     time.Time `json:"time" gorm:"index"`
 	IP       string    `json:"ip"`
 	Type     string    `json:"type"`
 	Status   string    `json:"status"`
