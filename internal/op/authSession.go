@@ -36,7 +36,6 @@ func login(info *Session, data *model.Session) error {
 	default:
 		return errors.WithStack(errors.New("Authentication failed"))
 	}
-	return nil
 }
 
 func logout(data *model.Session) error {
