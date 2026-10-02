@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"urlAPI/internal/auth"
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/pkg/errors"
@@ -72,6 +73,11 @@ func Open(path string) (*gorm.DB, error) {
 func Init() error {
 	figlet := figure.NewFigure("urlAPI", "", true)
 	figlet.Print()
+	box, err := auth.LoadSecretBoxFromEnv()
+	if err != nil {
+		return err
+	}
+	SetSecretBox(box)
 	db, err := Open(dbPath)
 	if err != nil {
 		return err
