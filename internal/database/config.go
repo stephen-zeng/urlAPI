@@ -5,14 +5,17 @@ import (
 )
 
 var (
-	dbPath    = "assets/database.db"
+	dbPath = "assets/database.db"
+	// PromptMap is read-only after initialisation.
 	PromptMap = map[string]int{
 		"laugh":    0,
 		"poem":     1,
 		"sentence": 2,
 	}
-	RepoMap    = make(map[string][]string)
-	SessionMap = make(map[string]model.Session)
+	// Sessions and Repos are populated from the database at startup and kept
+	// in sync by the adapter methods; they are safe for concurrent use.
+	Sessions = newSessionCache()
+	Repos    = newRepoCache()
 )
 
 type Repo = model.Repo

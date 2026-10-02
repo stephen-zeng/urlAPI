@@ -8,7 +8,7 @@ import (
 )
 
 func generateRandom(task *model.Task) (GenerateResult, error) {
-	content, ok := database.RepoMap[task.API+";"+task.Target]
+	content, ok := database.Repos.Get(task.API, task.Target)
 	if !ok || len(content) == 0 {
 		task.Status = "failed"
 		task.Return = "Repo not found"

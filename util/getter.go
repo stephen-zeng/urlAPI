@@ -34,7 +34,7 @@ func GetDeviceType(ua string) string {
 }
 
 func GetRegion(ip string) string {
-	if value, ok := IPTmp[ip]; ok {
+	if value, ok := ipRegions.get(ip); ok {
 		return value
 	}
 	url := "https://api.live.bilibili.com/ip_service/v1/ip_service/get_ip_addr?ip=" + ip
@@ -59,11 +59,7 @@ func GetRegion(ip string) string {
 	} else {
 		region = response.Data.Country
 	}
-	if len(IPTmp) >= 1000 {
-		IPTmp = make(map[string]string)
-	}
-
-	IPTmp[ip] = region
+	ipRegions.set(ip, region)
 	return region
 }
 

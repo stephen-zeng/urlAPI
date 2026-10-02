@@ -27,6 +27,24 @@ var IPFrequency = SafeIPFrequency{
 	IPFrequency: make(map[FrequencyFilter]FrequencyData),
 }
 
+const (
+	frequencyWindow = 250 * time.Millisecond
+	// frequencyPruneThreshold bounds the tracker: once it holds this many
+	// entries, entries whose window has elapsed are discarded.
+	frequencyPruneThreshold = 10000
+)
+
+// pruneLocked drops entries whose rate-limit window has expired. Expired
+// entries would be reset on their next access anyway, so this does not change
+// limiting behaviour. The caller must hold mu.
+func (f *SafeIPFrequency) pruneLocked(now time.Time) {
+	for filter, data := range f.IPFrequency {
+		if now.Sub(data.Time) > frequencyWindow {
+			delete(f.IPFrequency, filter)
+		}
+	}
+}
+
 func checkGeneralSecurity(general *General) {
 	checkFrequency(general)
 	checkException(general)
@@ -44,6 +62,9 @@ func checkFrequency(general *General) {
 	}
 	value, exists := IPFrequency.IPFrequency[filter]
 	if !exists {
+		if len(IPFrequency.IPFrequency) >= frequencyPruneThreshold {
+			IPFrequency.pruneLocked(general.Time)
+		}
 		value = FrequencyData{}
 		value.Counter = 1
 		value.Time = time.Now()

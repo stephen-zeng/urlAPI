@@ -29,7 +29,7 @@ func login(info *Session, data *model.Session) error {
 		return nil
 	}
 	var ok bool
-	session, ok = database.SessionMap[data.Token]
+	session, ok = database.Sessions.Get(data.Token)
 	switch {
 	case !ok:
 		return errors.WithStack(errors.New("Authentication failed"))
@@ -50,7 +50,7 @@ func logout(data *model.Session) error {
 }
 
 func exit(data *model.Session) error {
-	session, _ := database.SessionMap[data.Token]
+	session, _ := database.Sessions.Get(data.Token)
 	if !session.Term {
 		if err := db.DeleteSession(data); err != nil {
 			return errors.WithStack(err)

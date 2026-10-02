@@ -72,7 +72,7 @@ func initRepoMap() error {
 		if err := json.Unmarshal([]byte(repo.Content), &repoList); err != nil {
 			return errors.Wrap(err, "json")
 		}
-		RepoMap[repo.API+";"+repo.Info] = repoList
+		Repos.Set(repo.API, repo.Info, repoList)
 	}
 	log.Println("Initialized RepoMap")
 	return nil
@@ -83,9 +83,7 @@ func initSessionMap() error {
 	if err := localDB.db.Find(&sessions).Error; err != nil {
 		return errors.Wrap(err, "db")
 	}
-	for _, session := range sessions {
-		SessionMap[session.Token] = session
-	}
+	Sessions.Reset(sessions)
 	log.Println("Initialized SessionMap")
 	return nil
 }
@@ -110,5 +108,5 @@ func ClearSession() {
 			log.Fatal(errors.Wrap(err, "db"))
 		}
 	}
-	SessionMap = make(map[string]Session)
+	Sessions.Reset(nil)
 }
