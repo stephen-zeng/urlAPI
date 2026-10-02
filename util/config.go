@@ -117,7 +117,9 @@ type OpenaiImgResp struct {
 }
 
 type BiliResp struct {
-	Data struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
 		Owner struct {
 			Name string `json:"name"`
 		} `json:"owner"`

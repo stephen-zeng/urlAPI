@@ -10,7 +10,6 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"image/png"
-	"net/http"
 	"unicode/utf8"
 	"urlAPI/file"
 )
@@ -105,16 +104,11 @@ func DrawRepo(logo image.Image, Name, Author, Description, Star, Fork string) ([
 }
 
 func DrawVideo(CoverURL, Name, Author, Description, View, Favorite, Like, Coin string) ([]byte, error) {
-	req, err := http.NewRequest("GET", CoverURL, nil)
+	cover, err := Downloader(CoverURL)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithMessage(err, "download cover")
 	}
-	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	defer resp.Body.Close()
-	pic, err := jpeg.Decode(resp.Body)
+	pic, err := jpeg.Decode(bytes.NewReader(cover))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

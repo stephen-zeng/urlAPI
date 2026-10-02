@@ -1,9 +1,7 @@
 package util
 
 import (
-	"encoding/json"
-	"io"
-	"net/http"
+	"context"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -33,22 +31,18 @@ func GetDeviceType(ua string) string {
 	return ""
 }
 
+// regionAPI resolves an IP address to a region; a variable for tests.
+var regionAPI = "https://api.live.bilibili.com/ip_service/v1/ip_service/get_ip_addr"
+
 func GetRegion(ip string) string {
 	if value, ok := ipRegions.get(ip); ok {
 		return value
 	}
-	url := "https://api.live.bilibili.com/ip_service/v1/ip_service/get_ip_addr?ip=" + ip
-	resp, err := GlobalHTTPClient.Get(url)
-	if err != nil {
-		return "Unknown"
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return "Unknown"
-	}
 	var response RegionResp
-	err = json.Unmarshal(jsonResp, &response)
+	err := doUpstreamJSON(context.Background(), upstreamRequest{
+		URL:   regionAPI + "?" + url.Values{"ip": {ip}}.Encode(),
+		Limit: 64 << 10,
+	}, &response)
 	if err != nil {
 		return "Unknown"
 	}
@@ -63,37 +57,20 @@ func GetRegion(ip string) string {
 	return region
 }
 
+// Downloader fetches a URL and returns its body, failing on non-2xx
+// responses and bodies larger than maxDownloadBytes.
 func Downloader(url string) ([]byte, error) {
-	resp, err := GlobalHTTPClient.Get(url)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithMessage(err, resp.Status)
-	}
-	defer resp.Body.Close()
-	ret, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	} else {
-		return ret, nil
-	}
+	return downloadContext(context.Background(), url)
+}
+
+func downloadContext(ctx context.Context, url string) ([]byte, error) {
+	return doUpstream(ctx, upstreamRequest{URL: url, Limit: maxDownloadBytes})
 }
 
 func GetRepo(url string) ([]string, error) {
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	defer resp.Body.Close()
-	jsonResponse, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	var response []RepoContentResp
-	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		return nil, errors.WithStack(err)
+	if err := doUpstreamJSON(context.Background(), upstreamRequest{URL: url}, &response); err != nil {
+		return nil, errors.WithMessage(err, "list repository")
 	}
 	var ret []string
 	for _, repo := range response {

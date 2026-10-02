@@ -2,13 +2,11 @@ package util
 
 import (
 	"bytes"
-	"encoding/json"
+	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"image"
 	"image/png"
-	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -37,26 +35,13 @@ func Bili(ABV string) ([]byte, error) {
 	default:
 		return nil, errors.New("Util Bili Invalid ABV")
 	}
-	req, err := http.NewRequest("GET", bilibiliViewAPI+"?"+query.Encode(), nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	var info BiliResp
-	err = json.Unmarshal(jsonResp, &info)
+	err := doUpstreamJSON(context.Background(), upstreamRequest{URL: bilibiliViewAPI + "?" + query.Encode()}, &info)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithMessage(err, "bilibili")
+	}
+	if info.Code != 0 {
+		return nil, errors.Errorf("bilibili: upstream error %d: %s", info.Code, info.Message)
 	}
 	picURL := info.Data.Pic
 	name := info.Data.Title
@@ -82,25 +67,13 @@ func Ytb(ID, Token string) ([]byte, error) {
 	query.Set("part", "snippet,statistics")
 	query.Set("id", ID)
 	query.Set("key", Token)
-	req, err := http.NewRequest("GET", youTubeVideoAPI+"?"+query.Encode(), nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	var info YtbResp
-	if err = json.Unmarshal(jsonResp, &info); err != nil {
-		return nil, errors.WithStack(err)
+	err := doUpstreamJSON(context.Background(), upstreamRequest{
+		URL:     youTubeVideoAPI + "?" + query.Encode(),
+		Secrets: []string{Token},
+	}, &info)
+	if err != nil {
+		return nil, errors.WithMessage(err, "youtube")
 	}
 	if len(info.Items) == 0 {
 		return nil, errors.New("YouTube video not found")
@@ -125,21 +98,9 @@ func Arxiv(id string) ([]byte, error) {
 	if !arxivNewIDPattern.MatchString(id) && !arxivOldIDPattern.MatchString(id) {
 		return nil, errors.New("Util Arxiv Invalid id")
 	}
-	req, err := http.NewRequest("GET", arxivAbsBase+id, nil)
+	rawResp, err := doUpstream(context.Background(), upstreamRequest{URL: arxivAbsBase + id})
 	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	rawResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithMessage(err, resp.Status)
+		return nil, errors.WithMessage(err, "arxiv")
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
@@ -158,7 +119,7 @@ func Arxiv(id string) ([]byte, error) {
 }
 
 // ITHome renders a card for an ITHome article, summarised by a text model.
-func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
+func ITHome(URL, endpoint, token, model, systemPrompt string) ([]byte, error) {
 	target, err := ParseWebTarget(URL)
 	if err != nil {
 		return nil, err
@@ -168,28 +129,16 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 	}
 	// Only the path of the client URL is used; scheme and host are fixed.
 	page := url.URL{Scheme: "https", Host: "www.ithome.com", Path: target.Path}
-	req, err := http.NewRequest("GET", page.String(), nil)
+	rawResp, err := doUpstream(context.Background(), upstreamRequest{URL: page.String()})
 	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	rawResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithMessage(err, "ithome")
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	title, tim, content := traverseITHome(doc, "", "", "")
-	description, err := Txt(endpoint, token, model, context, content)
+	description, err := Txt(endpoint, token, model, systemPrompt, content)
 	if err != nil {
 		return nil, errors.WithMessage(err, "summarize article")
 	}
@@ -227,28 +176,18 @@ func Repo(URL string, Token string) ([]byte, error) {
 	default:
 		return nil, errors.New("Util Repo unsupported host")
 	}
-	req, err := http.NewRequest("GET", apiURL, nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+	headers := map[string]string{}
 	if Token != "" && isGitHub {
-		req.Header.Set("Authorization", "Bearer "+Token)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
+		headers["Authorization"] = "Bearer " + Token
 	}
 	var repo RepoResp
-	if err = json.Unmarshal(jsonResp, &repo); err != nil {
-		return nil, errors.WithStack(err)
+	err = doUpstreamJSON(context.Background(), upstreamRequest{
+		URL:     apiURL,
+		Headers: headers,
+		Secrets: []string{Token},
+	}, &repo)
+	if err != nil {
+		return nil, errors.WithMessage(err, "repository")
 	}
 	author := repo.Owner.Login
 	name := repo.Name
