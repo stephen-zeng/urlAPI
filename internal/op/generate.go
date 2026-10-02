@@ -3,9 +3,9 @@ package op
 import (
 	"encoding/json"
 	"errors"
-	"net/url"
 	"urlAPI/internal/database"
 	"urlAPI/internal/model"
+	"urlAPI/util"
 )
 
 func GenerateTextImage(task model.Task, host string, skipDB bool) (model.Task, GenerateResult, error) {
@@ -52,11 +52,11 @@ func GenerateImage(task model.Task, host string, skipDB bool) (model.Task, Gener
 
 func GenerateWebImage(task model.Task, host string, skipDB bool) (model.Task, GenerateResult, error) {
 	settings := database.SettingsStore.Get()
-	parsedURL, err := url.Parse(task.Target)
-	if err != nil {
-		return failTask(task, err.Error()), GenerateResult{URL: settings.Web.FallbackImageURL}, err
+	task.API = util.WebTargetHost(task.Target)
+	if task.API == "" {
+		err := errors.New("web image invalid URL")
+		return failTask(task, "Invalid URL"), GenerateResult{URL: settings.Web.FallbackImageURL}, err
 	}
-	task.API = parsedURL.Host
 	filter := TaskQueueFilter{Type: "web.img", Target: task.Target, API: task.API}
 	return ExecuteCachedTask(task, filter, skipDB, func(task *model.Task) (GenerateResult, error) {
 		return generateWebImage(task, host)
