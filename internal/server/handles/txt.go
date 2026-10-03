@@ -14,7 +14,6 @@ import (
 func TxtHandler(c *gin.Context) {
 	referer := c.Request.Referer()
 	ip := c.ClientIP()
-	host := getScheme(c) + c.Request.Host
 	modelName := c.Query("model")
 	task := model.Task{
 		UUID:     uuid.New().String(),
@@ -29,7 +28,7 @@ func TxtHandler(c *gin.Context) {
 		Model:    modelName,
 		MoreInfo: c.Query("more"),
 	}
-	_, result, err := op.GenerateTextImage(task, host, middleware.GetSkipDB(c))
+	_, result, err := op.GenerateTextImage(task, middleware.GetSkipDB(c))
 	util.ErrorPrinter(err)
 	if err != nil {
 		errorReturner(c, err)

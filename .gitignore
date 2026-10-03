@@ -10,3 +10,9 @@ urlAPI
 /AGENT
 /data
 
+
+# Frontend dependencies (installed via npm ci)
+static/node_modules/
+
+# Machine-local Claude Code settings
+.claude/settings.local.json

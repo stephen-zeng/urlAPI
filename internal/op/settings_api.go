@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/url"
 	"strings"
+	"urlAPI/internal/auth"
 	"urlAPI/internal/database"
 	"urlAPI/util"
 
@@ -96,15 +97,17 @@ func fetchSettings(info *Session) error {
 }
 
 func editSettings(info *Session) error {
-	settings := database.SettingsStore.Get()
-	updated, err := applySettingsBody(info.SettingPart, settings, info.SettingBody)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	if err := validateSettings(updated); err != nil {
-		return errors.WithStack(err)
-	}
-	return database.SaveAppSettings(updated)
+	return database.UpdateAppSettings(func(settings *util.AppSettings) error {
+		updated, err := applySettingsBody(info.SettingPart, *settings, info.SettingBody)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		if err := validateSettings(updated); err != nil {
+			return errors.WithStack(err)
+		}
+		*settings = updated
+		return nil
+	})
 }
 
 func settingsBody(part string, settings util.AppSettings) (any, error) {
@@ -256,7 +259,13 @@ func applySettingsBody(part string, settings util.AppSettings, body json.RawMess
 			return settings, err
 		}
 		if dto.PasswordHash != "" {
-			settings.Security.DashboardPasswordHash = dto.PasswordHash
+			// password_hash is the client-side SHA-256 of the new password;
+			// store only its Argon2id hash.
+			hash, err := auth.HashPassword(dto.PasswordHash)
+			if err != nil {
+				return settings, err
+			}
+			settings.Security.DashboardPasswordHash = hash
 		}
 		settings.Security.DashboardAllowedIPs = dto.DashboardAllowedIPs
 		settings.Security.AllowedReferers = dto.AllowedReferers

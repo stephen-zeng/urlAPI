@@ -2,12 +2,12 @@ package util
 
 import (
 	"bytes"
-	"encoding/json"
+	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
+	"image"
 	"image/png"
-	"io"
-	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"urlAPI/file"
@@ -15,36 +15,33 @@ import (
 
 // 返回给你一个二进制文件
 
+// Upstream API endpoints; variables so tests can point them at a local server.
+var (
+	bilibiliViewAPI = "https://api.bilibili.com/x/web-interface/view"
+	youTubeVideoAPI = "https://www.googleapis.com/youtube/v3/videos"
+	arxivAbsBase    = "https://arxiv.org/abs/"
+	githubReposAPI  = "https://api.github.com/repos/"
+	giteeReposAPI   = "https://gitee.com/api/v5/repos/"
+)
+
+// Bili renders a card for a Bilibili video given its BV or av identifier.
 func Bili(ABV string) ([]byte, error) {
-	var url string
-	if ABV[0] == 'a' {
-		ABV = ABV[2:]
-		url = "https://api.bilibili.com/x/web-interface/view?aid=" + ABV
-	} else if ABV[0] == 'B' {
-		url = "https://api.bilibili.com/x/web-interface/view?bvid=" + ABV
-	} else {
+	query := url.Values{}
+	switch {
+	case biliBVPattern.MatchString(ABV):
+		query.Set("bvid", ABV)
+	case biliAVPattern.MatchString(ABV):
+		query.Set("aid", ABV[2:])
+	default:
 		return nil, errors.New("Util Bili Invalid ABV")
 	}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
 	var info BiliResp
-	err = json.Unmarshal(jsonResp, &info)
+	err := doUpstreamJSON(context.Background(), upstreamRequest{URL: bilibiliViewAPI + "?" + query.Encode()}, &info)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithMessage(err, "bilibili")
+	}
+	if info.Code != 0 {
+		return nil, errors.Errorf("bilibili: upstream error %d: %s", info.Code, info.Message)
 	}
 	picURL := info.Data.Pic
 	name := info.Data.Title
@@ -61,26 +58,26 @@ func Bili(ABV string) ([]byte, error) {
 	return ret, nil
 }
 
+// Ytb renders a card for a YouTube video given its id.
 func Ytb(ID, Token string) ([]byte, error) {
-	url := "https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=" + ID + "&key=" + Token
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
+	if !youTubeIDPattern.MatchString(ID) {
+		return nil, errors.New("Util Ytb Invalid video id")
 	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
+	query := url.Values{}
+	query.Set("part", "snippet,statistics")
+	query.Set("id", ID)
+	query.Set("key", Token)
 	var info YtbResp
-	err = json.Unmarshal(jsonResp, &info)
+	err := doUpstreamJSON(context.Background(), upstreamRequest{
+		URL:     youTubeVideoAPI + "?" + query.Encode(),
+		Secrets: []string{Token},
+	}, &info)
+	if err != nil {
+		return nil, errors.WithMessage(err, "youtube")
+	}
+	if len(info.Items) == 0 {
+		return nil, errors.New("YouTube video not found")
+	}
 	name := info.Items[0].Snippet.Title
 	author := info.Items[0].Snippet.ChannelTitle
 	description := info.Items[0].Snippet.Description
@@ -96,31 +93,24 @@ func Ytb(ID, Token string) ([]byte, error) {
 	return ret, nil
 }
 
-func Arxiv(URL string) ([]byte, error) {
-	req, err := http.NewRequest("GET", URL, nil)
-	if err != nil {
-		return nil, errors.WithStack(err)
+// Arxiv renders a card for an arXiv paper given its identifier.
+func Arxiv(id string) ([]byte, error) {
+	if !arxivNewIDPattern.MatchString(id) && !arxivOldIDPattern.MatchString(id) {
+		return nil, errors.New("Util Arxiv Invalid id")
 	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	rawResp, err := io.ReadAll(resp.Body)
+	rawResp, err := doUpstream(context.Background(), upstreamRequest{URL: arxivAbsBase + id})
 	if err != nil {
-		return nil, errors.WithMessage(err, resp.Status)
+		return nil, errors.WithMessage(err, "arxiv")
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	id := URL[22:]
 	title, author, description := traverseArxiv(doc, "", "", "")
-	logoFile, err := file.Logos.Open("logo/arxiv_logo.png")
-	logoImg, err := png.Decode(logoFile)
+	logoImg, err := loadLogo("logo/arxiv_logo.png")
+	if err != nil {
+		return nil, err
+	}
 	ret, err := DrawArticle(logoImg, id, title, author, description, "")
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -128,31 +118,34 @@ func Arxiv(URL string) ([]byte, error) {
 	return ret, nil
 }
 
-func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
-	req, err := http.NewRequest("GET", URL, nil)
+// ITHome renders a card for an ITHome article, summarised by a text model.
+func ITHome(URL, endpoint, token, model, systemPrompt string) ([]byte, error) {
+	target, err := ParseWebTarget(URL)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
+	if !strings.EqualFold(target.Hostname(), "www.ithome.com") {
+		return nil, errors.New("Util ITHome Invalid URL")
 	}
-	defer resp.Body.Close()
-	rawResp, err := io.ReadAll(resp.Body)
+	// Only the path of the client URL is used; scheme and host are fixed.
+	page := url.URL{Scheme: "https", Host: "www.ithome.com", Path: target.Path}
+	rawResp, err := doUpstream(context.Background(), upstreamRequest{URL: page.String()})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.WithMessage(err, "ithome")
 	}
 	doc, err := html.Parse(bytes.NewReader(rawResp))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	title, tim, content := traverseITHome(doc, "", "", "")
-	description, err := Txt(endpoint, token, model, context, content)
-	logoFile, err := file.Logos.Open("assets/logo/ithome_logo.png")
-	logoImg, err := png.Decode(logoFile)
+	description, err := Txt(endpoint, token, model, systemPrompt, content)
+	if err != nil {
+		return nil, errors.WithMessage(err, "summarize article")
+	}
+	logoImg, err := loadLogo("logo/ithome_logo.png")
+	if err != nil {
+		return nil, err
+	}
 	ret, err := DrawArticle(logoImg, "", title, "", description, tim)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -160,54 +153,70 @@ func ITHome(URL, endpoint, token, model, context string) ([]byte, error) {
 	return ret, nil
 }
 
+// Repo renders a card for a GitHub or Gitee repository URL.
 func Repo(URL string, Token string) ([]byte, error) {
-	var logoURL string
-	switch {
-	case strings.HasPrefix(URL, "https://github.com"):
-		URL = strings.ReplaceAll(URL, "https://github.com", "https://api.github.com/repos")
+	target, err := ParseWebTarget(URL)
+	if err != nil {
+		return nil, err
+	}
+	owner, repoName, err := RepoFromURL(URL)
+	if err != nil {
+		return nil, err
+	}
+	var apiURL, logoURL string
+	isGitHub := false
+	switch strings.ToLower(target.Hostname()) {
+	case "github.com":
+		apiURL = githubReposAPI + url.PathEscape(owner) + "/" + url.PathEscape(repoName)
 		logoURL = "logo/github_logo.png"
-	case strings.HasPrefix(URL, "https://gitee.com"):
-		URL = strings.ReplaceAll(URL, "https://gitee.com", "https://gitee.com/api/v5/repos")
+		isGitHub = true
+	case "gitee.com":
+		apiURL = giteeReposAPI + url.PathEscape(owner) + "/" + url.PathEscape(repoName)
 		logoURL = "logo/gitee_logo.png"
+	default:
+		return nil, errors.New("Util Repo unsupported host")
 	}
-	req, err := http.NewRequest("GET", URL, nil)
-	if Token != "" && strings.HasPrefix(URL, "https://api.github.com/repos") {
-		req.Header.Set("Authorization", "Bearer "+Token)
-	}
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	resp, err := GlobalHTTPClient.Do(req)
-	switch {
-	case err != nil:
-		return nil, errors.WithStack(err)
-	case resp.StatusCode != http.StatusOK:
-		return nil, errors.WithStack(errors.New(resp.Status))
-	}
-	defer resp.Body.Close()
-	jsonResp, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.WithStack(err)
+	headers := map[string]string{}
+	if Token != "" && isGitHub {
+		headers["Authorization"] = "Bearer " + Token
 	}
 	var repo RepoResp
-	if err = json.Unmarshal(jsonResp, &repo); err != nil {
-		return nil, errors.WithStack(err)
+	err = doUpstreamJSON(context.Background(), upstreamRequest{
+		URL:     apiURL,
+		Headers: headers,
+		Secrets: []string{Token},
+	}, &repo)
+	if err != nil {
+		return nil, errors.WithMessage(err, "repository")
 	}
 	author := repo.Owner.Login
 	name := repo.Name
 	description := repo.Description
 	forkCount := getRepoCount(repo.ForksCount)
 	starCount := getRepoCount(repo.StargazersCount)
-	bgFile, err := file.Logos.Open(logoURL)
-	bgImg, err := png.Decode(bgFile)
+	bgImg, err := loadLogo(logoURL)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	ret, err := DrawRepo(bgImg, name, author, description, starCount, forkCount)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return ret, nil
+}
+
+// loadLogo decodes an embedded PNG logo.
+func loadLogo(name string) (image.Image, error) {
+	logoFile, err := file.Logos.Open(name)
+	if err != nil {
+		return nil, errors.Wrapf(err, "open logo %s", name)
+	}
+	defer logoFile.Close()
+	img, err := png.Decode(logoFile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "decode logo %s", name)
+	}
+	return img, nil
 }
 
 func biliGetStr(x float64) string {

@@ -3,30 +3,13 @@ package op
 import (
 	"encoding/json"
 	"os"
-	"sync"
 	"urlAPI/internal/database"
 	"urlAPI/internal/model"
 )
 
-type SafeTaskQueue struct {
-	Mu    sync.RWMutex
-	Queue map[TaskQueueFilter]TaskQueueItem
-}
-
-type SafeTaskCounter struct {
-	Mu      sync.RWMutex
-	Counter map[string]int
-}
-
 var (
-	db        *database.SQLiteAdapter
-	ImgPath   = "assets/img/"
-	TaskQueue = SafeTaskQueue{
-		Queue: make(map[TaskQueueFilter]TaskQueueItem),
-	}
-	TaskCounter = SafeTaskCounter{
-		Counter: make(map[string]int),
-	}
+	db      *database.SQLiteAdapter
+	ImgPath = "assets/img/"
 )
 
 func Init() error {
@@ -34,7 +17,7 @@ func Init() error {
 	if err := os.RemoveAll(ImgPath); err != nil {
 		return err
 	}
-	return os.MkdirAll(ImgPath, 0777)
+	return os.MkdirAll(ImgPath, 0o755)
 }
 
 func getEndpoint(api string) string {
@@ -86,12 +69,6 @@ type TaskStatItem struct {
 }
 
 type TaskStats map[string][]TaskStatItem
-
-type TaskQueueItem struct {
-	DB      model.Task `json:"db"`
-	Return  GenerateResult
-	Running bool `json:"running"`
-}
 
 type TaskQueueFilter struct {
 	Type   string `json:"type"`

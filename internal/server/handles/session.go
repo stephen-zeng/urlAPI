@@ -3,6 +3,7 @@ package handles
 import (
 	"log"
 	"net/http"
+	"urlAPI/internal/database"
 	"urlAPI/internal/model"
 	"urlAPI/internal/op"
 	"urlAPI/util"
@@ -11,7 +12,14 @@ import (
 )
 
 func SessionHandler(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
+	allowedIPs := database.SettingsStore.Get().Security.DashboardAllowedIPs
+	clientIP := c.ClientIP()
+	// An empty list imposes no restriction (the default is "*").
+	if len(allowedIPs) > 0 && !util.WildcardChecker(&allowedIPs, &clientIP) {
+		log.Printf("Dashboard access denied for %s\n", clientIP)
+		c.JSON(http.StatusForbidden, gin.H{"error": "IP " + clientIP + " is not allowed to access the dashboard"})
+		return
+	}
 	var request op.Session
 	if err := c.ShouldBind(&request); err != nil { // auth Error
 		util.ErrorPrinter(err)

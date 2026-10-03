@@ -34,6 +34,8 @@ func HandleSession(request Session, authSession model.Session) (Session, error) 
 		err = fetchSettings(&response)
 	case "editSettings":
 		err = editSettings(&response)
+	default:
+		err = errors.Errorf("unknown operation %q", response.Operation)
 	}
 	if err != nil {
 		return response, errors.WithStack(err)

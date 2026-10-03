@@ -2,7 +2,9 @@ package op
 
 import (
 	"github.com/pkg/errors"
+	"log"
 	"time"
+	"urlAPI/internal/auth"
 	"urlAPI/internal/database"
 	"urlAPI/internal/model"
 	"urlAPI/util"
@@ -10,8 +12,12 @@ import (
 
 func login(info *Session, data *model.Session) error {
 	var session model.Session
-	if info.Operation == "login" && database.SettingsStore.Get().Security.DashboardPasswordHash == data.Token {
-		session.Token = util.GetRandomString()
+	if info.Operation == "login" && passwordLogin(data.Token) {
+		token, err := util.NewSessionToken()
+		if err != nil {
+			return err
+		}
+		session.Token = token
 		info.SessionToken = session.Token
 		session.Term = info.LoginTerm
 		if info.LoginTerm {
@@ -25,7 +31,7 @@ func login(info *Session, data *model.Session) error {
 		return nil
 	}
 	var ok bool
-	session, ok = database.SessionMap[data.Token]
+	session, ok = database.Sessions.Get(data.Token)
 	switch {
 	case !ok:
 		return errors.WithStack(errors.New("Authentication failed"))
@@ -36,7 +42,55 @@ func login(info *Session, data *model.Session) error {
 	default:
 		return errors.WithStack(errors.New("Authentication failed"))
 	}
-	return nil
+}
+
+// passwordLogin reports whether credential (the client-side SHA-256 of the
+// password) is the dashboard password. A token that is already a valid
+// session is not treated as a password, which also spares the dashboard's
+// session re-validation an Argon2id computation.
+func passwordLogin(credential string) bool {
+	if session, ok := database.Sessions.Get(credential); ok && time.Now().Before(session.Expire) {
+		return false
+	}
+	stored := database.SettingsStore.Get().Security.DashboardPasswordHash
+	ok, needsRehash := auth.VerifyPassword(stored, credential)
+	if !ok {
+		return false
+	}
+	if auth.IsDefaultCredential(credential) {
+		log.Println("WARNING: the dashboard is using the default password; change it now")
+	}
+	if needsRehash {
+		upgradePasswordHash(stored, credential)
+	}
+	return true
+}
+
+// upgradePasswordHash replaces a legacy or outdated stored hash after a
+// successful login. Failures are logged; the login itself still succeeds.
+func upgradePasswordHash(stored, credential string) {
+	if auth.IsLegacyHash(stored) {
+		// Legacy verification is case-insensitive; hash the canonical
+		// lower-case form the dashboard sends.
+		credential = stored
+	}
+	hash, err := auth.HashPassword(credential)
+	if err != nil {
+		log.Printf("Password hash upgrade failed: %v", err)
+		return
+	}
+	err = database.UpdateAppSettings(func(settings *util.AppSettings) error {
+		if settings.Security.DashboardPasswordHash != stored {
+			return nil // changed concurrently
+		}
+		settings.Security.DashboardPasswordHash = hash
+		return nil
+	})
+	if err != nil {
+		log.Printf("Password hash upgrade failed: %v", err)
+		return
+	}
+	log.Println("Upgraded the stored dashboard password hash to Argon2id")
 }
 
 func logout(data *model.Session) error {
@@ -47,7 +101,7 @@ func logout(data *model.Session) error {
 }
 
 func exit(data *model.Session) error {
-	session, _ := database.SessionMap[data.Token]
+	session, _ := database.Sessions.Get(data.Token)
 	if !session.Term {
 		if err := db.DeleteSession(data); err != nil {
 			return errors.WithStack(err)

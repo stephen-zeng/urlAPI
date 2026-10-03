@@ -2,6 +2,7 @@ package op
 
 import (
 	"encoding/json"
+	"net/url"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -11,25 +12,38 @@ import (
 	"urlAPI/util"
 )
 
-func newRepo(info *Session) error {
-	var err error
+// fetchRepoContent lists the files of a GitHub or Gitee repository given as
+// "owner/repo" and returns the filtered download links.
+func fetchRepoContent(api, info string) ([]string, error) {
+	owner, repo, err := util.SplitRepoInfo(info)
+	if err != nil {
+		return nil, err
+	}
+	path := url.PathEscape(owner) + "/" + url.PathEscape(repo) + "/contents"
 	var content []string
-	switch info.RepoAPI {
+	switch api {
 	case "github":
-		content, err = util.GetRepo("https://api.github.com/repos/" + info.RepoInfo + "/contents")
+		content, err = util.GetRepo("https://api.github.com/repos/" + path)
 		if err != nil {
-			return errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingsStore.Get().Random.SourceRewriteFrom)
 	case "gitee":
-		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
+		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + path)
 		if err != nil {
-			return errors.WithStack(err)
+			return nil, errors.WithStack(err)
 		}
 	default:
-		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
+		return nil, errors.WithStack(errors.New(api + " is not supported"))
 	}
-	content = util.LinkFilter(content)
+	return util.LinkFilter(content), nil
+}
+
+func newRepo(info *Session) error {
+	content, err := fetchRepoContent(info.RepoAPI, info.RepoInfo)
+	if err != nil {
+		return err
+	}
 	jsonString, err := json.Marshal(content)
 	if err != nil {
 		return err
@@ -51,26 +65,16 @@ func refreshRepo(info *Session) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	repoDB := (*repoDBList).RepoList[0]
+	if len(repoDBList.RepoList) == 0 {
+		return errors.New("repository not found")
+	}
+	repoDB := repoDBList.RepoList[0]
 	info.RepoAPI = repoDB.API
 	info.RepoInfo = repoDB.Info
-	var content []string
-	switch info.RepoAPI {
-	case "github":
-		content, err = util.GetRepo("https://api.github.com/repos/" + info.RepoInfo + "/contents")
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		util.ListReplacer(&content, "https://raw.githubusercontent.com", database.SettingsStore.Get().Random.SourceRewriteFrom)
-	case "gitee":
-		content, err = util.GetRepo("https://gitee.com/api/v5/repos/" + info.RepoInfo + "/contents")
-		if err != nil {
-			return errors.WithStack(err)
-		}
-	default:
-		err = errors.WithStack(errors.New(info.RepoAPI + " is not supported"))
+	content, err := fetchRepoContent(info.RepoAPI, info.RepoInfo)
+	if err != nil {
+		return err
 	}
-	content = util.LinkFilter(content)
 	jsonString, err := json.Marshal(content)
 	if err != nil {
 		return errors.WithStack(err)
@@ -89,9 +93,11 @@ func delRepo(info *Session) error {
 func fetchRepo(info *Session) error {
 	repoFinder := model.Repo{}
 	repoDBList, err := db.ReadRepo(repoFinder)
-	info.RepoData = repoDBList.RepoList
 	if !errors.Is(err, gorm.ErrRecordNotFound) && err != nil {
 		return errors.WithStack(err)
+	}
+	if repoDBList != nil {
+		info.RepoData = repoDBList.RepoList
 	}
 	return nil
 }

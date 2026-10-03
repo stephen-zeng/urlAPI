@@ -5,7 +5,7 @@
     ["", "deepseek-chat", "deepseek-chat", "https://api.deepseek.com/chat/completions"],
     ["", "deepseek-v3", "qwen-turbo", "wanx2.1-t2i-turbo", "1024*768", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"],
     ["", "", "", ""],
-    ["8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"],
+    [""],
     ["*"],
     ["localhost"],
     ["false", "alibaba", "alibaba", "60", "https://raw.githubusercontent.com/stephen-zeng/img/master/fallback.png"],

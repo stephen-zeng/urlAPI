@@ -10,7 +10,7 @@ import (
 	"urlAPI/util"
 )
 
-func generateText(task *model.Task, host string, provider util.ProviderConfig, context string) (GenerateResult, error) {
+func generateText(task *model.Task, provider util.ProviderConfig, context string) (GenerateResult, error) {
 	endpoint := provider.Endpoint
 	if endpoint == "" {
 		task.Status = "failed"
@@ -41,7 +41,7 @@ func generateText(task *model.Task, host string, provider util.ProviderConfig, c
 		task.Return = err.Error()
 		return GenerateResult{}, fmt.Errorf("text image write: %w", err)
 	}
-	result := GenerateResult{Prompt: task.Target, Response: response, URL: host + "/download?img=" + task.UUID}
+	result := GenerateResult{Prompt: task.Target, Response: response, URL: downloadURL(task.UUID)}
 	if err := setTaskResult(task, result); err != nil {
 		return GenerateResult{}, err
 	}

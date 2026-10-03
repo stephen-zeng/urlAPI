@@ -1,18 +1,33 @@
 package util
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/pkg/errors"
-	"io"
-	"log"
-	"net/http"
+	"net/url"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
-func Txt(endpoint, token, model, context, prompt string) (string, error) {
-	if endpoint == "" || token == "" || model == "" || context == "" || prompt == "" {
+// Alibaba DashScope endpoints and polling parameters; variables for tests.
+var (
+	alibabaImageSynthesisAPI = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
+	alibabaTaskAPI           = "https://dashscope.aliyuncs.com/api/v1/tasks/"
+	// alibabaPollTimeout bounds the whole asynchronous image job, including
+	// submission, polling and downloading the result.
+	alibabaPollTimeout  = 2 * time.Minute
+	alibabaPollInterval = time.Second
+)
+
+func bearer(token string) map[string]string {
+	return map[string]string{
+		"Content-Type":  "application/json",
+		"Authorization": "Bearer " + token,
+	}
+}
+
+func Txt(endpoint, token, model, systemPrompt, prompt string) (string, error) {
+	if endpoint == "" || token == "" || model == "" || systemPrompt == "" || prompt == "" {
 		return "", errors.WithStack(errors.New("Util TxtAPI insufficient info"))
 	}
 	userMessage := TxtMessage{
@@ -21,7 +36,7 @@ func Txt(endpoint, token, model, context, prompt string) (string, error) {
 	}
 	developerMessage := TxtMessage{
 		Role:    "system",
-		Content: context,
+		Content: systemPrompt,
 	}
 	txtPayload := TxtPayload{
 		Model:    model,
@@ -31,91 +46,88 @@ func Txt(endpoint, token, model, context, prompt string) (string, error) {
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer resp.Body.Close()
 	var txtResp TxtResp
-	jsonResponse, err := io.ReadAll(resp.Body)
-	err = json.Unmarshal(jsonResponse, &txtResp)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return "", errors.WithMessage(err, resp.Status)
-	} else {
-		return txtResp.Choices[0].Message.Content, nil
+	err = doUpstreamJSON(context.Background(), upstreamRequest{
+		Method:  "POST",
+		URL:     endpoint,
+		Body:    jsonPayload,
+		Headers: bearer(token),
+		Secrets: []string{token},
+	}, &txtResp)
+	if err != nil {
+		return "", errors.WithMessage(err, "text generation")
 	}
+	if len(txtResp.Choices) == 0 {
+		return "", errors.New("text generation: upstream returned no choices")
+	}
+	return txtResp.Choices[0].Message.Content, nil
 }
 
 func AlibabaImg(token, prompt, model, size string) ([]byte, string, error) {
-	imgInput := AlibabaImgInput{
-		Prompt: prompt,
-	}
-	imgParameter := AlibabaImgParameters{
-		Size: size,
-		N:    1,
-	}
-	imgPayload := AlibabaImgPayload{
-		Model:      model,
-		Input:      imgInput,
-		Parameters: imgParameter,
-	}
-	jsonPayload, _ := json.Marshal(imgPayload)
-	req, _ := http.NewRequest("POST", "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis", bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("X-DashScope-Async", "enable")
-	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil {
-		return nil, "", errors.WithStack(err)
-	}
-	defer resp.Body.Close()
-	var response AlibabaImgResp
-	jsonResponse, _ := io.ReadAll(resp.Body)
-	err = json.Unmarshal(jsonResponse, &response)
-	if err != nil {
-		return nil, "", errors.WithStack(err)
-	}
-	id := response.Output.TaskID
-
-	timer := time.NewTimer(time.Second * 30)
-	timeout := make(chan bool)
-	go func() {
-		<-timer.C
-		log.Println("Times up")
-		timeout <- true
-	}()
-
-	for status := response.Output.TaskStatus; status == "PENDING" || status == "RUNNING"; status = response.Output.TaskStatus {
-		time.Sleep(1 * time.Second)
-		fmt.Println(status)
-		if err = json.Unmarshal(alibabaFetchImgTask(id, token), &response); err != nil {
-			timer.Stop()
-			return nil, "", errors.WithStack(err)
-		}
-	}
-	timer.Stop()
-
-	if response.Output.TaskStatus != "SUCCEEDED" {
-		return nil, "", errors.WithStack(err)
-	}
-	actualPrompt := response.Output.Results[0].ActualPrompt
-	ret, err := Downloader(response.Output.Results[0].URL)
-	return ret, actualPrompt, nil
+	ctx, cancel := context.WithTimeout(context.Background(), alibabaPollTimeout)
+	defer cancel()
+	return alibabaImg(ctx, token, prompt, model, size)
 }
 
-func alibabaFetchImgTask(id, token string) []byte {
-	req, _ := http.NewRequest("GET", "https://dashscope.aliyuncs.com/api/v1/tasks/"+id, nil)
-	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := GlobalHTTPClient.Do(req)
-	if err != nil {
-		return nil
+func alibabaImg(ctx context.Context, token, prompt, model, size string) ([]byte, string, error) {
+	imgPayload := AlibabaImgPayload{
+		Model:      model,
+		Input:      AlibabaImgInput{Prompt: prompt},
+		Parameters: AlibabaImgParameters{Size: size, N: 1},
 	}
-	defer resp.Body.Close()
-	jsonResponse, _ := io.ReadAll(resp.Body)
-	return jsonResponse
+	jsonPayload, err := json.Marshal(imgPayload)
+	if err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+	headers := bearer(token)
+	headers["X-DashScope-Async"] = "enable"
+	var response AlibabaImgResp
+	err = doUpstreamJSON(ctx, upstreamRequest{
+		Method:  "POST",
+		URL:     alibabaImageSynthesisAPI,
+		Body:    jsonPayload,
+		Headers: headers,
+		Secrets: []string{token},
+	}, &response)
+	if err != nil {
+		return nil, "", errors.WithMessage(err, "alibaba image submit")
+	}
+	id := response.Output.TaskID
+	if id == "" {
+		return nil, "", errors.New("alibaba image submit: upstream returned no task id")
+	}
+
+	ticker := time.NewTicker(alibabaPollInterval)
+	defer ticker.Stop()
+	for status := response.Output.TaskStatus; status == "PENDING" || status == "RUNNING"; status = response.Output.TaskStatus {
+		select {
+		case <-ctx.Done():
+			return nil, "", errors.Wrapf(ctx.Err(), "alibaba image task %s did not finish (last status %s)", id, status)
+		case <-ticker.C:
+		}
+		response = AlibabaImgResp{}
+		err = doUpstreamJSON(ctx, upstreamRequest{
+			URL:     alibabaTaskAPI + url.PathEscape(id),
+			Headers: map[string]string{"Authorization": "Bearer " + token},
+			Secrets: []string{token},
+		}, &response)
+		if err != nil {
+			return nil, "", errors.WithMessage(err, "alibaba image poll")
+		}
+	}
+
+	if response.Output.TaskStatus != "SUCCEEDED" {
+		return nil, "", errors.Errorf("alibaba image task %s ended with status %q", id, response.Output.TaskStatus)
+	}
+	if len(response.Output.Results) == 0 || response.Output.Results[0].URL == "" {
+		return nil, "", errors.New("alibaba image task returned no results")
+	}
+	actualPrompt := response.Output.Results[0].ActualPrompt
+	ret, err := downloadContext(ctx, response.Output.Results[0].URL)
+	if err != nil {
+		return nil, "", errors.WithMessage(err, "alibaba image download")
+	}
+	return ret, actualPrompt, nil
 }
 
 func OpenaiImg(endpoint, token, prompt, model, size string) ([]byte, error) {
@@ -125,23 +137,27 @@ func OpenaiImg(endpoint, token, prompt, model, size string) ([]byte, error) {
 		Size:   size,
 		N:      1,
 	}
-	jsonPayload, _ := json.Marshal(imgPayload)
-	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
-	resp, err := GlobalHTTPClient.Do(req)
+	jsonPayload, err := json.Marshal(imgPayload)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close()
-	jsonResponse, err := io.ReadAll(resp.Body)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, errors.WithStack(err)
-	}
 	var response OpenaiImgResp
-	if err = json.Unmarshal(jsonResponse, &response); err != nil {
-		return nil, errors.WithStack(err)
+	err = doUpstreamJSON(context.Background(), upstreamRequest{
+		Method:  "POST",
+		URL:     endpoint,
+		Body:    jsonPayload,
+		Headers: bearer(token),
+		Secrets: []string{token},
+	}, &response)
+	if err != nil {
+		return nil, errors.WithMessage(err, "openai image")
+	}
+	if len(response.Data) == 0 || response.Data[0].URL == "" {
+		return nil, errors.New("openai image: upstream returned no images")
 	}
 	ret, err := Downloader(response.Data[0].URL)
-	return ret, errors.WithStack(err)
+	if err != nil {
+		return nil, errors.WithMessage(err, "openai image download")
+	}
+	return ret, nil
 }

@@ -3,8 +3,10 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"urlAPI/internal/auth"
 	"urlAPI/internal/bootstrap"
 	"urlAPI/internal/database"
+	"urlAPI/util"
 )
 
 func admin(args []string) error {
@@ -17,8 +19,12 @@ func admin(args []string) error {
 	defer bootstrap.Release()
 	switch args[0] {
 	case "repwd":
-		resetPassword()
-		log.Println("Password has been reset to 123456, please change it ASAP.")
+		password, err := resetPassword()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("The dashboard password has been reset to: %s\n"+
+			"It is shown only once. All sessions were logged out; log in and change it from the dashboard.\n", password)
 	case "clear":
 		database.ClearTask()
 		log.Println("Task Cleared")
@@ -34,19 +40,34 @@ func admin(args []string) error {
 	return nil
 }
 
-func resetPassword() {
-	settings := database.SettingsStore.Get()
-	settings.Security.DashboardPasswordHash = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
-	if err := database.SaveAppSettings(settings); err != nil {
-		log.Fatal(err)
+// resetPassword replaces the dashboard password with a freshly generated
+// one, logs out every session and returns the new password.
+func resetPassword() (string, error) {
+	password, err := auth.GeneratePassword()
+	if err != nil {
+		return "", err
+	}
+	hash, err := auth.HashPassword(auth.ClientCredential(password))
+	if err != nil {
+		return "", err
+	}
+	err = database.UpdateAppSettings(func(settings *util.AppSettings) error {
+		settings.Security.DashboardPasswordHash = hash
+		return nil
+	})
+	if err != nil {
+		return "", err
 	}
 	database.ClearSession()
+	return password, nil
 }
 
 func clearIPRestrict() {
-	settings := database.SettingsStore.Get()
-	settings.Security.DashboardAllowedIPs = []string{"*"}
-	if err := database.SaveAppSettings(settings); err != nil {
+	err := database.UpdateAppSettings(func(settings *util.AppSettings) error {
+		settings.Security.DashboardAllowedIPs = []string{"*"}
+		return nil
+	})
+	if err != nil {
 		log.Fatal(err)
 	}
 }

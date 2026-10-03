@@ -7,14 +7,19 @@ import (
 )
 
 func (adapter *SQLiteAdapter) CreateSession(session *model.Session) error {
-	SessionMap[session.Token] = *session
-	return errors.WithStack(adapter.db.Create(&session).Error)
-
+	if err := adapter.db.Create(session).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	Sessions.Set(*session)
+	return nil
 }
 
 func (adapter *SQLiteAdapter) UpdateSession(session *model.Session) error {
-	SessionMap[session.Token] = *session
-	return errors.WithStack(adapter.db.Save(session).Error)
+	if err := adapter.db.Save(session).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	Sessions.Set(*session)
+	return nil
 }
 
 func (adapter *SQLiteAdapter) ReadSession(session model.Session) (*model.DBList, error) {
@@ -30,7 +35,9 @@ func (adapter *SQLiteAdapter) ReadSession(session model.Session) (*model.DBList,
 }
 
 func (adapter *SQLiteAdapter) DeleteSession(session *model.Session) error {
-	delete(SessionMap, session.Token)
+	// Evict from the cache even if the row delete fails so a revoked token
+	// can no longer authenticate.
+	Sessions.Delete(session.Token)
 	return errors.WithStack(adapter.db.Delete(session).Error)
 }
 

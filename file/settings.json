@@ -64,7 +64,7 @@
     "default_api": "github"
   },
   "security": {
-    "dashboard_password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "dashboard_password_hash": "",
     "dashboard_allowed_ips": ["*"],
     "allowed_referers": ["localhost"]
   },

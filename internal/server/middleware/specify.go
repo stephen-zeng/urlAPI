@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"time"
 	"urlAPI/internal/database"
 	"urlAPI/util"
@@ -169,15 +168,16 @@ func WebSecurityMiddleware() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "security context missing"})
 			return
 		}
-		parsedURL, _ := url.Parse(general.Target)
 		if !general.Unsafe {
 			settings := database.SettingsStore.Get()
 			webimgallowed := settings.Web.AllowedHosts
-			api := parsedURL.Host
+			api := util.WebTargetHost(general.Target)
 			reason := ""
 			switch {
 			case !settings.Features.WebImgEnabled:
 				reason = "WebImg is not enabled"
+			case api == "":
+				reason = "Invalid URL"
 			case !util.ListChecker(&webimgallowed, &api):
 				reason = fmt.Sprintf("API %s is not enabled", api)
 			case api == "www.ithome.com" && !settings.Features.TextEnabled:

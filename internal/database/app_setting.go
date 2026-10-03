@@ -1,9 +1,12 @@
 package database
 
 import (
-	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"log"
+	"os"
 	"sync"
+	"urlAPI/internal/auth"
 	"urlAPI/internal/model"
 	"urlAPI/util"
 
@@ -33,6 +36,64 @@ func (store *appSettingsStore) Replace(settings util.AppSettings) {
 func initAppSettings() error {
 	settings, err := loadAppSettings()
 	if err != nil {
+		return err
+	}
+	announce := ""
+	switch hash := settings.Security.DashboardPasswordHash; {
+	case hash == "":
+		password, generated, err := initialAdminPassword()
+		if err != nil {
+			return err
+		}
+		if settings.Security.DashboardPasswordHash, err = auth.HashPassword(auth.ClientCredential(password)); err != nil {
+			return err
+		}
+		if generated {
+			announce = password
+		} else {
+			log.Printf("Dashboard password initialised from %s", auth.EnvAdminPassword)
+		}
+	case auth.IsLegacyHash(hash) && auth.IsDefaultCredential(hash):
+		log.Println("WARNING: the dashboard still uses the default password 123456; change it now")
+	}
+	if err := SaveAppSettings(settings); err != nil {
+		return err
+	}
+	if announce != "" {
+		// Printed once, only when a new installation is initialised.
+		fmt.Fprintf(os.Stderr, "\n=== urlAPI initial dashboard password: %s ===\n"+
+			"It will not be shown again. Log in at /dash and change it, or run `urlAPI repwd` to generate a new one.\n\n", announce)
+	}
+	if !secrets.encrypting() && hasStoredSecrets(settings) {
+		log.Printf("WARNING: %s is not set; provider API keys and tokens are stored unencrypted", auth.EnvSecretKey)
+	}
+	return nil
+}
+
+func initialAdminPassword() (password string, generated bool, err error) {
+	if password = os.Getenv(auth.EnvAdminPassword); password != "" {
+		return password, false, nil
+	}
+	password, err = auth.GeneratePassword()
+	return password, true, err
+}
+
+func hasStoredSecrets(settings util.AppSettings) bool {
+	p := settings.Providers
+	return p.OpenAI.APIKey != "" || p.DeepSeek.APIKey != "" || p.Alibaba.APIKey != "" || p.OtherAPI.APIKey != "" ||
+		settings.Web.RepoToken != "" || settings.Web.YouTubeToken != ""
+}
+
+// settingsWriteMu serialises read-modify-write updates of the settings.
+var settingsWriteMu sync.Mutex
+
+// UpdateAppSettings applies update to the current settings and saves the
+// result, serialised against other updates.
+func UpdateAppSettings(update func(*util.AppSettings) error) error {
+	settingsWriteMu.Lock()
+	defer settingsWriteMu.Unlock()
+	settings := SettingsStore.Get()
+	if err := update(&settings); err != nil {
 		return err
 	}
 	return SaveAppSettings(settings)
@@ -86,7 +147,7 @@ func readV2SettingsRows() (util.V2SettingsRows, error) {
 	for _, provider := range providers {
 		rows.Providers = append(rows.Providers, util.V2ProviderRow{
 			Name:         provider.Name,
-			APIKeyEnc:    decodeSecret(provider.APIKeyEnc),
+			APIKeyEnc:    secrets.open(provider.APIKeyEnc, providerSecretContext(provider.Name), decodeLegacyBase64),
 			TextModel:    provider.TextModel,
 			SummaryModel: provider.SummaryModel,
 			ImageModel:   valueString(provider.ImageModel),
@@ -104,6 +165,11 @@ func readV2SettingsRows() (util.V2SettingsRows, error) {
 		if service.Settings != "" {
 			if err := json.Unmarshal([]byte(service.Settings), &values); err != nil {
 				return rows, errors.WithStack(err)
+			}
+		}
+		if service.Service == "web" {
+			for _, key := range []string{webRepoTokenKey, webYouTubeTokenKey} {
+				values[key] = secrets.open(values[key], webSecretContext(key), identity)
 			}
 		}
 		rows.ServiceConfigs = append(rows.ServiceConfigs, util.V2ServiceConfigRow{
@@ -157,9 +223,13 @@ func saveProviders(tx *gorm.DB, rows []util.V2ProviderRow) error {
 		return err
 	}
 	for _, row := range rows {
+		apiKey, err := secrets.seal(row.APIKeyEnc, providerSecretContext(row.Name), encodeLegacyBase64)
+		if err != nil {
+			return err
+		}
 		record := Provider{
 			Name:         row.Name,
-			APIKeyEnc:    encodeSecret(row.APIKeyEnc),
+			APIKeyEnc:    apiKey,
 			TextModel:    row.TextModel,
 			SummaryModel: row.SummaryModel,
 			ImageModel:   optionalString(row.ImageModel),
@@ -179,7 +249,24 @@ func saveServiceConfigs(tx *gorm.DB, rows []util.V2ServiceConfigRow) error {
 		return err
 	}
 	for _, row := range rows {
-		payload, _ := json.Marshal(row.Settings)
+		values := row.Settings
+		if row.Service == "web" {
+			values = make(map[string]string, len(row.Settings))
+			for key, value := range row.Settings {
+				values[key] = value
+			}
+			for _, key := range []string{webRepoTokenKey, webYouTubeTokenKey} {
+				sealed, err := secrets.seal(values[key], webSecretContext(key), identity)
+				if err != nil {
+					return err
+				}
+				values[key] = sealed
+			}
+		}
+		payload, err := json.Marshal(values)
+		if err != nil {
+			return err
+		}
 		if err := tx.Create(&ServiceConfig{
 			Service:          row.Service,
 			CacheMinutes:     row.CacheMinutes,
@@ -240,24 +327,6 @@ func valueString(value *string) string {
 		return ""
 	}
 	return *value
-}
-
-func encodeSecret(value string) string {
-	if value == "" {
-		return ""
-	}
-	return base64.StdEncoding.EncodeToString([]byte(value))
-}
-
-func decodeSecret(value string) string {
-	if value == "" {
-		return ""
-	}
-	decoded, err := base64.StdEncoding.DecodeString(value)
-	if err != nil {
-		return value
-	}
-	return string(decoded)
 }
 
 func CreateAppSetting(setting *model.AppSetting) error {

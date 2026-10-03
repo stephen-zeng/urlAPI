@@ -9,7 +9,7 @@ import (
 	"urlAPI/util"
 )
 
-func generateImage(task *model.Task, host string, provider util.ProviderConfig) (GenerateResult, error) {
+func generateImage(task *model.Task, provider util.ProviderConfig) (GenerateResult, error) {
 	var img []byte
 	prompt := task.Target
 	var err error
@@ -40,7 +40,7 @@ func generateImage(task *model.Task, host string, provider util.ProviderConfig) 
 		task.Return = err.Error()
 		return GenerateResult{}, fmt.Errorf("image write: %w", err)
 	}
-	result := GenerateResult{OriginalPrompt: task.Target, ActualPrompt: prompt, URL: host + "/download?img=" + task.UUID}
+	result := GenerateResult{OriginalPrompt: task.Target, ActualPrompt: prompt, URL: downloadURL(task.UUID)}
 	if err := setTaskResult(task, result); err != nil {
 		return GenerateResult{}, err
 	}

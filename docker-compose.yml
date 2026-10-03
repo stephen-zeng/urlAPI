@@ -8,6 +8,10 @@ services:
       - "8080:2233"
     volumes:
       - urlapi-data:/app/assets
+    environment:
+      # 32-byte master key for stored API keys, e.g. `openssl rand -base64 32`.
+      URLAPI_SECRET_KEY: ${URLAPI_SECRET_KEY:-}
+      URLAPI_PUBLIC_URL: ${URLAPI_PUBLIC_URL:-}
     restart: unless-stopped
 
 volumes:
